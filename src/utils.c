@@ -44,11 +44,11 @@ double sgn(double z) {
   return(s);
 }
 
-// Criterion for convergence: All coefficients must pass the following |(b_new - b_old) / b_old| < eps
+// Criterion for convergence: All coefficients must pass the following |(b_new - b_old)| < eps
 int checkConvergence(double *beta, double *beta_old, double eps, int l, int p) {
     int converged = 1;
     for (int j = 0; j < p; j++) {
-        if (fabs((beta[l * p + j] - beta_old[j]) / beta_old[j]) > eps) {
+        if (fabs(beta[l * p + j] - beta_old[j]) > eps) {
             converged = 0;
             break;
         }

@@ -7,7 +7,7 @@
 sparseCrrp(outcomes, covariates, failcode = 1, cencode = 0,
   eps = 1e-06, max.iter = 1000, getBreslowJumps = TRUE,
   penalty = c("lasso", "ridge"), lambda = NULL, quiet = FALSE,
-  penalty.factor = NULL)
+  penalty.factor = NULL, gamma = switch(penalty, scad = 3.7, 2.7))
 }
 \arguments{
 \item{failcode}{Integer: code of \code{fstatus} that event type of interest (default is 1)}

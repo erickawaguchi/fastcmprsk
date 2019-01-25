@@ -6,7 +6,7 @@
 \usage{
 sparseCrr(outcomes, covariates, failcode = 1, cencode = 0,
   eps = 1e-06, max.iter = 1000, getBreslowJumps = TRUE,
-  startingCoefficients = NULL, getBootstrapVariance = TRUE,
+  startingCoefficients = NULL, getVariance = TRUE,
   varianceControl = varianceControl(), quiet = FALSE)
 }
 \arguments{
@@ -20,13 +20,13 @@ sparseCrr(outcomes, covariates, failcode = 1, cencode = 0,
 
 \item{getBreslowJumps}{Logical: Output jumps in Breslow estimator for the cumulative hazard}
 
+\item{getVariance}{Logical: Get standard error estimates for parameter estimates via bootstrap or quadratic approximation.}
+
 \item{ftime}{A vector of event/censoring times.}
 
 \item{fstatus}{A vector with unique code for each event type and a separate code for censored observations.}
 
 \item{X}{A matrix of fixed covariates (nobs x ncovs)}
-
-\item{getVariance}{Logical: Get standard error estimates for parameter estimates via bootstrap or quadratic approximation.}
 }
 \value{
 Returns a list of class \code{pshBAR}.

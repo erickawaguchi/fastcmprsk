@@ -5,8 +5,10 @@
 \title{Penalized Fine-Gray Model Estimation}
 \usage{
 fastCrrp(ftime, fstatus, X, failcode = 1, cencode = 0, eps = 1e-06,
-  max.iter = 1000, getBreslowJumps = TRUE, penalty = c("lasso",
-  "ridge"), lambda = NULL, penalty.factor = rep(1, ncol(X)))
+  max.iter = 1000, getBreslowJumps = TRUE, standardize = TRUE,
+  penalty = c("lasso", "ridge", "mcp", "scad"), lambda = NULL,
+  penalty.factor = rep(1, ncol(X)), gamma = switch(penalty, scad = 3.7,
+  2.7))
 }
 \arguments{
 \item{ftime}{A vector of event/censoring times.}

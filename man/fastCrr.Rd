@@ -7,7 +7,7 @@
 fastCrr(ftime, fstatus, X, failcode = 1, cencode = 0, eps = 1e-06,
   max.iter = 1000, getBreslowJumps = TRUE,
   startingCoefficients = NULL, getVariance = TRUE,
-  varianceControl = varianceControl())
+  varianceControl = varianceControl(...))
 }
 \arguments{
 \item{ftime}{A vector of event/censoring times.}

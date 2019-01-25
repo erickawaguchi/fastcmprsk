@@ -41,6 +41,7 @@
 fastCrrp <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
                     eps = 1E-6,
                     max.iter = 1000, getBreslowJumps = TRUE,
+                    standardize = TRUE,
                     penalty = c("lasso", "ridge", "mcp", "scad"),
                     lambda = NULL,
                     penalty.factor = rep(1, ncol(X)),
@@ -75,12 +76,17 @@ fastCrrp <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
   uuu <- u$y
 
   # Standardize design matrix here
+  if(standardize) {
   std    <- .Call("standardize", X, PACKAGE = "fastcmprsk")
   XX     <- std[[1]]
   center <- std[[2]]
   scale  <- std[[3]]
   nz <- which(scale > 1e-6)
   if (length(nz) != ncol(XX)) XX <- XX[ , nz, drop = FALSE]
+  } else {
+    XX <- X
+    scale <- 1
+  }
 
 
   # Order lambda in decreasing order increasing order. [Dense -> Sparse Model]

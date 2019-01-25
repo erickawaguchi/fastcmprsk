@@ -24,18 +24,18 @@ test_that("Compare crrp with fastCrrp ", {
   #LASSO
   fit.crrp    <- crrp(ftime, fstatus, cov, penalty = "LASSO", lambda = 0.05)
   fit.fast   <- fastCrrp(ftime, fstatus, cov, penalty = "lasso", lambda = 200 * 0.05)
-  expect_equal(as.vector(fit.crrp$beta), as.vector(fit.fast$coef), tolerance = 1E-6)
+  expect_equal(as.vector(fit.crrp$beta), as.vector(fit.fast$coef), tolerance = 1E-5)
 
   #SCAD
   fit.crrp    <- crrp(ftime, fstatus, cov, penalty = "SCAD", lambda = 0.05)
   fit.fast   <- fastCrrp(ftime, fstatus, cov, penalty = "scad", lambda = 200 * 0.05)
-  expect_equal(as.vector(fit.crrp$beta), as.vector(fit.fast$coef), tolerance = 1E-6)
+  expect_equal(as.vector(fit.crrp$beta), as.vector(fit.fast$coef), tolerance = 1E-5)
 
 
   #MCP
   fit.crrp    <- crrp(ftime, fstatus, cov, penalty = "MCP", lambda = 0.05)
   fit.fast   <- fastCrrp(ftime, fstatus, cov, penalty = "mcp", lambda = 200 * 0.05)
-  expect_equal(as.vector(fit.crrp$beta), as.vector(fit.fast$coef), tolerance = 1E-6)
+  expect_equal(as.vector(fit.crrp$beta), as.vector(fit.fast$coef), tolerance = 1E-5)
 
 
 })
@@ -55,8 +55,8 @@ test_that("Compare crr with sparseCrr and fastCrr", {
   fit.sparse <- sparseCrr(dat$outcomes, dat$covariate, getVariance = FALSE)
 
   expect_equal(as.vector(fit.crr$coef), as.vector(fit.fast$coef),
-               tolerance = 1E-6)
+               tolerance = 1E-5)
 
   expect_equal(as.vector(fit.sparse$coef), as.vector(fit.fast$coef),
-               tolerance = 1E-6)
+               tolerance = 1E-5)
 })
