@@ -42,7 +42,7 @@
 #'
 #' Fine J. and Gray R. (1999) A proportional hazards model for the subdistribution of a competing risk.  \emph{JASA} 94:496-509.
 
-varianceControl <- function(B = 100L, parallel = TRUE, ncores = 1, seed = 1991L,
+varianceControl <- function(B = 100L, parallel = FALSE, ncores = 1, seed = 1991L,
                             method = "bootstrap")
 {
   if (ncores < 0L || ncores > detectCores() || is.null(ncores)) {

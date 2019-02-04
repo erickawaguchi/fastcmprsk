@@ -17,6 +17,7 @@
 
 //////////////////////////////////////////////////////////////////////////////////////
 //Standardize design matrix
+// Returns standardized design matrix, vector of column means, vector of column sd.
 SEXP standardize(SEXP X_) {
     // Declarations
     int n = nrows(X_);

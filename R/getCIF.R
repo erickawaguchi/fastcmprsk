@@ -26,7 +26,7 @@
 #' Fixing \code{lambda} to 0 and specifying \code{xi} will result in a ridge regression solution.
 #' @return Returns a list of class \code{pshBAR}.
 #'
-#' @import survival
+#' @import survival dynpred
 #' @export
 #' @useDynLib fastcmprsk
 #' @examples
@@ -40,7 +40,11 @@
 #' @references
 #' Fine J. and Gray R. (1999) A proportional hazards model for the subdistribution of a competing risk.  \emph{JASA} 94:496-509.
 
-getCIF <- function(fit, cov, getBootstrapVariance = TRUE){
+getCIF <- function(fit, cov, getBootstrapVariance = TRUE, B = 100,
+                   type = "none",
+                   alpha = 0.05, seednum = 1991, eps = 1E-6,
+                   tL = NULL, tU = NULL,
+                   max.iter = 1000){
 
   ## Error checking
   if(class(fit) != "fcrr") {
@@ -48,20 +52,96 @@ getCIF <- function(fit, cov, getBootstrapVariance = TRUE){
   }
 
   if(is.null(fit$breslowJump)) {
+    stop("Breslow jumps were not calculated. Please re-run model with 'getBreslowJumps = TRUE'")
+  }
+
+  if(is.null(fit$df)) {
     stop("Bresow jumps were not calculated. Please re-run model with 'getBreslowJumps = TRUE'")
   }
 
-  cov <- as.matrix(cov)
-  if (length(fit$coef) == dim(cov)[2]) {
-    cHaz <- matrix(0, nrow = length(fit$uftime), ncol = nrow(cov))
-    for (j in 1:nrow(cov))
-      cHaz[, j] <- cumsum(exp(sum(cov[j, ] * fit$coef)) * fit$breslowJump[, 2])
+  if(!(type %in% c("none", "bands", "point"))) {
+    type = "none"
+    warning("type is incorrectly specified. Valid options are 'bands', 'point', 'none'.
+            Set to 'none'")
+  }
+
+  if(alpha <= 0 | alpha >= 1) {
+    alpha = 0.05
+    warning("alpha is incorrectly specified. Set to 0.05")
+  }
+
+  if(B < 0) {
+    B = 100
+    warning("B is incorrectly specified. Set to 100")
+  }
+
+  if(is.null(tL)) tL <- min(fit$uftime)
+  if(is.null(tU)) tU <- max(fit$uftime)
+
+  if(tL <= 0 | tL >= max(fit$uftime)) {
+    tL <- min(fit$uftime)
+    warning("tL is incorrectly specified (can not be nonpositive or larger than largest observed event time.
+            Set to smallest observed event time")
+  }
+
+  if(tU <= 0 | tU <= min(fit$uftime)) {
+    tL <- min(fit$uftime)
+    warning("tU is incorrectly specified (can not be nonpositive or smaller than smallest observed event time.
+            Set to largest observed event time")
+  }
+
+  min.idx = min(which(fit$uftime >= tL))
+  max.idx = max(which(fit$uftime <= tU))
+
+  if (length(fit$coef) == length(cov)) {
+    CIF.hat <- cumsum(exp(sum(cov * fit$coef)) * fit$breslowJump[, 2]) #This is cumulative hazard
+    CIF.hat <- 1 - exp(-CIF.hat)
   } else {
     stop("Parameter dimension of 'cov' does not match dimension of '$coef' from object.")
   }
 
+  #Get SD via bootstrap
+  set.seed(seednum)
+  if(getBootstrapVariance) {
+    CIF.boot <- matrix(NA, nrow = B, ncol = length(fit$uftime))
+    colnames(CIF.boot) <- round(fit$uftime, 3)
+    ftime <- fit$df$ftime
+    fstatus <- fit$df$fstatus
+    n <- length(ftime)
+    X <- as.matrix(fit$df[, -(1:2)])
+    for(i in 1:B) {
+      bsamp  <- sample(n, n, replace = TRUE) #Bootstrap sample index
+      fit.bs <- fastCrr(ftime[bsamp], fstatus[bsamp], X[bsamp, ], getVariance = FALSE)
+      CIF.bs <- 1 - exp(-cumsum(exp(sum(cov * fit.bs$coef)) * fit.bs$breslowJump[, 2]))
+      CIF.boot[i, ] <- evalstep(fit.bs$breslowJump$time,
+                               stepf = CIF.bs,
+                               subst = 1E-16,
+                               newtime = fit$uftime)
+    }
+    rm(CIF.bs)
+  } #End bootstrap variance
 
-  res <- cbind(fit$uftime, 1 - exp(-cHaz))
-  colnames(res) <- c("ftime", paste0("pred", 1:nrow(cov)))
+  #Variance Stabalization: f(x) = log(-log(x))
+  CIF.hat  <- log(-log(CIF.hat))
+  CIF.boot <- log(-log(CIF.boot))
+  CIF.sd <- apply(CIF.boot, 2, sd)
+  if(type == "bands") {
+    #If interval type is confidence band.
+    #Find Pr(sup_[tL, tU] |Fhat - F| / sd(F) <= C) = 1 - alpha / 2
+    sup    <- apply(CIF.boot, 1, function(x) max((abs(x - CIF.hat) / CIF.sd)[min.idx:max.idx]))
+    z.stat <- quantile(sup, 1 - alpha / 2) #Find bootstrap quantile of sup|Fhat - F|
+    llim   <- CIF.hat + z.stat * CIF.sd
+    ulim   <- CIF.hat - z.stat * CIF.sd
+    res  <- data.frame(ftime = fit$uftime, CIF = exp(-exp(CIF.hat)), lower = exp(-exp(llim)), upper = exp(-exp(ulim)))
+  } else if (type == "point") {
+    #If interval type if pointwise
+    llim   <- CIF.hat + qnorm(1 - alpha / 2) * CIF.sd
+    ulim   <- CIF.hat - qnorm(1 - alpha / 2) * CIF.sd
+    res  <- data.frame(ftime = fit$uftime, CIF = exp(-exp(CIF.hat)), lower = exp(-exp(llim)), upper = exp(-exp(ulim)))
+  } else {
+    res  <- data.frame(ftime = fit$uftime, CIF = CIF.hat)
+  }
+  #Subset corresponding to tL and tU
+  res <- subset(res, res$ftime >= tL & res$ftime <= tU)
   return(res)
 }

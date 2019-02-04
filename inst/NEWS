@@ -1,5 +1,5 @@
 Package: fastcmprsk
-Information: Fine-Gray regression in linear time
+Information: A scalable and fast approach for Fine-Gray estimation.
 Version: 1.0.0
 Author: Eric S. Kawaguchi
 Contact: erickawaguchi [at] ucla.edu

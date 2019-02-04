@@ -5,9 +5,9 @@
 \title{Fine-Gray Model Estimation}
 \usage{
 fastCrr(ftime, fstatus, X, failcode = 1, cencode = 0, eps = 1e-06,
-  max.iter = 1000, getBreslowJumps = TRUE,
+  max.iter = 1000, getBreslowJumps = TRUE, standardize = TRUE,
   startingCoefficients = NULL, getVariance = TRUE,
-  varianceControl = varianceControl(...))
+  varianceControl = varianceControl(...), returnDataFrame = FALSE)
 }
 \arguments{
 \item{ftime}{A vector of event/censoring times.}
@@ -27,6 +27,8 @@ fastCrr(ftime, fstatus, X, failcode = 1, cencode = 0, eps = 1e-06,
 \item{getBreslowJumps}{Logical: Output jumps in Breslow estimator for the cumulative hazard}
 
 \item{getVariance}{Logical: Get standard error estimates for parameter estimates via bootstrap or quadratic approximation.}
+
+\item{returnDataFrame}{Logical: Return data frame.}
 }
 \value{
 Returns a list of class \code{pshBAR}.

@@ -13,6 +13,7 @@
 #' @param max.iter Numeric: maximum iterations to achieve convergence (default is 1000)
 #' @param getBreslowJumps Logical: Output jumps in Breslow estimator for the cumulative hazard
 #' @param getVariance Logical: Get standard error estimates for parameter estimates via bootstrap or quadratic approximation.
+#' @param returnDataFrame Logical: Return data frame.
 #'
 #' @details The \code{pshBAR} function penalizes the log-partial likelihood of the proportional subdistribution hazards model
 #' from Fine and Gray (1999) with the Broken Adaptive Ridge (BAR) penalty. A cyclic coordinate descent algorithm is used for implementation.
@@ -42,9 +43,11 @@
 fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
                     eps = 1E-6,
                     max.iter = 1000, getBreslowJumps = TRUE,
+                    standardize = TRUE,
                     startingCoefficients = NULL,
                     getVariance = TRUE,
-                    varianceControl = varianceControl(...)){
+                    varianceControl = varianceControl(...),
+                    returnDataFrame = FALSE){
 
   ## Error checking
   if(max.iter < 1) stop("max.iter must be positive integer.")
@@ -53,32 +56,11 @@ fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
   # Sort time
   n <- length(ftime)
   p <- ncol(X)
-  d <- data.frame(ftime = ftime, fstatus = fstatus)
-  if (!missing(X)) d$X <- as.matrix(X)
-  d        <- d[order(d$ftime, -d$fstatus, decreasing = TRUE), ]
-  ftime    <- d$ftime
-  cenind   <- ifelse(d$fstatus == cencode, 1, 0)
-  fstatus  <- ifelse(d$fstatus == failcode, 1, 2 * (1 - cenind))
-  X <- d$X
-  u <- do.call('survfit', list(formula = Surv(ftime, cenind) ~ 1,
-                               data = data.frame(ftime, cenind)))
+  dat <- setupData(ftime, fstatus, X, cencode, failcode, standardize)
 
-  # uuu is weight function (IPCW)
-  u <- approx(c(0, u$time, max(u$time) * (1 + 10 * .Machine$double.eps)), c(1, u$surv, 0),
-              xout = ftime * (1 - 100 * .Machine$double.eps), method = 'constant',
-              f = 0, rule = 2)
-  uuu <- u$y
-
-  # Standardize design matrix here
-  std    <- .Call("standardize", X, PACKAGE = "fastcmprsk")
-  XX     <- std[[1]]
-  center <- std[[2]]
-  scale  <- std[[3]]
-  nz <- which(scale > 1e-6)
-  if (length(nz) != ncol(XX)) XX <- XX[ , nz, drop = FALSE]
-
+  scale = dat$scale
   ## Fit the PSH Ridge Model here w/ tuning parameter xi
-  denseFit   <- .Call("ccd_dense", XX, as.numeric(ftime), as.integer(fstatus), uuu,
+  denseFit   <- .Call("ccd_dense", dat$X, as.numeric(dat$ftime), as.integer(dat$fstatus), dat$wt,
                       eps, as.integer(max.iter), PACKAGE = "fastcmprsk")
 
   if (denseFit[[3]] == max.iter) {
@@ -87,10 +69,11 @@ fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
 
   #Calculate Breslow Baseline
   if(getBreslowJumps) {
-    bjump = .C("getBreslowJumps", as.double(ftime), as.integer(fstatus), as.double(X),
-               as.integer(p), as.integer(n), as.double(uuu), as.double(denseFit[[1]] / scale), double(sum(fstatus == 1)),
+    bjump = .C("getBreslowJumps", as.double(dat$ftime), as.integer(dat$fstatus), as.double(dat$X),
+               as.integer(p), as.integer(n), as.double(dat$wt), as.double(denseFit[[1]] / scale), double(sum(dat$fstatus == 1)),
                PACKAGE = "fastcmprsk")
-    getBreslowJumps <- data.frame(time = unique(rev(ftime[fstatus == 1])), jump = as.vector(rev(unique(bjump[[8]])) * table(ftime[fstatus == 1], fstatus[fstatus == 1])))
+    getBreslowJumps <- data.frame(time = unique(rev(dat$ftime[dat$fstatus == 1])),
+                                  jump = as.vector(rev(unique(bjump[[8]])) * table(dat$ftime[dat$fstatus == 1], dat$fstatus[dat$fstatus == 1])))
   } #End Breslow jump
 
   #Calculate variance (if turned on)
@@ -106,7 +89,7 @@ fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
     method   <- controls$method
 
     if(method == "approx") {
-      se = sqrt(diag(solve(t(XX) %*% diag(denseFit[[6]]) %*% XX))) / scale
+      se = sqrt(diag(solve(t(dat$X) %*% diag(denseFit[[6]]) %*% dat$X))) / dat$scale
     } else if (method == "bootstrap") {
       #Run if parallel
       if(parallel) {
@@ -115,29 +98,35 @@ fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
         registerDoParallel(cl)
         bsamp_beta <- foreach(i = 1:B, .combine = rbind) %do% {
           bsamp  <- sample(n, n, replace = TRUE) #Bootstrap sample index
-          std.bs <- .Call("standardize", X[bsamp, ], PACKAGE = "fastcmprsk")
-          fit.bs <- .Call("ccd_dense", std.bs[[1]], as.numeric(ftime[bsamp]),
-                          as.integer(fstatus[bsamp]), uuu[bsamp],
-                          eps, as.integer(max.iter), PACKAGE = "fastcmprsk")
-          fit.bs[[1]] / std.bs[[3]]
+          dat <- setupData(ftime[bsamp], fstatus[bsamp], X[bsamp, ], cencode, failcode, standardize)
+          fit.bs   <- .Call("ccd_dense", dat$X, as.numeric(dat$ftime), as.integer(dat$fstatus), dat$wt,
+                            eps, as.integer(max.iter), PACKAGE = "fastcmprsk")
+          fit.bs[[1]] / dat$scale
         }
         stopCluster(cl)
       } else {
         set.seed(seed)
         bsamp_beta <- matrix(NA, nrow = B, ncol = p)
         for(i in 1:B) {
+          cat(paste(i))
           bsamp  <- sample(n, n, replace = TRUE) #Bootstrap sample index
-          std.bs <- .Call("standardize", X[bsamp, ], PACKAGE = "fastcmprsk")
-          fit.bs <- .Call("ccd_dense", std.bs[[1]], as.numeric(ftime[bsamp]),
-                          as.integer(fstatus[bsamp]), uuu[bsamp],
-                          eps, as.integer(max.iter), PACKAGE = "fastcmprsk")
-          bsamp_beta[i, ] <- fit.bs[[1]] / std.bs[[3]]
+          dat    <- setupData(ftime[bsamp], fstatus[bsamp], X[bsamp, ], cencode, failcode, standardize)
+          fit.bs <- .Call("ccd_dense", dat$X, as.numeric(dat$ftime), as.integer(dat$fstatus), dat$wt,
+                              eps, as.integer(max.iter), PACKAGE = "fastcmprsk")
+          bsamp_beta[i, ] <- fit.bs[[1]] / dat$scale
         }
       }
       #Calculate standard error
       se = apply(bsamp_beta, 2, sd)
-    }
-  }#End variance
+    } #End bootstrap option
+  } #End variance
+
+
+  if(returnDataFrame) {
+    df <- data.frame(ftime = ftime, fstatus = fstatus, X)
+  } else {
+    df <- NULL
+  }
 
   #Results to store:
   val <- structure(list(coef = denseFit[[1]] / scale,
@@ -145,8 +134,9 @@ fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
                         logLik = denseFit[[2]] / -2,
                         iter = denseFit[[3]],
                         breslowJump = getBreslowJumps,
-                        uftime = unique(rev(ftime[fstatus == 1])),
+                        uftime = unique(rev(dat$ftime[dat$fstatus == 1])),
                         method = method,
+                        df = df,
                         call = sys.call()),
                    class = "fcrr")
 

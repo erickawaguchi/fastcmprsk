@@ -4,7 +4,7 @@
 \alias{varianceControl}
 \title{Control for Variance Calculation}
 \usage{
-varianceControl(B = 100L, parallel = TRUE, ncores = 1,
+varianceControl(B = 100L, parallel = FALSE, ncores = 1,
   seed = 1991L, method = "bootstrap")
 }
 \arguments{

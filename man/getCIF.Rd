@@ -4,9 +4,15 @@
 \alias{getCIF}
 \title{Cumulative Incidence Function Estimation}
 \usage{
-getCIF(fit, cov, getBootstrapVariance = TRUE)
+getCIF(fit, cov, getBootstrapVariance = TRUE, B = 100, type = "none",
+  alpha = 0.05, seednum = 1991, eps = 1e-06, tL = NULL,
+  tU = NULL, max.iter = 1000)
 }
 \arguments{
+\item{eps}{Numeric: algorithm stops when the relative change in any coefficient is less than \code{eps} (default is \code{1E-6})}
+
+\item{max.iter}{Numeric: maximum iterations to achieve convergence (default is 1000)}
+
 \item{ftime}{A vector of event/censoring times.}
 
 \item{fstatus}{A vector with unique code for each event type and a separate code for censored observations.}
@@ -23,8 +29,6 @@ getCIF(fit, cov, getBootstrapVariance = TRUE)
 
 \item{delta}{Numeric: change from 2 in ridge norm dimension}
 
-\item{eps}{Numeric: algorithm stops when the relative change in any coefficient is less than \code{eps} (default is \code{1E-6})}
-
 \item{tol}{Numeric: absolute threshold at which to force coefficients to 0 (default is \code{1E-6})}
 
 \item{lam.min}{Numeric: smallest value of lambda if performing grid search}
@@ -32,8 +36,6 @@ getCIF(fit, cov, getBootstrapVariance = TRUE)
 \item{nlambda}{Numeric: number of \code{lambda} values if performing grid search  (default is 25)}
 
 \item{log}{Logical: Whether or not the grid search is log10 spaced (default is \code{TRUE})}
-
-\item{max.iter}{Numeric: maximum iterations to achieve convergence (default is 1000)}
 }
 \value{
 Returns a list of class \code{pshBAR}.
