@@ -89,7 +89,7 @@ fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
     method   <- controls$method
 
     if(method == "approx") {
-      se = sqrt(diag(solve(t(dat$X) %*% diag(denseFit[[6]]) %*% dat$X))) / dat$scale
+      se = sqrt(diag(solve(t(apply(dat$X, 2, denseFit[[6]])) %*% dat$X))) / dat$scale
     } else if (method == "bootstrap") {
       #Run if parallel
       if(parallel) {
@@ -108,12 +108,11 @@ fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
         set.seed(seed)
         bsamp_beta <- matrix(NA, nrow = B, ncol = p)
         for(i in 1:B) {
-          cat(paste(i))
           bsamp  <- sample(n, n, replace = TRUE) #Bootstrap sample index
-          dat    <- setupData(ftime[bsamp], fstatus[bsamp], X[bsamp, ], cencode, failcode, standardize)
-          fit.bs <- .Call("ccd_dense", dat$X, as.numeric(dat$ftime), as.integer(dat$fstatus), dat$wt,
+          dat.bs    <- setupData(ftime[bsamp], fstatus[bsamp], X[bsamp, ], cencode, failcode, standardize)
+          fit.bs <- .Call("ccd_dense", dat.bs$X, as.numeric(dat.bs$ftime), as.integer(dat.bs$fstatus), dat.bs$wt,
                               eps, as.integer(max.iter), PACKAGE = "fastcmprsk")
-          bsamp_beta[i, ] <- fit.bs[[1]] / dat$scale
+          bsamp_beta[i, ] <- fit.bs[[1]] / dat.bs$scale
         }
       }
       #Calculate standard error
