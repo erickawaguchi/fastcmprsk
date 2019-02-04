@@ -89,7 +89,7 @@ fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
     method   <- controls$method
 
     if(method == "approx") {
-      se = sqrt(diag(solve(t(apply(dat$X, 2, denseFit[[6]])) %*% dat$X))) / dat$scale
+      se = sqrt(diag(solve(t(apply(dat$X, 2, function(x) x *  denseFit[[6]])) %*% dat$X))) / dat$scale
     } else if (method == "bootstrap") {
       #Run if parallel
       if(parallel) {

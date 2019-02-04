@@ -45,9 +45,12 @@
 varianceControl <- function(B = 100L, parallel = FALSE, ncores = 1, seed = 1991L,
                             method = "bootstrap")
 {
-  if (ncores < 0L || ncores > detectCores() || is.null(ncores)) {
-    warning("The value of 'ncores' was either 0, larger than the number of cores available of NULL. Set to 1")
-    ncores <- 1L
+
+  if(parallel) {
+    if (ncores < 0L || ncores > detectCores() || is.null(ncores)) {
+      warning("The value of 'ncores' was either 0, larger than the number of cores available of NULL. Set to 1")
+      ncores <- 1L
+    }
   }
 
   if (B <= 0) {
