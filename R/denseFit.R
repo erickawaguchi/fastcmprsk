@@ -77,7 +77,7 @@ fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
   } #End Breslow jump
 
   #Calculate variance (if turned on)
-  method = se = NA #Set se & method to NA, will update if getVariance
+  method = var = NA #Set se & method to NA, will update if getVariance
   if(getVariance) {
     controls <- varianceControl
     if (!missing(controls))
@@ -89,7 +89,7 @@ fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
     method   <- controls$method
 
     if(method == "approx") {
-      se = sqrt(diag(solve(t(apply(dat$X, 2, function(x) x *  denseFit[[6]])) %*% dat$X))) / dat$scale
+      var = sweep(solve(t(apply(dat$X, 2, function(x) x *  denseFit[[6]])) %*% dat$X), 2, dat$scale^2, FUN = "/")
     } else if (method == "bootstrap") {
       #Run if parallel
       if(parallel) {
@@ -116,7 +116,7 @@ fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
         }
       }
       #Calculate standard error
-      se = apply(bsamp_beta, 2, sd)
+      var = cov(bsamp_beta)
     } #End bootstrap option
   } #End variance
 
@@ -129,7 +129,7 @@ fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
 
   #Results to store:
   val <- structure(list(coef = denseFit[[1]] / scale,
-                        se = se,
+                        var = var,
                         logLik = denseFit[[2]] / -2,
                         iter = denseFit[[3]],
                         breslowJump = getBreslowJumps,

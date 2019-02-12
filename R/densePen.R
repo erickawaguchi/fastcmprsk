@@ -102,7 +102,7 @@ fastCrrp <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
   # Calculate Breslow Baseline
   if(getBreslowJumps) {
     jump = matrix(NA, ncol = length(lambda) + 1, nrow = length(unique(ftime[fstatus == 1])))
-    jump[, 1] = time = unique(rev(ftime[fstatus == 1]))
+    jump[, 1] = unique(rev(ftime[fstatus == 1]))
     for(l in 1:length(lambda)) {
     bjump = .C("getBreslowJumps", as.double(ftime), as.integer(fstatus), as.double(X),
                as.integer(p), as.integer(n), as.double(uuu), as.double(bhat[, l]), double(sum(fstatus == 1)),
