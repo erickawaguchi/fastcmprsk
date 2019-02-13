@@ -16,30 +16,31 @@
 // Create penalty function for ridge and lasso regressions.
 
 
-double getRidgeDelta(double grad, double hess, double a, double lam) {
-    return (-(grad + a * lam) / (hess + lam));
+double getRidge(double grad, double hess, double a, double lam) {
+    double z = hess * a - grad;
+    return(z / (hess + lam));
 }
 
-double getLassoDelta(double grad, double hess, double a, double lam) {
+double getLasso(double grad, double hess, double a, double lam) {
   double z = hess * a - grad;
   int s = sgn(z);
-  if (fabs(z) <= lam) return(-a);
-  else return(s * (fabs(z) - lam) / (hess) - a);
+  if (fabs(z) <= lam) return(0);
+  else return(s * (fabs(z) - lam) / (hess));
 }
 
-double getMcpDelta(double grad, double hess, double a, double lam, double gamma) {
+double getMcp(double grad, double hess, double a, double lam, double gamma) {
   double z = hess * a - grad;
   int s = sgn(z);
-  if (fabs(z) <= lam) return(-a);
-  else if (fabs(z) <= gamma * lam) return(s * (fabs(z) - lam)/(hess * (1 - 1 / gamma)) - a);
-  else return(z / hess - a);
+  if (fabs(z) <= lam) return(0);
+  else if (fabs(z) <= gamma * lam) return(s * (fabs(z) - lam)/(hess * (1 - 1 / gamma)));
+  else return(z / hess);
 }
 
-double getScadDelta(double grad, double hess, double a, double lam, double gamma) {
+double getScad(double grad, double hess, double a, double lam, double gamma) {
   double z = hess * a - grad;
   int s = sgn(z);
-  if (fabs(z) <= lam) return(-a);
-  else if (fabs(z) <= 2 * lam) return(s * (fabs(z) - lam) / hess - a);
-  else if (fabs(z) <= gamma * lam) return(s * (fabs(z) - gamma * lam / (gamma - 1)) / (hess * (1 - 1 / (gamma - 1))) - a);
-  else return(z / hess - a);
+  if (fabs(z) <= lam) return(0);
+  else if (fabs(z) <= 2 * lam) return(s * (fabs(z) - lam) / hess);
+  else if (fabs(z) <= gamma * lam) return(s * (fabs(z) - gamma * lam / (gamma - 1)) / (hess * (1 - 1 / (gamma - 1))));
+  else return(z / hess);
 }
