@@ -96,7 +96,7 @@ SEXP ccd_dense_pen(SEXP x_, SEXP t2_, SEXP ici_, SEXP wt_,
     if (l != 0) {
       for (int j = 0; j < p; j++) {
         a[j] = b[(l - 1) * p + j]; //warm start
-        diffBeta[j] = 1; //reset diffBeta
+        //diffBeta[j] = 1; //reset diffBeta
       }
     }
 
@@ -214,8 +214,9 @@ SEXP ccd_dense_pen(SEXP x_, SEXP t2_, SEXP ici_, SEXP wt_,
 
       // calculate xwr and xwx & update beta_j
       for (j = 0; j < p; j++) {
-        grad = -getWeightedCrossProduct(x, w, r, n, j); // jth component of gradient [l'(b)]
-        hess = getWeightedSumSquares(x, w, n, j); // jth component of hessian [l''(b)]
+        //Scale by n
+        grad = -getWeightedCrossProduct(x, w, r, n, j) / n; // jth component of gradient [l'(b)]
+        hess = getWeightedSumSquares(x, w, n, j) / n; // jth component of hessian [l''(b)]
 
         l1 = lam[l] * m[j];
         // Calculate penalized estimate

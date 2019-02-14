@@ -90,7 +90,7 @@ fastCrrp <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
 
 
   # Order lambda in decreasing order increasing order. [Dense -> Sparse Model]
-  lambda <- sort(lambda)
+  lambda <- sort(lambda, decreasing = TRUE)
 
   # Fit the PSH penalized model
   denseFit   <- .Call("ccd_dense_pen", XX, as.numeric(ftime), as.integer(fstatus), uuu,
@@ -120,6 +120,7 @@ fastCrrp <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
   val <- structure(list(coef = bhat,
                         logLik = denseFit[[2]][-1] / -2,
                         logLik.null = denseFit[[2]][1] / -2,
+                        lambda.path = lambda,
                         iter = denseFit[[3]],
                         converged = denseFit[[8]],
                         breslowJump = getBreslowJumps,
