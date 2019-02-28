@@ -31,12 +31,14 @@ setupData <- function(ftime, fstatus, X, cencode, failcode, standardize) {
   } else {
     XX <- X
     scale <- 1
+    center <- 0
   }
   return(list(
     ftime = ftime,
     fstatus = fstatus,
     X = XX,
     scale = scale,
+    center = center,
     wt = uuu
   ))
 }

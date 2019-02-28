@@ -51,4 +51,14 @@ test_that("Compare crrp with fastCrrp ", {
 
 })
 
+test_that("Compare crr with fastCrr (breslow jumps", {
+  set.seed(4291)
+  ftime <- rexp(200)
+  fstatus <- sample(0:2,200,replace=TRUE)
+  cov <- matrix(runif(600),nrow=200)
+
+  fit.crr    <- crr(ftime, fstatus, cov, variance = FALSE)
+  fit.fast   <- fastCrr(ftime, fstatus, cov, getVariance = FALSE)
+  expect_equal(as.vector(fit.crr$bfitj), as.vector(fit.fast$breslowJump[, 2]), tolerance = 1E-4)
+})
 

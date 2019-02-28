@@ -69,8 +69,10 @@ fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
 
   #Calculate Breslow Baseline
   if(getBreslowJumps) {
-    bjump = .C("getBreslowJumps", as.double(dat$ftime), as.integer(dat$fstatus), as.double(dat$X),
-               as.integer(p), as.integer(n), as.double(dat$wt), as.double(denseFit[[1]] / scale), double(sum(dat$fstatus == 1)),
+    bjump = .C("getBreslowJumps", as.double(dat$ftime), as.integer(dat$fstatus),
+               as.double(sweep(sweep(dat$X, 2, dat$scale, "*"), 2, dat$center, `+`)),
+               as.integer(p), as.integer(n), as.double(dat$wt), as.double(denseFit[[1]] / scale),
+               double(sum(dat$fstatus == 1)),
                PACKAGE = "fastcmprsk")
     getBreslowJumps <- data.frame(time = unique(rev(dat$ftime[dat$fstatus == 1])),
                                   jump = as.vector(rev(unique(bjump[[8]])) * table(dat$ftime[dat$fstatus == 1], dat$fstatus[dat$fstatus == 1])))

@@ -35,7 +35,7 @@
 #' fstatus <- sample(0:2, 200, replace = TRUE)
 #' cov <- matrix(runif(1000), nrow = 200)
 #' dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
-#' fit <- pshBAR(ftime, fstatus, cov, lambda = log(5) / 2, xi = log(5))
+#' fit <- fastCrr(ftime, fstatus, cov)
 #' fit$coef
 #' @references
 #' Fine J. and Gray R. (1999) A proportional hazards model for the subdistribution of a competing risk.  \emph{JASA} 94:496-509.
@@ -57,6 +57,7 @@ getCIF <- function(fit, cov, getBootstrapVariance = TRUE, B = 100,
 
   if(is.null(fit$df)) {
     stop("Bresow jumps were not calculated. Please re-run model with 'getBreslowJumps = TRUE'")
+    stop("Ordered data frame not returned. Please re-run model with 'returnDataFrame = TRUE'")
   }
 
   if(!(type %in% c("none", "bands", "point"))) {
@@ -85,7 +86,7 @@ getCIF <- function(fit, cov, getBootstrapVariance = TRUE, B = 100,
   }
 
   if(tU <= 0 | tU <= min(fit$uftime)) {
-    tL <- min(fit$uftime)
+    tU <- max(fit$uftime)
     warning("tU is incorrectly specified (can not be nonpositive or smaller than smallest observed event time.
             Set to largest observed event time")
   }
@@ -114,34 +115,34 @@ getCIF <- function(fit, cov, getBootstrapVariance = TRUE, B = 100,
       fit.bs <- fastCrr(ftime[bsamp], fstatus[bsamp], X[bsamp, ], getVariance = FALSE)
       CIF.bs <- 1 - exp(-cumsum(exp(sum(cov * fit.bs$coef)) * fit.bs$breslowJump[, 2]))
       CIF.boot[i, ] <- evalstep(fit.bs$breslowJump$time,
-                               stepf = CIF.bs,
-                               subst = 1E-16,
-                               newtime = fit$uftime)
+                                stepf = CIF.bs,
+                                subst = 1E-16,
+                                newtime = fit$uftime)
     }
     rm(CIF.bs)
-  } #End bootstrap variance
-
-  #Variance Stabalization: f(x) = log(-log(x))
-  CIF.hat  <- log(-log(CIF.hat))
-  CIF.boot <- log(-log(CIF.boot))
-  CIF.sd <- apply(CIF.boot, 2, sd)
-  if(type == "bands") {
-    #If interval type is confidence band.
-    #Find Pr(sup_[tL, tU] |Fhat - F| / sd(F) <= C) = 1 - alpha / 2
-    sup    <- apply(CIF.boot, 1, function(x) max((abs(x - CIF.hat) / CIF.sd)[min.idx:max.idx]))
-    z.stat <- quantile(sup, 1 - alpha / 2) #Find bootstrap quantile of sup|Fhat - F|
-    llim   <- CIF.hat + z.stat * CIF.sd
-    ulim   <- CIF.hat - z.stat * CIF.sd
-    res  <- data.frame(ftime = fit$uftime, CIF = exp(-exp(CIF.hat)), lower = exp(-exp(llim)), upper = exp(-exp(ulim)))
-  } else if (type == "point") {
-    #If interval type if pointwise
-    llim   <- CIF.hat + qnorm(1 - alpha / 2) * CIF.sd
-    ulim   <- CIF.hat - qnorm(1 - alpha / 2) * CIF.sd
-    res  <- data.frame(ftime = fit$uftime, CIF = exp(-exp(CIF.hat)), lower = exp(-exp(llim)), upper = exp(-exp(ulim)))
+    #Variance Stabalization: f(x) = log(-log(x))
+    CIF.hat  <- log(-log(CIF.hat))
+    CIF.boot <- log(-log(CIF.boot))
+    CIF.sd <- apply(CIF.boot, 2, sd)
+    if(type == "bands") {
+      #If interval type is confidence band.
+      #Find Pr(sup_[tL, tU] |Fhat - F| / sd(F) <= C) = 1 - alpha / 2
+      sup    <- apply(CIF.boot, 1, function(x) max((abs(x - CIF.hat) / CIF.sd)[min.idx:max.idx]))
+      z.stat <- quantile(sup, 1 - alpha / 2) #Find bootstrap quantile of sup|Fhat - F|
+      llim   <- CIF.hat + z.stat * CIF.sd
+      ulim   <- CIF.hat - z.stat * CIF.sd
+      res  <- data.frame(ftime = fit$uftime, CIF = exp(-exp(CIF.hat)), lower = exp(-exp(llim)), upper = exp(-exp(ulim)))
+    } else if (type == "point") {
+      #If interval type if pointwise
+      llim   <- CIF.hat + qnorm(1 - alpha / 2) * CIF.sd
+      ulim   <- CIF.hat - qnorm(1 - alpha / 2) * CIF.sd
+      res  <- data.frame(ftime = fit$uftime, CIF = exp(-exp(CIF.hat)), lower = exp(-exp(llim)), upper = exp(-exp(ulim)))
+    }
   } else {
     res  <- data.frame(ftime = fit$uftime, CIF = CIF.hat)
   }
+
   #Subset corresponding to tL and tU
   res <- subset(res, res$ftime >= tL & res$ftime <= tU)
   return(res)
-}
+  }
