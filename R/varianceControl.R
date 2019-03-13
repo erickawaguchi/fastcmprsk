@@ -7,6 +7,7 @@
 #' @param ncores Integer: Number of cores needed if \code{parallel = TRUE}. Default is one less than total number of cores.
 #' @param seed Integer: Seed value for bootstrapping. Results may differ is \code{parallel = TRUE}.
 #' @return Returns a list for variance options inputted into \code{fastCrr}.
+#' @export
 #' @examples
 #' library(fastcmprsk)
 #' set.seed(10)
