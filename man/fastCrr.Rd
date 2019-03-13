@@ -2,12 +2,12 @@
 % Please edit documentation in R/denseFit.R
 \name{fastCrr}
 \alias{fastCrr}
-\title{Fine-Gray Model Estimation}
+\title{Fast Fine-Gray Model Estimation}
 \usage{
 fastCrr(ftime, fstatus, X, failcode = 1, cencode = 0, eps = 1e-06,
   max.iter = 1000, getBreslowJumps = TRUE, standardize = TRUE,
-  startingCoefficients = NULL, getVariance = TRUE,
-  varianceControl = varianceControl(...), returnDataFrame = FALSE)
+  getVariance = TRUE, var.control = varianceControl(B = 100),
+  returnDataFrame = FALSE)
 }
 \arguments{
 \item{ftime}{A vector of event/censoring times.}
@@ -24,39 +24,52 @@ fastCrr(ftime, fstatus, X, failcode = 1, cencode = 0, eps = 1e-06,
 
 \item{max.iter}{Numeric: maximum iterations to achieve convergence (default is 1000)}
 
-\item{getBreslowJumps}{Logical: Output jumps in Breslow estimator for the cumulative hazard}
+\item{getBreslowJumps}{Logical: Output jumps in Breslow estimator for the cumulative hazard.}
 
-\item{getVariance}{Logical: Get standard error estimates for parameter estimates via bootstrap or quadratic approximation.}
+\item{standardize}{Logical: Standardize design matrix.}
 
-\item{returnDataFrame}{Logical: Return data frame.}
+\item{getVariance}{Logical: Get standard error estimates for parameter estimates via bootstrap.}
+
+\item{var.control}{List of options for variance estimation.}
+
+\item{returnDataFrame}{Logical: Return (ordered) data frame.}
+
+\item{$coef}{Fine-Gray regression coefficient estimates}
+
+\item{$var}{Variance-covariance estimates via bootstrap (if \code{getVariance = TRUE})}
+
+\item{$loglik}{log pseudo-likelihood evaluated at \code{$coef}.}
+
+\item{$iter}{Number of iterations it took for convergence}
+
+\item{$breslowJump}{Jumps in the Breslow-type estimate of the underlying sub-distribution cumulative hazard.}
+
+\item{$uftime}{Vector of unique \code{failcode} event times.}
+
+\item{$df}{Returned data frame that is ordered by decreasing event time. (If \code{returnDataFrame = TRUE}).}
 }
 \value{
-Returns a list of class \code{pshBAR}.
+Returns a list of class \code{fcrr} with the following components:
 }
 \description{
-Estimates parameters for the proportional subdistribution hazards model.
-Penalties currently include LASSO and ridge regression. User-specificed weights can be assigned
-to the penalty for each coefficient (e.g. implementing adaptive LASSO).
+Estimates parameters for the proportional subdistribution hazards model using two-way linear scan approach.
 }
 \details{
-The \code{pshBAR} function penalizes the log-partial likelihood of the proportional subdistribution hazards model
-from Fine and Gray (1999) with the Broken Adaptive Ridge (BAR) penalty. A cyclic coordinate descent algorithm is used for implementation.
-For stability, the covariate matrix \code{X} is standardized prior to implementation.
-
-Special cases: Fixing \code{xi} and \code{lambda} to 0 results in the standard competing risk regression using \code{crr}.
-Fixing \code{lambda} to 0 and specifying \code{xi} will result in a ridge regression solution.
+Fits the 'proportional subdistribution hazards' regression model described in Fine and Gray (1999) using a novel two-way linear scan approach.
 }
 \examples{
+library(cmprsk)
+library(fastcmprsk)
+
 set.seed(10)
 ftime <- rexp(200)
 fstatus <- sample(0:2, 200, replace = TRUE)
 cov <- matrix(runif(1000), nrow = 200)
 dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
-fit <- pshBAR(ftime, fstatus, cov, lambda = log(5) / 2, xi = log(5))
-fit$coef
+fit1 <- fastCrr(ftime, fstatus, cov, getVariance = FALSE)
+fit2 <- crr(ftime, fstatus, cov)
+max(abs(fit1$coef - fit2$coef))
 }
 \references{
-Breheny, P. and Huang, J. (2011) Coordinate descent algorithms for nonconvex penalized regression, with applications to biological feature selection. \emph{Ann. Appl. Statist.}, 5: 232-253.
-
 Fine J. and Gray R. (1999) A proportional hazards model for the subdistribution of a competing risk.  \emph{JASA} 94:496-509.
 }

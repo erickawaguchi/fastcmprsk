@@ -1,8 +1,8 @@
-#' Penalized Fine-Gray Model Estimation
+#' Penalized Fine-Gray Model Estimation via two-wasy linear scan
 #'
 #' @description Performs penalized regression for the proportional subdistribution hazards model.
-#' Penalties currently include LASSO and ridge regression. User-specificed weights can be assigned
-#' to the penalty for each coefficient (e.g. implementing adaptive LASSO).
+#' Penalties currently include LASSO, MCP, SCAD, and ridge regression. User-specificed weights can be assigned
+#' to the penalty for each coefficient (e.g. implementing adaptive LASSO and broken adaptive ridge regerssion).
 #'
 #' @param ftime A vector of event/censoring times.
 #' @param fstatus A vector with unique code for each event type and a separate code for censored observations.
@@ -11,16 +11,16 @@
 #' @param cencode Integer: code of \code{fstatus} that denotes censored observations (default is 0)
 #' @param eps Numeric: algorithm stops when the relative change in any coefficient is less than \code{eps} (default is \code{1E-6})
 #' @param max.iter Numeric: maximum iterations to achieve convergence (default is 1000)
-#' @param getBreslowJumps Logical: Output jumps in Breslow estimator for the cumulative hazard
-#' @param getBootstrapVariance Logical: Get standard error estimates for parameter estimates via bootstrap
+#' @param standardize Logical: Standardize design matrix.
+#' @param penalty Character: Penalty to be applied to the model. Options are "lasso", "scad", "ridge", and "mcp".
+#' @param lambda A user-specified sequence of \code{lambda} values for tuning parameters.
+#' @param penalty.factor A vector of weights applied to the penalty for each coefficient. Vector must be of length equal to the number of columns in \code{X}.
+#' @param gamma Tuning parameter for the MCP/SCAD penalty. Default is 2.7 for MCP and 3.7 for SCAD and should be left unchanged.
 #'
-#' @details The \code{pshBAR} function penalizes the log-partial likelihood of the proportional subdistribution hazards model
-#' from Fine and Gray (1999) with the Broken Adaptive Ridge (BAR) penalty. A cyclic coordinate descent algorithm is used for implementation.
-#' For stability, the covariate matrix \code{X} is standardized prior to implementation.
-#'
-#' Special cases: Fixing \code{xi} and \code{lambda} to 0 results in the standard competing risk regression using \code{crr}.
-#' Fixing \code{lambda} to 0 and specifying \code{xi} will result in a ridge regression solution.
-#' @return Returns a list of class \code{pshBAR}.
+#' @details The \code{fastCrrp} functions performed penalized Fine-Gray regression.
+#' Parameter estimation is performed via cyclic coordinate descent and using a two-way linear scan approach to effiiciently
+#' calculate the gradient and Hessian values. Current implementation includes LASSO, SCAD, MCP, and ridge regression.
+#' @return Returns a list of class \code{fcrrp}.
 #'
 #' @import survival doParallel
 #' @export
@@ -31,9 +31,12 @@
 #' fstatus <- sample(0:2, 200, replace = TRUE)
 #' cov <- matrix(runif(1000), nrow = 200)
 #' dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
-#' fit <- pshBAR(ftime, fstatus, cov, lambda = log(5) / 2, xi = log(5))
+#' fit <- crrp(ftime, fstatus, cov, lambda = 1, penalty = "ridge")
 #' fit$coef
 #' @references
+#' Fu, Z., Parikh, C.R., Zhou, B. (2017) Penalized variable selection in competing risks
+#' regression. \emph{Lifetime Data Analysis} 23:353-376.
+#'
 #' Breheny, P. and Huang, J. (2011) Coordinate descent algorithms for nonconvex penalized regression, with applications to biological feature selection. \emph{Ann. Appl. Statist.}, 5: 232-253.
 #'
 #' Fine J. and Gray R. (1999) A proportional hazards model for the subdistribution of a competing risk.  \emph{JASA} 94:496-509.

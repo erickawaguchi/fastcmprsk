@@ -1,30 +1,19 @@
 #' Cumulative Incidence Function Estimation
 #'
-#' @description Fits broken adaptive ridge regression for competing risks regression.
-#' This package allows for ridge and broken adaptive ridge penalties.
+#' @description Predicts cumulative incidence function from a \code{fcrr} object.
 #'
-#' @param ftime A vector of event/censoring times.
-#' @param fstatus A vector with unique code for each event type and a separate code for censored observations.
-#' @param X A matrix of fixed covariates (nobs x ncovs)
-#' @param failcode Integer: code of \code{fstatus} that event type of interest (default is 1)
-#' @param cencode Integer: code of \code{fstatus} that denotes censored observations (default is 0)
-#' @param lambda Numeric: BAR tuning parameter value
-#' @param xi Numeric: tuning parameter for initial ridge regression
-#' @param delta Numeric: change from 2 in ridge norm dimension
-#' @param eps Numeric: algorithm stops when the relative change in any coefficient is less than \code{eps} (default is \code{1E-6})
-#' @param tol Numeric: absolute threshold at which to force coefficients to 0 (default is \code{1E-6})
-#' @param lam.min Numeric: smallest value of lambda if performing grid search
-#' @param nlambda Numeric: number of \code{lambda} values if performing grid search  (default is 25)
-#' @param log Logical: Whether or not the grid search is log10 spaced (default is \code{TRUE})
-#' @param max.iter Numeric: maximum iterations to achieve convergence (default is 1000)
+#' @param fit Output from \code{fcrr} object.
+#' @param cov A set of covariate values.
+#' @param getBootstrapVariance Logical: Calculate variance for CIF via bootstrap.
+#' @param B Number of bootstrap samples for variance estimation.
+#' @param type Confidence intervals or confidence bands.
+#' @param alpha Significance level to compute intervals or bands
+#' @param seednum Seed number of bootstrap sampling.
+#' @param tL Lower time for band estimation.
+#' @param tU Upper time for band estimation.
+#' @param ... additional arguments affecting the fastCrr procedure.
 #'
-#' @details The \code{pshBAR} function penalizes the log-partial likelihood of the proportional subdistribution hazards model
-#' from Fine and Gray (1999) with the Broken Adaptive Ridge (BAR) penalty. A cyclic coordinate descent algorithm is used for implementation.
-#' For stability, the covariate matrix \code{X} is standardized prior to implementation.
-#'
-#' Special cases: Fixing \code{xi} and \code{lambda} to 0 results in the standard competing risk regression using \code{crr}.
-#' Fixing \code{lambda} to 0 and specifying \code{xi} will result in a ridge regression solution.
-#' @return Returns a list of class \code{pshBAR}.
+#' @details Calculates the CIF using \code{fcrr} output conditional on \code{cov}.
 #'
 #' @import survival dynpred
 #' @export
@@ -36,15 +25,15 @@
 #' cov <- matrix(runif(1000), nrow = 200)
 #' dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
 #' fit <- fastCrr(ftime, fstatus, cov)
-#' fit$coef
+#' cov2 <- rnorm(5)
+#' getCIF(fit, cov2)
 #' @references
 #' Fine J. and Gray R. (1999) A proportional hazards model for the subdistribution of a competing risk.  \emph{JASA} 94:496-509.
 
 getCIF <- function(fit, cov, getBootstrapVariance = TRUE, B = 100,
                    type = "none",
-                   alpha = 0.05, seednum = 1991, eps = 1E-6,
-                   tL = NULL, tU = NULL,
-                   max.iter = 1000){
+                   alpha = 0.05, seednum = 1991,
+                   tL = NULL, tU = NULL, ...){
 
   ## Error checking
   if(class(fit) != "fcrr") {
@@ -56,7 +45,6 @@ getCIF <- function(fit, cov, getBootstrapVariance = TRUE, B = 100,
   }
 
   if(is.null(fit$df)) {
-    stop("Bresow jumps were not calculated. Please re-run model with 'getBreslowJumps = TRUE'")
     stop("Ordered data frame not returned. Please re-run model with 'returnDataFrame = TRUE'")
   }
 
@@ -112,7 +100,7 @@ getCIF <- function(fit, cov, getBootstrapVariance = TRUE, B = 100,
     X <- as.matrix(fit$df[, -(1:2)])
     for(i in 1:B) {
       bsamp  <- sample(n, n, replace = TRUE) #Bootstrap sample index
-      fit.bs <- fastCrr(ftime[bsamp], fstatus[bsamp], X[bsamp, ], getVariance = FALSE)
+      fit.bs <- fastCrr(ftime[bsamp], fstatus[bsamp], X[bsamp, ], getVariance = FALSE, ...)
       CIF.bs <- 1 - exp(-cumsum(exp(sum(cov * fit.bs$coef)) * fit.bs$breslowJump[, 2]))
       CIF.boot[i, ] <- evalstep(fit.bs$breslowJump$time,
                                 stepf = CIF.bs,

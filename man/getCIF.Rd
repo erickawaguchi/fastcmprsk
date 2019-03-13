@@ -5,52 +5,34 @@
 \title{Cumulative Incidence Function Estimation}
 \usage{
 getCIF(fit, cov, getBootstrapVariance = TRUE, B = 100, type = "none",
-  alpha = 0.05, seednum = 1991, eps = 1e-06, tL = NULL,
-  tU = NULL, max.iter = 1000)
+  alpha = 0.05, seednum = 1991, tL = NULL, tU = NULL, ...)
 }
 \arguments{
-\item{eps}{Numeric: algorithm stops when the relative change in any coefficient is less than \code{eps} (default is \code{1E-6})}
+\item{fit}{Output from \code{fcrr} object.}
 
-\item{max.iter}{Numeric: maximum iterations to achieve convergence (default is 1000)}
+\item{cov}{A set of covariate values.}
 
-\item{ftime}{A vector of event/censoring times.}
+\item{getBootstrapVariance}{Logical: Calculate variance for CIF via bootstrap.}
 
-\item{fstatus}{A vector with unique code for each event type and a separate code for censored observations.}
+\item{B}{Number of bootstrap samples for variance estimation.}
 
-\item{X}{A matrix of fixed covariates (nobs x ncovs)}
+\item{type}{Confidence intervals or confidence bands.}
 
-\item{failcode}{Integer: code of \code{fstatus} that event type of interest (default is 1)}
+\item{alpha}{Significance level to compute intervals or bands}
 
-\item{cencode}{Integer: code of \code{fstatus} that denotes censored observations (default is 0)}
+\item{seednum}{Seed number of bootstrap sampling.}
 
-\item{lambda}{Numeric: BAR tuning parameter value}
+\item{tL}{Lower time for band estimation.}
 
-\item{xi}{Numeric: tuning parameter for initial ridge regression}
+\item{tU}{Upper time for band estimation.}
 
-\item{delta}{Numeric: change from 2 in ridge norm dimension}
-
-\item{tol}{Numeric: absolute threshold at which to force coefficients to 0 (default is \code{1E-6})}
-
-\item{lam.min}{Numeric: smallest value of lambda if performing grid search}
-
-\item{nlambda}{Numeric: number of \code{lambda} values if performing grid search  (default is 25)}
-
-\item{log}{Logical: Whether or not the grid search is log10 spaced (default is \code{TRUE})}
-}
-\value{
-Returns a list of class \code{pshBAR}.
+\item{...}{additional arguments affecting the fastCrr procedure.}
 }
 \description{
-Fits broken adaptive ridge regression for competing risks regression.
-This package allows for ridge and broken adaptive ridge penalties.
+Predicts cumulative incidence function from a \code{fcrr} object.
 }
 \details{
-The \code{pshBAR} function penalizes the log-partial likelihood of the proportional subdistribution hazards model
-from Fine and Gray (1999) with the Broken Adaptive Ridge (BAR) penalty. A cyclic coordinate descent algorithm is used for implementation.
-For stability, the covariate matrix \code{X} is standardized prior to implementation.
-
-Special cases: Fixing \code{xi} and \code{lambda} to 0 results in the standard competing risk regression using \code{crr}.
-Fixing \code{lambda} to 0 and specifying \code{xi} will result in a ridge regression solution.
+Calculates the CIF using \code{fcrr} output conditional on \code{cov}.
 }
 \examples{
 set.seed(10)
@@ -58,8 +40,9 @@ ftime <- rexp(200)
 fstatus <- sample(0:2, 200, replace = TRUE)
 cov <- matrix(runif(1000), nrow = 200)
 dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
-fit <- pshBAR(ftime, fstatus, cov, lambda = log(5) / 2, xi = log(5))
-fit$coef
+fit <- fastCrr(ftime, fstatus, cov)
+cov2 <- rnorm(5)
+getCIF(fit, cov2)
 }
 \references{
 Fine J. and Gray R. (1999) A proportional hazards model for the subdistribution of a competing risk.  \emph{JASA} 94:496-509.

@@ -2,7 +2,7 @@
 % Please edit documentation in R/densePen.R
 \name{fastCrrp}
 \alias{fastCrrp}
-\title{Penalized Fine-Gray Model Estimation}
+\title{Penalized Fine-Gray Model Estimation via two-wasy linear scan}
 \usage{
 fastCrrp(ftime, fstatus, X, failcode = 1, cencode = 0, eps = 1e-06,
   max.iter = 1000, getBreslowJumps = TRUE, standardize = TRUE,
@@ -25,25 +25,28 @@ fastCrrp(ftime, fstatus, X, failcode = 1, cencode = 0, eps = 1e-06,
 
 \item{max.iter}{Numeric: maximum iterations to achieve convergence (default is 1000)}
 
-\item{getBreslowJumps}{Logical: Output jumps in Breslow estimator for the cumulative hazard}
+\item{standardize}{Logical: Standardize design matrix.}
 
-\item{getBootstrapVariance}{Logical: Get standard error estimates for parameter estimates via bootstrap}
+\item{penalty}{Character: Penalty to be applied to the model. Options are "lasso", "scad", "ridge", and "mcp".}
+
+\item{lambda}{A user-specified sequence of \code{lambda} values for tuning parameters.}
+
+\item{penalty.factor}{A vector of weights applied to the penalty for each coefficient. Vector must be of length equal to the number of columns in \code{X}.}
+
+\item{gamma}{Tuning parameter for the MCP/SCAD penalty. Default is 2.7 for MCP and 3.7 for SCAD and should be left unchanged.}
 }
 \value{
-Returns a list of class \code{pshBAR}.
+Returns a list of class \code{fcrrp}.
 }
 \description{
 Performs penalized regression for the proportional subdistribution hazards model.
-Penalties currently include LASSO and ridge regression. User-specificed weights can be assigned
-to the penalty for each coefficient (e.g. implementing adaptive LASSO).
+Penalties currently include LASSO, MCP, SCAD, and ridge regression. User-specificed weights can be assigned
+to the penalty for each coefficient (e.g. implementing adaptive LASSO and broken adaptive ridge regerssion).
 }
 \details{
-The \code{pshBAR} function penalizes the log-partial likelihood of the proportional subdistribution hazards model
-from Fine and Gray (1999) with the Broken Adaptive Ridge (BAR) penalty. A cyclic coordinate descent algorithm is used for implementation.
-For stability, the covariate matrix \code{X} is standardized prior to implementation.
-
-Special cases: Fixing \code{xi} and \code{lambda} to 0 results in the standard competing risk regression using \code{crr}.
-Fixing \code{lambda} to 0 and specifying \code{xi} will result in a ridge regression solution.
+The \code{fastCrrp} functions performed penalized Fine-Gray regression.
+Parameter estimation is performed via cyclic coordinate descent and using a two-way linear scan approach to effiiciently
+calculate the gradient and Hessian values. Current implementation includes LASSO, SCAD, MCP, and ridge regression.
 }
 \examples{
 set.seed(10)
@@ -51,10 +54,13 @@ ftime <- rexp(200)
 fstatus <- sample(0:2, 200, replace = TRUE)
 cov <- matrix(runif(1000), nrow = 200)
 dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
-fit <- pshBAR(ftime, fstatus, cov, lambda = log(5) / 2, xi = log(5))
+fit <- crrp(ftime, fstatus, cov, lambda = 1, penalty = "ridge")
 fit$coef
 }
 \references{
+Fu, Z., Parikh, C.R., Zhou, B. (2017) Penalized variable selection in competing risks
+regression. \emph{Lifetime Data Analysis} 23:353-376.
+
 Breheny, P. and Huang, J. (2011) Coordinate descent algorithms for nonconvex penalized regression, with applications to biological feature selection. \emph{Ann. Appl. Statist.}, 5: 232-253.
 
 Fine J. and Gray R. (1999) A proportional hazards model for the subdistribution of a competing risk.  \emph{JASA} 94:496-509.
