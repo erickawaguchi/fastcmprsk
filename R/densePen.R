@@ -128,8 +128,9 @@ fastCrrp <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
                         converged = denseFit[[8]],
                         breslowJump = getBreslowJumps,
                         uftime = unique(rev(ftime[fstatus == 1])),
+                        penalty = penalty,
                         gamma = gamma,
                         call = sys.call()),
-                   class = "fcrr")
+                   class = "fcrrp")
   val
 }

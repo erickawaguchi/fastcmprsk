@@ -22,6 +22,11 @@ Returns a list for variance options inputted into \code{fastCrr}.
 \description{
 Controls for variance calculation for the fastcmprsk package.
 }
+\details{
+Variance-covariance estimation is done via bootstrap.
+Independent bootstrap runs can be performed both in serial and parallel. Parallelization is done via the
+\code{doParallel} package.
+}
 \examples{
 library(fastcmprsk)
 set.seed(10)

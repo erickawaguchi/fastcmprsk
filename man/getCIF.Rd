@@ -5,7 +5,7 @@
 \title{Cumulative Incidence Function Estimation}
 \usage{
 getCIF(fit, cov, getBootstrapVariance = TRUE, B = 100, type = "none",
-  alpha = 0.05, seednum = 1991, tL = NULL, tU = NULL, ...)
+  alpha = 0.05, seed = 1991, tL = NULL, tU = NULL, ...)
 }
 \arguments{
 \item{fit}{Output from \code{fcrr} object.}
@@ -20,7 +20,7 @@ getCIF(fit, cov, getBootstrapVariance = TRUE, B = 100, type = "none",
 
 \item{alpha}{Significance level to compute intervals or bands}
 
-\item{seednum}{Seed number of bootstrap sampling.}
+\item{seed}{Seed number of bootstrap sampling.}
 
 \item{tL}{Lower time for band estimation.}
 

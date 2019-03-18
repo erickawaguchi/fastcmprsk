@@ -8,6 +8,9 @@
 #' @param seed Integer: Seed value for bootstrapping. Results may differ is \code{parallel = TRUE}.
 #' @return Returns a list for variance options inputted into \code{fastCrr}.
 #' @export
+#' @details Variance-covariance estimation is done via bootstrap.
+#' Independent bootstrap runs can be performed both in serial and parallel. Parallelization is done via the
+#' \code{doParallel} package.
 #' @examples
 #' library(fastcmprsk)
 #' set.seed(10)

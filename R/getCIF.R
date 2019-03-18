@@ -8,7 +8,7 @@
 #' @param B Number of bootstrap samples for variance estimation.
 #' @param type Confidence intervals or confidence bands.
 #' @param alpha Significance level to compute intervals or bands
-#' @param seednum Seed number of bootstrap sampling.
+#' @param seed Seed number of bootstrap sampling.
 #' @param tL Lower time for band estimation.
 #' @param tU Upper time for band estimation.
 #' @param ... additional arguments affecting the fastCrr procedure.
@@ -32,7 +32,7 @@
 
 getCIF <- function(fit, cov, getBootstrapVariance = TRUE, B = 100,
                    type = "none",
-                   alpha = 0.05, seednum = 1991,
+                   alpha = 0.05, seed = 1991,
                    tL = NULL, tU = NULL, ...){
 
   ## Error checking
@@ -48,7 +48,7 @@ getCIF <- function(fit, cov, getBootstrapVariance = TRUE, B = 100,
     stop("Ordered data frame not returned. Please re-run model with 'returnDataFrame = TRUE'")
   }
 
-  if(!(type %in% c("none", "bands", "point"))) {
+  if(!(type %in% c("none", "bands", "interval"))) {
     type = "none"
     warning("type is incorrectly specified. Valid options are 'bands', 'point', 'none'.
             Set to 'none'")
@@ -89,8 +89,9 @@ getCIF <- function(fit, cov, getBootstrapVariance = TRUE, B = 100,
     stop("Parameter dimension of 'cov' does not match dimension of '$coef' from object.")
   }
 
+  res  <- data.frame(ftime = fit$uftime, CIF = CIF.hat, lower = NA, upper = NA)
   #Get SD via bootstrap
-  set.seed(seednum)
+  set.seed(seed)
   if(getBootstrapVariance) {
     CIF.boot <- matrix(NA, nrow = B, ncol = length(fit$uftime))
     colnames(CIF.boot) <- round(fit$uftime, 3)
@@ -120,17 +121,15 @@ getCIF <- function(fit, cov, getBootstrapVariance = TRUE, B = 100,
       llim   <- CIF.hat + z.stat * CIF.sd
       ulim   <- CIF.hat - z.stat * CIF.sd
       res  <- data.frame(ftime = fit$uftime, CIF = exp(-exp(CIF.hat)), lower = exp(-exp(llim)), upper = exp(-exp(ulim)))
-    } else if (type == "point") {
+    } else if (type == "interval") {
       #If interval type if pointwise
       llim   <- CIF.hat + qnorm(1 - alpha / 2) * CIF.sd
       ulim   <- CIF.hat - qnorm(1 - alpha / 2) * CIF.sd
       res  <- data.frame(ftime = fit$uftime, CIF = exp(-exp(CIF.hat)), lower = exp(-exp(llim)), upper = exp(-exp(ulim)))
     }
-  } else {
-    res  <- data.frame(ftime = fit$uftime, CIF = CIF.hat)
   }
-
   #Subset corresponding to tL and tU
   res <- subset(res, res$ftime >= tL & res$ftime <= tU)
+  class(res) <- "cif.fcrr"
   return(res)
   }

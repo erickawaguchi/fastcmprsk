@@ -84,7 +84,7 @@ fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
   } #End Breslow jump
 
   #Calculate variance (if turned on)
-  method = var = NA #Set se & method to NA, will update if getVariance
+  var = rep(NA, p) #Set se & method to NA, will update if getVariance
   if(getVariance) {
     controls = var.control
     if (!missing(controls))
@@ -98,11 +98,14 @@ fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
         set.seed(seed)
         cl <- makeCluster(ncores)
         registerDoParallel(cl)
-        bsamp_beta <- foreach(i = 1:B, .combine = rbind) %do% {
+        bsamp_beta <- foreach(i = 1:B, .combine = rbind) %dopar% {
           bsamp  <- sample(n, n, replace = TRUE) #Bootstrap sample index
           dat <- setupData(ftime[bsamp], fstatus[bsamp], X[bsamp, ], cencode, failcode, standardize)
           fit.bs   <- .Call("ccd_dense", dat$X, as.numeric(dat$ftime), as.integer(dat$fstatus), dat$wt,
                             eps, as.integer(max.iter), PACKAGE = "fastcmprsk")
+          if (fit.bs[[3]] == max.iter) {
+            warning(paste0("Maximum number of iterations reached for ", i, "th bootstrap sample. Estimates may not be stable"))
+          }
           fit.bs[[1]] / dat$scale
         }
         stopCluster(cl)
@@ -114,6 +117,9 @@ fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
           dat.bs    <- setupData(ftime[bsamp], fstatus[bsamp], X[bsamp, ], cencode, failcode, standardize)
           fit.bs <- .Call("ccd_dense", dat.bs$X, as.numeric(dat.bs$ftime), as.integer(dat.bs$fstatus), dat.bs$wt,
                               eps, as.integer(max.iter), PACKAGE = "fastcmprsk")
+          if (fit.bs[[3]] == max.iter) {
+            warning(paste0("Maximum number of iterations reached for ", i, "th bootstrap sample. Estimates may not be stable"))
+          }
           bsamp_beta[i, ] <- fit.bs[[1]] / dat.bs$scale
         }
       }
@@ -127,13 +133,16 @@ fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
     df <- NULL
   }
 
+  converged <- ifelse(denseFit[[3]] < max.iter, TRUE, FALSE)
   #Results to store:
   val <- structure(list(coef = denseFit[[1]] / scale,
                         var = var,
                         logLik = denseFit[[2]] / -2,
                         iter = denseFit[[3]],
+                        converged = converged,
                         breslowJump = getBreslowJumps,
                         uftime = unique(rev(dat$ftime[dat$fstatus == 1])),
+                        getVariance = getVariance,
                         df = df,
                         call = sys.call()),
                    class = "fcrr")
