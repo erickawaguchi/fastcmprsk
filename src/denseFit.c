@@ -33,8 +33,8 @@ SEXP ccd_dense(SEXP x_, SEXP t2_, SEXP ici_, SEXP wt_,
     for (int i = 0; i < n; i++) h[i] = 0;
     PROTECT(residuals = allocVector(REALSXP, n));
     double *r = REAL(residuals);
-    PROTECT(Dev = allocVector(REALSXP, 1));
-    for (int i = 0; i < 1; i++) REAL(Dev)[i] = 0;
+    PROTECT(Dev = allocVector(REALSXP, 2));
+    for (int i = 0; i < 2; i++) REAL(Dev)[i] = 0;
     PROTECT(iter = allocVector(INTSXP, 1));
     for (int i = 0; i < 1; i++) INTEGER(iter)[i] = 0;
     PROTECT(linpred = allocVector(REALSXP, n));
@@ -80,10 +80,11 @@ SEXP ccd_dense(SEXP x_, SEXP t2_, SEXP ici_, SEXP wt_,
     //Start regression
     //calculate null deviance
     nullDev = -2 * getLogLikelihood(t2, ici, eta, wt, n);
+    REAL(Dev)[0] = nullDev; // save null deviance
 
     //start
     while (INTEGER(iter)[0] < max_iter) {
-        if (REAL(Dev)[0] - nullDev > 0.99 * nullDev) break;
+        if (REAL(Dev)[1] - nullDev > 0.99 * nullDev) break;
 
         INTEGER(iter)[0]++;
 
@@ -223,7 +224,7 @@ SEXP ccd_dense(SEXP x_, SEXP t2_, SEXP ici_, SEXP wt_,
             a[j] = b[j];
 
         //Calculate deviance
-        REAL(Dev)[0] = -2 * getLogLikelihood(t2, ici, eta, wt, n);
+        REAL(Dev)[1] = -2 * getLogLikelihood(t2, ici, eta, wt, n);
 
         for (i = 0; i < n; i++){
             lp[i] = eta[i];

@@ -58,7 +58,21 @@ test_that("Compare crr with fastCrr (breslow jumps)", {
   cov <- matrix(runif(600),nrow=200)
 
   fit.crr    <- crr(ftime, fstatus, cov, variance = FALSE)
-  fit.fast   <- fastCrr(ftime, fstatus, cov, getVariance = TRUE)
+  fit.fast   <- fastCrr(ftime, fstatus, cov, getVariance = FALSE)
   expect_equal(as.vector(fit.crr$bfitj), as.vector(fit.fast$breslowJump[, 2]), tolerance = 1E-4)
+})
+
+test_that("Compare crr with fastCrr (CIF)", {
+  set.seed(4291)
+  ftime <- rexp(200)
+  fstatus <- sample(0:2,200,replace=TRUE)
+  cov <- matrix(runif(600),nrow=200)
+
+  fit.crr    <- crr(ftime, fstatus, cov, variance = FALSE)
+  fit.fast   <- fastCrr(ftime, fstatus, cov, getVariance = FALSE, returnDataFrame = TRUE)
+  z0 <- rnorm(3)
+  p1 <- predict(fit.crr, cov1 = z0)[,2]
+  p2 <- predict(fit.fast, cov = z0, getBootstrapVariance = FALSE)$CIF
+  expect_equal(p1, p2, tolerance = 1E-4)
 })
 

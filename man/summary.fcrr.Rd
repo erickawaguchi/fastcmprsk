@@ -2,19 +2,25 @@
 % Please edit documentation in R/summary.fcrr.R
 \name{summary.fcrr}
 \alias{summary.fcrr}
-\title{Prints summary of a fcrr object}
+\title{SUmmary method for fastCrr}
 \usage{
-\method{summary}{fcrr}(x, ...)
+\method{summary}{fcrr}(x, conf.int = TRUE, alpha = 0.05,
+  digits = max(options()$digits - 5, 2), ...)
 }
 \arguments{
-\item{x}{\code{fcrr} object (output from \code{fastCrr()})}
+\item{x}{\code{fcrr} x (output from \code{fastCrr()})}
+
+\item{conf.int}{Logical. Whether or not to outut confidence intervals.}
+
+\item{alpha}{Significance level of the confidence intervals.}
+
+\item{digits}{Numer of significant difits to round to.}
 
 \item{...}{additional arguments to \code{print()}}
 }
 \description{
-Prints summary statistics of a fcrr object
+Generate and print summaries of \code{fastCrr} output.
 }
 \details{
-Prints the convergence status,
-log-pseudo likelihood, the estimated coefficients, the estimated standard errors, and the two-sided p-values for the test of the individual coefficients equal to 0.
+The summary method produces an ANOVA table for the coefficient estimates of the Fine-Gray model.
 }

@@ -2,10 +2,11 @@
 
 S3method(plot,cif.fcrr)
 S3method(plot,fcrrp)
+S3method(predict,fcrr)
+S3method(print,summary.fcrr)
 S3method(summary,fcrr)
 export(fastCrr)
 export(fastCrrp)
-export(getCIF)
 export(getNews_fastcmprsk)
 export(setupData)
 export(simulateTwoCauseFineGrayModel)

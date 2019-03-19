@@ -30,7 +30,7 @@
 #' @references
 #' Fine J. and Gray R. (1999) A proportional hazards model for the subdistribution of a competing risk.  \emph{JASA} 94:496-509.
 
-getCIF <- function(fit, cov, getBootstrapVariance = TRUE, B = 100,
+predict.fcrr <- function(fit, cov, getBootstrapVariance = TRUE, B = 100,
                    type = "none",
                    alpha = 0.05, seed = 1991,
                    tL = NULL, tU = NULL, ...){
@@ -130,6 +130,6 @@ getCIF <- function(fit, cov, getBootstrapVariance = TRUE, B = 100,
   }
   #Subset corresponding to tL and tU
   res <- subset(res, res$ftime >= tL & res$ftime <= tU)
-  class(res) <- "cif.fcrr"
+  class(res) <- "predict.fcrr"
   return(res)
-  }
+}
