@@ -40,6 +40,8 @@ fastCrr(ftime, fstatus, X, failcode = 1, cencode = 0, eps = 1e-06,
 
 \item{$loglik}{log pseudo-likelihood evaluated at \code{$coef}.}
 
+\item{$logLik.null}{log-pseudo likelihood where coefficients are all 0.}
+
 \item{$iter}{Number of iterations it took for convergence}
 
 \item{$breslowJump}{Jumps in the Breslow-type estimate of the underlying sub-distribution cumulative hazard.}

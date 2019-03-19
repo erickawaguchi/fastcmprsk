@@ -26,6 +26,7 @@ print.summary.fcrr <- function (x, digits = max(options()$digits - 4, 3), ...)
   print(x$coef)
   cat("\n")
   print(x$conf.int)
-  cat("Pseudo Log-likelihood =", x$loglik, "\n")
+  cat("Pseudo Log-likelihood =", x$logLik, "\n")
+  cat("Null Pseudo Log-likelihood =", x$logLik.null, "\n")
   invisible()
 }

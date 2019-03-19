@@ -22,7 +22,8 @@ summary.fcrr <-
     beta <- x$coef
     out <- list(call = x$call, converged = x$converged,
                 iterations = x$iter,
-                loglik = x$logLik)
+                logLik = x$logLik,
+                logLik.null = x$logLik.null)
     tmp <- cbind(beta, exp(beta), se, beta / se,
                  signif(2 * (1 - pnorm(abs(beta) / se)), digits))
     dimnames(tmp) <- list(names(beta), c("coef", "exp(coef)",

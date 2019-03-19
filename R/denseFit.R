@@ -21,6 +21,7 @@
 #' @param $coef Fine-Gray regression coefficient estimates
 #' @param $var Variance-covariance estimates via bootstrap (if \code{getVariance = TRUE})
 #' @param $loglik log pseudo-likelihood evaluated at \code{$coef}.
+#' @param $logLik.null log-pseudo likelihood where coefficients are all 0.
 #' @param $iter Number of iterations it took for convergence
 #' @param $breslowJump Jumps in the Breslow-type estimate of the underlying sub-distribution cumulative hazard.
 #' @param $uftime Vector of unique \code{failcode} event times.
