@@ -13,6 +13,8 @@ print.summary.fcrr <- function (x, digits = max(options()$digits - 4, 3), ...)
   cat("Fine-Gray Regression via fastcmprsk package. \n\n")
   if(x$converged)
   { cat("fastCrr converged in", x$iterations, "iterations.\n \n")
+  } else {
+    cat("fastCrr did not converge. Estimates may be unstable.\n \n")
   }
 
   if(!is.null(x$call))

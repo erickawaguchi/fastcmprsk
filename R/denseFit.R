@@ -95,38 +95,21 @@ fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
     ncores   <- controls$ncores
     seed     <- controls$seed
 
-      if(parallel) {
-        set.seed(seed)
-        cl <- makeCluster(ncores)
-        registerDoParallel(cl)
-        bsamp_beta <- foreach(i = 1:B, .combine = rbind) %dopar% {
-          bsamp  <- sample(n, n, replace = TRUE) #Bootstrap sample index
-          dat <- setupData(ftime[bsamp], fstatus[bsamp], X[bsamp, ], cencode, failcode, standardize)
-          fit.bs   <- .Call("ccd_dense", dat$X, as.numeric(dat$ftime), as.integer(dat$fstatus), dat$wt,
-                            eps, as.integer(max.iter), PACKAGE = "fastcmprsk")
-          if (fit.bs[[3]] == max.iter) {
-            warning(paste0("Maximum number of iterations reached for ", i, "th bootstrap sample. Estimates may not be stable"))
-          }
-          fit.bs[[1]] / dat$scale
-        }
-        stopCluster(cl)
-      } else {
-        set.seed(seed)
-        bsamp_beta <- matrix(NA, nrow = B, ncol = p)
-        for(i in 1:B) {
-          bsamp  <- sample(n, n, replace = TRUE) #Bootstrap sample index
-          dat.bs    <- setupData(ftime[bsamp], fstatus[bsamp], X[bsamp, ], cencode, failcode, standardize)
-          fit.bs <- .Call("ccd_dense", dat.bs$X, as.numeric(dat.bs$ftime), as.integer(dat.bs$fstatus), dat.bs$wt,
-                              eps, as.integer(max.iter), PACKAGE = "fastcmprsk")
-          if (fit.bs[[3]] == max.iter) {
-            warning(paste0("Maximum number of iterations reached for ", i, "th bootstrap sample. Estimates may not be stable"))
-          }
-          bsamp_beta[i, ] <- fit.bs[[1]] / dat.bs$scale
-        }
+    set.seed(seed)
+    bsamp_beta <- matrix(NA, nrow = B, ncol = p)
+    for(i in 1:B) {
+      bsamp  <- sample(n, n, replace = TRUE) #Bootstrap sample index
+      dat.bs    <- setupData(ftime[bsamp], fstatus[bsamp], X[bsamp, ], cencode, failcode, standardize)
+      fit.bs <- .Call("ccd_dense", dat.bs$X, as.numeric(dat.bs$ftime), as.integer(dat.bs$fstatus), dat.bs$wt,
+                      eps, as.integer(max.iter), PACKAGE = "fastcmprsk")
+      if (fit.bs[[3]] == max.iter) {
+        warning(paste0("Maximum number of iterations reached for ", i, "th bootstrap sample. Estimates may not be stable"))
       }
-      #Calculate standard error
-      var = cov(bsamp_beta)
-    } #End variance option
+      bsamp_beta[i, ] <- fit.bs[[1]] / dat.bs$scale
+    }
+    #Calculate standard error
+    var = cov(bsamp_beta)
+  } #End variance option
 
   if(returnDataFrame) {
     df <- data.frame(ftime = ftime, fstatus = fstatus, X)

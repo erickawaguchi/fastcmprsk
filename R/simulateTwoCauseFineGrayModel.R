@@ -41,10 +41,8 @@ simulateTwoCauseFineGrayModel <- function(nobs, beta1, beta2, X = NULL, u.min = 
 
   #Conditional on cause indicators, we simulate the model.
   ftime <- numeric(nobs)
-
-  eta1 <- X[c.ind == 1, ] %*% beta1
-  eta2 <- X[c.ind == 2, ] %*% beta2
-
+  eta1 <- X[c.ind == 1, ] %*% beta1 #linear predictor for cause on interest
+  eta2 <- X[c.ind == 2, ] %*% beta2 #linear predictor for competing risk
 
   u1 <- runif(length(eta1))
   t1 <- -log(1 - (1 - (1 - u1 * (1 - (1 - p)^exp(eta1)))^(1 / exp(eta1))) / p)

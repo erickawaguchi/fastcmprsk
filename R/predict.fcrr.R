@@ -50,7 +50,7 @@ predict.fcrr <- function(fit, cov, getBootstrapVariance = TRUE, B = 100,
 
   if(!(type %in% c("none", "bands", "interval"))) {
     type = "none"
-    warning("type is incorrectly specified. Valid options are 'bands', 'point', 'none'.
+    warning("type is incorrectly specified. Valid options are 'bands', 'interval', 'none'.
             Set to 'none'")
   }
 
@@ -131,5 +131,6 @@ predict.fcrr <- function(fit, cov, getBootstrapVariance = TRUE, B = 100,
   #Subset corresponding to tL and tU
   res <- subset(res, res$ftime >= tL & res$ftime <= tU)
   class(res) <- "predict.fcrr"
+  res$type <- type
   return(res)
 }
