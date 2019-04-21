@@ -13,7 +13,7 @@
 summary.fcrr <-
   function(x, conf.int = TRUE, alpha = 0.05, digits = max(options()$digits - 5, 2), ...) {
 
-    if(!x$getVariance) {
+    if(!x$isVariance) {
       se <- x$var
     } else {
       se <- sqrt(diag(x$var))

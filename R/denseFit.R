@@ -11,7 +11,7 @@
 #' @param max.iter Numeric: maximum iterations to achieve convergence (default is 1000)
 #' @param getBreslowJumps Logical: Output jumps in Breslow estimator for the cumulative hazard.
 #' @param standardize Logical: Standardize design matrix.
-#' @param getVariance Logical: Get standard error estimates for parameter estimates via bootstrap.
+#' @param variance Logical: Get standard error estimates for parameter estimates via bootstrap.
 #' @param var.control List of options for variance estimation.
 #' @param returnDataFrame Logical: Return (ordered) data frame.
 #'
@@ -19,7 +19,7 @@
 #'
 #' @return Returns a list of class \code{fcrr} with the following components:
 #' @param $coef Fine-Gray regression coefficient estimates
-#' @param $var Variance-covariance estimates via bootstrap (if \code{getVariance = TRUE})
+#' @param $var Variance-covariance estimates via bootstrap (if \code{variance = TRUE})
 #' @param $loglik log pseudo-likelihood evaluated at \code{$coef}.
 #' @param $logLik.null log-pseudo likelihood where coefficients are all 0.
 #' @param $iter Number of iterations it took for convergence
@@ -39,7 +39,7 @@
 #' fstatus <- sample(0:2, 200, replace = TRUE)
 #' cov <- matrix(runif(1000), nrow = 200)
 #' dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
-#' fit1 <- fastCrr(ftime, fstatus, cov, getVariance = FALSE)
+#' fit1 <- fastCrr(ftime, fstatus, cov, variance = FALSE)
 #' fit2 <- crr(ftime, fstatus, cov)
 #' max(abs(fit1$coef - fit2$coef))
 #' @references
@@ -50,7 +50,7 @@ fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
                     eps = 1E-6,
                     max.iter = 1000, getBreslowJumps = TRUE,
                     standardize = TRUE,
-                    getVariance = TRUE,
+                    variance = TRUE,
                     var.control = varianceControl(B = 100),
                     returnDataFrame = FALSE){
 
@@ -85,8 +85,8 @@ fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
   } #End Breslow jump
 
   #Calculate variance (if turned on)
-  var = rep(NA, p) #Set se & method to NA, will update if getVariance
-  if(getVariance) {
+  var = rep(NA, p) #Set se & method to NA, will update if variance == TRUE
+  if(variance) {
     controls = var.control
     if (!missing(controls))
       controls[names(controls)] <- controls
@@ -127,7 +127,7 @@ fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
                         converged = converged,
                         breslowJump = getBreslowJumps,
                         uftime = unique(rev(dat$ftime[dat$fstatus == 1])),
-                        getVariance = getVariance,
+                        isVariance = variance,
                         df = df,
                         call = sys.call()),
                    class = "fcrr")

@@ -101,7 +101,7 @@ predict.fcrr <- function(fit, cov, getBootstrapVariance = TRUE, B = 100,
     X <- as.matrix(fit$df[, -(1:2)])
     for(i in 1:B) {
       bsamp  <- sample(n, n, replace = TRUE) #Bootstrap sample index
-      fit.bs <- fastCrr(ftime[bsamp], fstatus[bsamp], X[bsamp, ], getVariance = FALSE, ...)
+      fit.bs <- fastCrr(ftime[bsamp], fstatus[bsamp], X[bsamp, ], variance = FALSE, ...)
       CIF.bs <- 1 - exp(-cumsum(exp(sum(cov * fit.bs$coef)) * fit.bs$breslowJump[, 2]))
       CIF.boot[i, ] <- evalstep(fit.bs$breslowJump$time,
                                 stepf = CIF.bs,

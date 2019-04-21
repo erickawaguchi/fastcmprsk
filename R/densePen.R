@@ -45,7 +45,7 @@ fastCrrp <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
                     eps = 1E-6,
                     max.iter = 1000, getBreslowJumps = TRUE,
                     standardize = TRUE,
-                    penalty = c("lasso", "ridge", "mcp", "scad"),
+                    penalty = c("LASSO", "RIDGE", "MCP", "SCAD"),
                     lambda = NULL,
                     penalty.factor = rep(1, ncol(X)),
                     gamma = switch(penalty, scad = 3.7, 2.7)){
@@ -53,11 +53,11 @@ fastCrrp <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
   ## Error checking
   if(max.iter < 1) stop("max.iter must be positive integer.")
   if(eps <= 0) stop("eps must be a positive number.")
-  if(!(penalty %in% c("lasso", "ridge", "mcp", "scad"))) stop("penalty is incorrectly specified. Please select lasso, ridge, mcp, or scad")
+  if(!(penalty %in% c("LASSO", "RIDGE", "MCP", "SCAD"))) stop("penalty is incorrectly specified. Please select lasso, ridge, mcp, or scad")
   if(min(lambda) < 0) stop("lambda must be a non-negative number.")
-  if (gamma <= 1 & penalty == "mcp")
-    stop("gamma must be greater than 1 for the MC penalty")
-  if (gamma <= 2 & penalty == "scad")
+  if (gamma <= 1 & penalty == "MCP")
+    stop("gamma must be greater than 1 for the MCP penalty")
+  if (gamma <= 2 & penalty == "SCAD")
     stop("gamma must be greater than 2 for the SCAD penalty")
   # Sort time
   n <- length(ftime)

@@ -220,10 +220,10 @@ SEXP ccd_dense_pen(SEXP x_, SEXP t2_, SEXP ici_, SEXP wt_,
 
         l1 = lam[l] * m[j];
         // Calculate penalized estimate
-        if (strcmp(penalty, "ridge") == 0) b[l * p + j] = getRidge(grad, hess, a[j], l1);
-        if (strcmp(penalty, "lasso") == 0) b[l * p + j] = getLasso(grad, hess, a[j], l1);
-        if (strcmp(penalty, "scad") == 0) b[l * p + j] = getScad(grad, hess, a[j], l1, gamma);
-        if (strcmp(penalty, "mcp") == 0) b[l * p + j] = getMcp(grad, hess, a[j], l1, gamma);
+        if (strcmp(penalty, "RIDGE") == 0) b[l * p + j] = getRidge(grad, hess, a[j], l1);
+        if (strcmp(penalty, "LASSO") == 0) b[l * p + j] = getLasso(grad, hess, a[j], l1);
+        if (strcmp(penalty, "SCAD") == 0) b[l * p + j] = getScad(grad, hess, a[j], l1, gamma);
+        if (strcmp(penalty, "MCP") == 0) b[l * p + j] = getMcp(grad, hess, a[j], l1, gamma);
 
         // Employ trust region as in Genkin et al. (2007) for quadratic approximation.
         //b[l * p + j] = a[j] + sgn(delta) * fmin(fabs(delta), diffBeta[j]);

@@ -10,7 +10,7 @@
 
 plot.fcrrp <-
   function(x, ...) {
-    plot(NA, xlab = "log(Lambda)", ylab = "beta",
+    plot(NA, xlab = expression(log(lambda[n])), ylab = expression(beta[j]),
          ylim = c(min(x$coef), max(x$coef)),
          xlim = c(log(min(x$lambda.path)), log(max(x$lambda.path))),
          ...)
