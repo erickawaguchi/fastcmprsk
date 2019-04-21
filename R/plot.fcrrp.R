@@ -10,11 +10,11 @@
 
 plot.fcrrp <-
   function(x, ...) {
-    plot(NA, xlab = expression(log(lambda[n])), ylab = expression(beta[j]),
+    plot(NA, xlab = expression(log[10](lambda[n])), ylab = expression(beta[j]),
          ylim = c(min(x$coef), max(x$coef)),
-         xlim = c(log(min(x$lambda.path)), log(max(x$lambda.path))),
+         xlim = c(log10(min(x$lambda.path)), log10(max(x$lambda.path))),
          ...)
     for(i in 1:dim(x$coef)[1]) {
-      lines(x$coef[i, ] ~ log(x$lambda.path), col = i)
+      lines(x$coef[i, ] ~ log10(x$lambda.path), col = i)
     }
   }
