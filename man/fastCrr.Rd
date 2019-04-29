@@ -6,7 +6,7 @@
 \usage{
 fastCrr(ftime, fstatus, X, failcode = 1, cencode = 0, eps = 1e-06,
   max.iter = 1000, getBreslowJumps = TRUE, standardize = TRUE,
-  getVariance = TRUE, var.control = varianceControl(B = 100),
+  variance = TRUE, var.control = varianceControl(B = 100),
   returnDataFrame = FALSE)
 }
 \arguments{
@@ -28,7 +28,7 @@ fastCrr(ftime, fstatus, X, failcode = 1, cencode = 0, eps = 1e-06,
 
 \item{standardize}{Logical: Standardize design matrix.}
 
-\item{getVariance}{Logical: Get standard error estimates for parameter estimates via bootstrap.}
+\item{variance}{Logical: Get standard error estimates for parameter estimates via bootstrap.}
 
 \item{var.control}{List of options for variance estimation.}
 
@@ -36,7 +36,7 @@ fastCrr(ftime, fstatus, X, failcode = 1, cencode = 0, eps = 1e-06,
 
 \item{$coef}{Fine-Gray regression coefficient estimates}
 
-\item{$var}{Variance-covariance estimates via bootstrap (if \code{getVariance = TRUE})}
+\item{$var}{Variance-covariance estimates via bootstrap (if \code{variance = TRUE})}
 
 \item{$loglik}{log pseudo-likelihood evaluated at \code{$coef}.}
 
@@ -68,7 +68,7 @@ ftime <- rexp(200)
 fstatus <- sample(0:2, 200, replace = TRUE)
 cov <- matrix(runif(1000), nrow = 200)
 dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
-fit1 <- fastCrr(ftime, fstatus, cov, getVariance = FALSE)
+fit1 <- fastCrr(ftime, fstatus, cov, variance = FALSE)
 fit2 <- crr(ftime, fstatus, cov)
 max(abs(fit1$coef - fit2$coef))
 }

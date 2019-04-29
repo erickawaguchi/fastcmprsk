@@ -6,7 +6,7 @@
 \usage{
 fastCrrp(ftime, fstatus, X, failcode = 1, cencode = 0, eps = 1e-06,
   max.iter = 1000, getBreslowJumps = TRUE, standardize = TRUE,
-  penalty = c("lasso", "ridge", "mcp", "scad"), lambda = NULL,
+  penalty = c("LASSO", "RIDGE", "MCP", "SCAD"), lambda = NULL,
   penalty.factor = rep(1, ncol(X)), gamma = switch(penalty, scad = 3.7,
   2.7))
 }
@@ -54,7 +54,7 @@ ftime <- rexp(200)
 fstatus <- sample(0:2, 200, replace = TRUE)
 cov <- matrix(runif(1000), nrow = 200)
 dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
-fit <- crrp(ftime, fstatus, cov, lambda = 1, penalty = "ridge")
+fit <- crrp(ftime, fstatus, cov, lambda = 1, penalty = "RIDGE")
 fit$coef
 }
 \references{
