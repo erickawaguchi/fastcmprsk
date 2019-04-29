@@ -14,3 +14,6 @@
 \description{
 Plots solution path for penalized methods
 }
+\details{
+Plots solution path for penalized methods. x-axis: log tuning parameter values. y-axis: coeffcient estimates.
+}

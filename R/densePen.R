@@ -31,7 +31,7 @@
 #' fstatus <- sample(0:2, 200, replace = TRUE)
 #' cov <- matrix(runif(1000), nrow = 200)
 #' dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
-#' fit <- crrp(ftime, fstatus, cov, lambda = 1, penalty = "ridge")
+#' fit <- crrp(ftime, fstatus, cov, lambda = 1, penalty = "RIDGE")
 #' fit$coef
 #' @references
 #' Fu, Z., Parikh, C.R., Zhou, B. (2017) Penalized variable selection in competing risks
