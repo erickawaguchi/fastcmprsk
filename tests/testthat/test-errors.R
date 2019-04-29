@@ -11,7 +11,7 @@ test_that("fastCrrp throws error for unknown penalty", {
   cov     <- matrix(runif(250), nrow = 50)
   dimnames(cov)[[2]] <- c('x1', 'x2', 'x3', 'x4', 'x5')
 
-  expect_that(fastCrrp(ftime, fstatus, cov, lambda = 0, penalty = "laso"), throws_error())
+  expect_that(fastCrrp(ftime, fstatus, cov, lambda = 0, penalty = "LASO"), throws_error())
 })
 
 test_that("fastCrrp throws error for negative value of lambda", {
@@ -21,5 +21,5 @@ test_that("fastCrrp throws error for negative value of lambda", {
   cov     <- matrix(runif(250), nrow = 50)
   dimnames(cov)[[2]] <- c('x1', 'x2', 'x3', 'x4', 'x5')
 
-  expect_that(fastCrrp(ftime, fstatus, cov, lambda = -0.1, penalty = "ridge"), throws_error())
+  expect_that(fastCrrp(ftime, fstatus, cov, lambda = -0.1, penalty = "RIDGE"), throws_error())
 })

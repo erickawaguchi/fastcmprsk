@@ -53,7 +53,7 @@ fastCrrp <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
   ## Error checking
   if(max.iter < 1) stop("max.iter must be positive integer.")
   if(eps <= 0) stop("eps must be a positive number.")
-  if(!(penalty %in% c("LASSO", "RIDGE", "MCP", "SCAD"))) stop("penalty is incorrectly specified. Please select lasso, ridge, mcp, or scad")
+  if(!(penalty %in% c("LASSO", "RIDGE", "MCP", "SCAD"))) stop("penalty is incorrectly specified. Please select 'LASSO', 'RIDGE', 'MCP', or 'SCAD'.")
   if(min(lambda) < 0) stop("lambda must be a non-negative number.")
   if (gamma <= 1 & penalty == "MCP")
     stop("gamma must be greater than 1 for the MCP penalty")
