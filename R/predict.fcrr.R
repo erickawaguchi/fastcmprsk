@@ -98,7 +98,7 @@ predict.fcrr <- function(fit, cov, getBootstrapVariance = TRUE, B = 100,
     ftime <- fit$df$ftime
     fstatus <- fit$df$fstatus
     n <- length(ftime)
-    X <- as.matrix(fit$df[, -(1:2)])
+    X <- as.matrix(fit$df[, -(1:2)]) #Remove event time and censoring indicator
     for(i in 1:B) {
       bsamp  <- sample(n, n, replace = TRUE) #Bootstrap sample index
       fit.bs <- fastCrr(ftime[bsamp], fstatus[bsamp], X[bsamp, ], variance = FALSE, ...)
