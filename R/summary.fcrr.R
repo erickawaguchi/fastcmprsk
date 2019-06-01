@@ -14,7 +14,7 @@ summary.fcrr <-
   function(x, conf.int = TRUE, alpha = 0.05, digits = max(options()$digits - 5, 2), ...) {
 
     if(!x$isVariance) {
-      se <- x$var
+      se <- NA
     } else {
       se <- sqrt(diag(x$var))
     }
@@ -23,7 +23,9 @@ summary.fcrr <-
     out <- list(call = x$call, converged = x$converged,
                 iterations = x$iter,
                 logLik = x$logLik,
-                logLik.null = x$logLik.null)
+                logLik.null = x$logLik.null,
+                ncov = length(x$coef),
+                lrt = x$lrt)
     tmp <- cbind(beta, exp(beta), se, beta / se,
                  signif(2 * (1 - pnorm(abs(beta) / se)), digits))
     dimnames(tmp) <- list(names(beta), c("coef", "exp(coef)",

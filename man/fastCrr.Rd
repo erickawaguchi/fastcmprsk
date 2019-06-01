@@ -6,8 +6,8 @@
 \usage{
 fastCrr(ftime, fstatus, X, failcode = 1, cencode = 0, eps = 1e-06,
   max.iter = 1000, getBreslowJumps = TRUE, standardize = TRUE,
-  variance = TRUE, var.control = varianceControl(B = 100),
-  useMultipleCores = FALSE, returnDataFrame = FALSE)
+  variance = TRUE, var.control = varianceControl(B = 100,
+  useMultipleCores = FALSE), returnDataFrame = FALSE)
 }
 \arguments{
 \item{ftime}{A vector of event/censoring times.}

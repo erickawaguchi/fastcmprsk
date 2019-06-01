@@ -32,5 +32,6 @@ print.summary.fcrr <- function (x, digits = max(options()$digits - 4, 3), ...)
 
   cat("Pseudo Log-likelihood =", x$logLik, "\n")
   cat("Null Pseudo Log-likelihood =", x$logLik.null, "\n")
+  cat("Pseudo likelihood ratio test =", x$lrt, "on", x$ncov, "df. \n")
   invisible()
 }

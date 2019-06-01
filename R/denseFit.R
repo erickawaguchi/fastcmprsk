@@ -57,6 +57,7 @@ fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
   ## Error checking
   if(max.iter < 1) stop("max.iter must be positive integer.")
   if(eps <= 0) stop("eps must be a positive number.")
+  #if(!is.matrix(cov)) cov = as.matrix(cov)
 
   # Sort time
   n <- length(ftime)
@@ -122,12 +123,14 @@ fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
     df <- NULL
   }
 
+  lrt = denseFit[[2]][1] - denseFit[[2]][2] #Calculate lilkelihood ratio test
   converged <- ifelse(denseFit[[3]] < max.iter, TRUE, FALSE)
   #Results to store:
   val <- structure(list(coef = denseFit[[1]] / scale,
                         var = sigma,
                         logLik = denseFit[[2]][2] / -2,
                         logLik.null = denseFit[[2]][1] / -2,
+                        lrt = lrt,
                         iter = denseFit[[3]],
                         converged = converged,
                         breslowJump = getBreslowJumps,
