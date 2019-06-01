@@ -57,14 +57,12 @@ fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
   ## Error checking
   if(max.iter < 1) stop("max.iter must be positive integer.")
   if(eps <= 0) stop("eps must be a positive number.")
-  #if(!is.matrix(cov)) cov = as.matrix(cov)
+  if(!is.matrix(X)) X = as.matrix(X)
 
   # Sort time
   n <- length(ftime)
   p <- ncol(X)
   dat <- setupData(ftime, fstatus, X, cencode, failcode, standardize)
-
-  scale = dat$scale
 
   #Fit model here
   denseFit   <- .Call("ccd_dense", dat$X, as.numeric(dat$ftime), as.integer(dat$fstatus), dat$wt,
@@ -78,7 +76,7 @@ fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
   if(getBreslowJumps) {
     bjump = .C("getBreslowJumps", as.double(dat$ftime), as.integer(dat$fstatus),
                as.double(sweep(sweep(dat$X, 2, dat$scale, "*"), 2, dat$center, `+`)),
-               as.integer(p), as.integer(n), as.double(dat$wt), as.double(denseFit[[1]] / scale),
+               as.integer(p), as.integer(n), as.double(dat$wt), as.double(denseFit[[1]] / dat$scale),
                double(sum(dat$fstatus == 1)),
                PACKAGE = "fastcmprsk")
     getBreslowJumps <- data.frame(time = unique(rev(dat$ftime[dat$fstatus == 1])),
@@ -107,7 +105,7 @@ fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
     bsamp_beta <- foreach(i = seeds, .combine = 'rbind', .packages = "fastcmprsk") %mydo% {
       set.seed(i)
       bsamp  <- sample(n, n, replace = TRUE) #Bootstrap sample index
-      dat.bs    <- fastcmprsk::setupData(ftime[bsamp], fstatus[bsamp], X[bsamp, ], cencode, failcode, standardize)
+      dat.bs    <- setupData(ftime[bsamp], fstatus[bsamp], X[bsamp, ], cencode, failcode, standardize)
       fit.bs <- .Call("ccd_dense", dat.bs$X, as.numeric(dat.bs$ftime), as.integer(dat.bs$fstatus), dat.bs$wt,
                       eps, as.integer(max.iter), PACKAGE = "fastcmprsk")
       tmp <- fit.bs[[1]] / dat.bs$scale
@@ -126,7 +124,7 @@ fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
   lrt = denseFit[[2]][1] - denseFit[[2]][2] #Calculate lilkelihood ratio test
   converged <- ifelse(denseFit[[3]] < max.iter, TRUE, FALSE)
   #Results to store:
-  val <- structure(list(coef = denseFit[[1]] / scale,
+  val <- structure(list(coef = denseFit[[1]] / dat$scale,
                         var = sigma,
                         logLik = denseFit[[2]][2] / -2,
                         logLik.null = denseFit[[2]][1] / -2,

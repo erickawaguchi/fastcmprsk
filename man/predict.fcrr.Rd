@@ -43,7 +43,7 @@ cov <- matrix(runif(1000), nrow = 200)
 dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
 fit <- fastCrr(ftime, fstatus, cov)
 cov2 <- rnorm(5)
-getCIF(fit, cov2)
+predict(fit, cov2)
 }
 \references{
 Fine J. and Gray R. (1999) A proportional hazards model for the subdistribution of a competing risk.  \emph{JASA} 94:496-509.
