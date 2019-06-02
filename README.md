@@ -8,6 +8,10 @@ Features
  - Scalable Fine-Gray estimation procedure for large-scale competing risks data.
  - Currently supports unpenalized and penalized (LASSO, ridge, SCAD, MCP) regression.
  - Can perform CIF estimation with interval/band estimation via bootstrap.
+
+What’s New in Version 1.0.1?
+========
+ - Implemented multicore capability for parallelizing bootstrap procedure.
  
 Implementation
 ============
