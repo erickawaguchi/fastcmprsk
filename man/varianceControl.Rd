@@ -11,7 +11,7 @@ varianceControl(B = 100L, seed = 1991L, useMultipleCores = FALSE)
 
 \item{seed}{Integer: Seed value for bootstrapping. Results may differ if parallelized.}
 
-\item{useMultipleCores}{Logical: Set to TRUE if parallelizing.}
+\item{useMultipleCores}{Logical: Set to TRUE if parallelizing. (Default is FALSE).}
 }
 \value{
 Returns a list for variance options inputted into \code{fastCrr}.

@@ -22,6 +22,7 @@
 #' @param $var Variance-covariance estimates via bootstrap (if \code{variance = TRUE})
 #' @param $loglik log pseudo-likelihood evaluated at \code{$coef}.
 #' @param $logLik.null log-pseudo likelihood where coefficients are all 0.
+#' @param $lrt pseudo-likelihood ratio test statistic.
 #' @param $iter Number of iterations it took for convergence
 #' @param $breslowJump Jumps in the Breslow-type estimate of the underlying sub-distribution cumulative hazard.
 #' @param $uftime Vector of unique \code{failcode} event times.
@@ -42,6 +43,16 @@
 #' fit1 <- fastCrr(ftime, fstatus, cov, variance = FALSE)
 #' fit2 <- crr(ftime, fstatus, cov)
 #' max(abs(fit1$coef - fit2$coef))
+#'
+#' #To parallellize variance estimation (make sure doParallel is loaded)
+#' myClust <- makeCluster(2)
+#' registerDoParallel(myClust)
+#' fit1 <- fastCrr(ftime, fstatus, cov, variance = FALSE,
+#' var.control = varianceControl(B = 100, useMultipleCores = TRUE))
+#' stopCluster(myClust)
+#'
+#'
+#'
 #' @references
 #' Fine J. and Gray R. (1999) A proportional hazards model for the subdistribution of a competing risk.  \emph{JASA} 94:496-509.
 #'

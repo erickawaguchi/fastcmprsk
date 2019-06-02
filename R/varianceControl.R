@@ -4,7 +4,7 @@
 #'
 #' @param B Integer: Number of bootstrap samples needed for variance estimation.
 #' @param seed Integer: Seed value for bootstrapping. Results may differ if parallelized.
-#' @param useMultipleCores Logical: Set to TRUE if parallelizing.
+#' @param useMultipleCores Logical: Set to TRUE if parallelizing. (Default is FALSE).
 #' @return Returns a list for variance options inputted into \code{fastCrr}.
 #' @export
 #' @details Variance-covariance estimation is done via bootstrap.

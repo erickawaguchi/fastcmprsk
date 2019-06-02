@@ -42,6 +42,8 @@ fastCrr(ftime, fstatus, X, failcode = 1, cencode = 0, eps = 1e-06,
 
 \item{$logLik.null}{log-pseudo likelihood where coefficients are all 0.}
 
+\item{$lrt}{pseudo-likelihood ratio test statistic.}
+
 \item{$iter}{Number of iterations it took for convergence}
 
 \item{$breslowJump}{Jumps in the Breslow-type estimate of the underlying sub-distribution cumulative hazard.}
@@ -71,6 +73,16 @@ dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
 fit1 <- fastCrr(ftime, fstatus, cov, variance = FALSE)
 fit2 <- crr(ftime, fstatus, cov)
 max(abs(fit1$coef - fit2$coef))
+
+#To parallellize variance estimation (make sure doParallel is loaded)
+myClust <- makeCluster(2)
+registerDoParallel(myClust)
+fit1 <- fastCrr(ftime, fstatus, cov, variance = FALSE,
+var.control = varianceControl(B = 100, useMultipleCores = TRUE))
+stopCluster(myClust)
+
+
+
 }
 \references{
 Fine J. and Gray R. (1999) A proportional hazards model for the subdistribution of a competing risk.  \emph{JASA} 94:496-509.
