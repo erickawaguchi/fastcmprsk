@@ -3,9 +3,8 @@
 #' @description Controls for variance calculation for the fastcmprsk package.
 #'
 #' @param B Integer: Number of bootstrap samples needed for variance estimation.
-#' @param parallel Logical: Whether or not to parallelize independent bootstrap runs.
-#' @param ncores Integer: Number of cores needed if \code{parallel = TRUE}. Default is one less than total number of cores.
-#' @param seed Integer: Seed value for bootstrapping. Results may differ is \code{parallel = TRUE}.
+#' @param seed Integer: Seed value for bootstrapping. Results may differ if parallelized.
+#' @param useMultipleCores Logical: Set to TRUE if parallelizing. (Default is FALSE).
 #' @return Returns a list for variance options inputted into \code{fastCrr}.
 #' @export
 #' @details Variance-covariance estimation is done via bootstrap.
@@ -21,15 +20,8 @@
 #' vc <- varianceControl(B = 100, parallel = FALSE, seed = 2019)
 #' fit1 <- fastCrr(ftime, fstatus, cov, getVariance = TRUE, var.control = vc)
 
-varianceControl <- function(B = 100L, parallel = FALSE, ncores = 1, seed = 1991L)
+varianceControl <- function(B = 100L, seed = 1991L, useMultipleCores = FALSE)
 {
-
-  if(parallel) {
-    if (ncores < 0L || ncores > detectCores() || is.null(ncores)) {
-      warning("The value of 'ncores' was either 0, larger than the number of cores available of NULL. Set to 1")
-      ncores <- 1L
-    }
-  }
 
   if (B <= 0) {
     warning("The value of 'B' must be a non-negative integer. Set to 100")
@@ -43,9 +35,7 @@ varianceControl <- function(B = 100L, parallel = FALSE, ncores = 1, seed = 1991L
 
   obj          <- list()
   obj$B        <- B
-  obj$parallel <- parallel
-  obj$ncores   <- ncores
   obj$seed     <- seed
-
+  obj$mcores   <- useMultipleCores
   return(obj)
 }

@@ -22,12 +22,13 @@
 #' @param $var Variance-covariance estimates via bootstrap (if \code{variance = TRUE})
 #' @param $loglik log pseudo-likelihood evaluated at \code{$coef}.
 #' @param $logLik.null log-pseudo likelihood where coefficients are all 0.
+#' @param $lrt pseudo-likelihood ratio test statistic.
 #' @param $iter Number of iterations it took for convergence
 #' @param $breslowJump Jumps in the Breslow-type estimate of the underlying sub-distribution cumulative hazard.
 #' @param $uftime Vector of unique \code{failcode} event times.
 #' @param $df Returned data frame that is ordered by decreasing event time. (If \code{returnDataFrame = TRUE}).
 #' @importFrom survival survfit
-#' @import doParallel
+#' @import foreach
 #' @export
 #' @useDynLib fastcmprsk
 #' @examples
@@ -42,6 +43,16 @@
 #' fit1 <- fastCrr(ftime, fstatus, cov, variance = FALSE)
 #' fit2 <- crr(ftime, fstatus, cov)
 #' max(abs(fit1$coef - fit2$coef))
+#'
+#' #To parallellize variance estimation (make sure doParallel is loaded)
+#' myClust <- makeCluster(2)
+#' registerDoParallel(myClust)
+#' fit1 <- fastCrr(ftime, fstatus, cov, variance = FALSE,
+#' var.control = varianceControl(B = 100, useMultipleCores = TRUE))
+#' stopCluster(myClust)
+#'
+#'
+#'
 #' @references
 #' Fine J. and Gray R. (1999) A proportional hazards model for the subdistribution of a competing risk.  \emph{JASA} 94:496-509.
 #'
@@ -51,19 +62,18 @@ fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
                     max.iter = 1000, getBreslowJumps = TRUE,
                     standardize = TRUE,
                     variance = TRUE,
-                    var.control = varianceControl(B = 100),
+                    var.control = varianceControl(B = 100, useMultipleCores = FALSE),
                     returnDataFrame = FALSE){
 
   ## Error checking
   if(max.iter < 1) stop("max.iter must be positive integer.")
   if(eps <= 0) stop("eps must be a positive number.")
+  if(!is.matrix(X)) X = as.matrix(X)
 
   # Sort time
   n <- length(ftime)
   p <- ncol(X)
   dat <- setupData(ftime, fstatus, X, cencode, failcode, standardize)
-
-  scale = dat$scale
 
   #Fit model here
   denseFit   <- .Call("ccd_dense", dat$X, as.numeric(dat$ftime), as.integer(dat$fstatus), dat$wt,
@@ -77,7 +87,7 @@ fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
   if(getBreslowJumps) {
     bjump = .C("getBreslowJumps", as.double(dat$ftime), as.integer(dat$fstatus),
                as.double(sweep(sweep(dat$X, 2, dat$scale, "*"), 2, dat$center, `+`)),
-               as.integer(p), as.integer(n), as.double(dat$wt), as.double(denseFit[[1]] / scale),
+               as.integer(p), as.integer(n), as.double(dat$wt), as.double(denseFit[[1]] / dat$scale),
                double(sum(dat$fstatus == 1)),
                PACKAGE = "fastcmprsk")
     getBreslowJumps <- data.frame(time = unique(rev(dat$ftime[dat$fstatus == 1])),
@@ -85,30 +95,35 @@ fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
   } #End Breslow jump
 
   #Calculate variance (if turned on)
-  var = rep(NA, p) #Set se & method to NA, will update if variance == TRUE
-  if(variance) {
+  sigma <- NULL
+    if(variance) {
     controls = var.control
     if (!missing(controls))
       controls[names(controls)] <- controls
     B        <- controls$B
-    parallel <- controls$parallel
-    ncores   <- controls$ncores
     seed     <- controls$seed
+    mcores   <- controls$mcores
+    # Are we using multiple cores (parallel) or not
+    if(mcores) `%mydo%` <- `%dopar%`
+    else          `%mydo%` <- `%do%`
+
+    i <- NULL  #this is only to trick R CMD check,
 
     set.seed(seed)
-    bsamp_beta <- matrix(NA, nrow = B, ncol = p)
-    for(i in 1:B) {
+    seeds = sample.int(2^25, B, replace = FALSE)
+    bsamp_beta <- numeric() #Store bootstrap values of beta here
+    # %mydo% will determine whether we are using multiple cores or a single core
+    bsamp_beta <- foreach(i = seeds, .combine = 'rbind', .packages = "fastcmprsk") %mydo% {
+      set.seed(i)
       bsamp  <- sample(n, n, replace = TRUE) #Bootstrap sample index
       dat.bs    <- setupData(ftime[bsamp], fstatus[bsamp], X[bsamp, ], cencode, failcode, standardize)
       fit.bs <- .Call("ccd_dense", dat.bs$X, as.numeric(dat.bs$ftime), as.integer(dat.bs$fstatus), dat.bs$wt,
                       eps, as.integer(max.iter), PACKAGE = "fastcmprsk")
-      if (fit.bs[[3]] == max.iter) {
-        warning(paste0("Maximum number of iterations reached for ", i, "th bootstrap sample. Estimates may not be stable"))
-      }
-      bsamp_beta[i, ] <- fit.bs[[1]] / dat.bs$scale
+      tmp <- fit.bs[[1]] / dat.bs$scale
+      rm(dat.bs, fit.bs)
+      return(tmp)
     }
-    #Calculate standard error
-    var = cov(bsamp_beta)
+    sigma = cov(bsamp_beta) #Get variance-covariance matrix
   } #End variance option
 
   if(returnDataFrame) {
@@ -117,12 +132,14 @@ fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
     df <- NULL
   }
 
+  lrt = denseFit[[2]][1] - denseFit[[2]][2] #Calculate lilkelihood ratio test
   converged <- ifelse(denseFit[[3]] < max.iter, TRUE, FALSE)
   #Results to store:
-  val <- structure(list(coef = denseFit[[1]] / scale,
-                        var = var,
+  val <- structure(list(coef = denseFit[[1]] / dat$scale,
+                        var = sigma,
                         logLik = denseFit[[2]][2] / -2,
                         logLik.null = denseFit[[2]][1] / -2,
+                        lrt = lrt,
                         iter = denseFit[[3]],
                         converged = converged,
                         breslowJump = getBreslowJumps,

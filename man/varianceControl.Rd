@@ -4,17 +4,14 @@
 \alias{varianceControl}
 \title{Controls for Variance Calculation}
 \usage{
-varianceControl(B = 100L, parallel = FALSE, ncores = 1,
-  seed = 1991L)
+varianceControl(B = 100L, seed = 1991L, useMultipleCores = FALSE)
 }
 \arguments{
 \item{B}{Integer: Number of bootstrap samples needed for variance estimation.}
 
-\item{parallel}{Logical: Whether or not to parallelize independent bootstrap runs.}
+\item{seed}{Integer: Seed value for bootstrapping. Results may differ if parallelized.}
 
-\item{ncores}{Integer: Number of cores needed if \code{parallel = TRUE}. Default is one less than total number of cores.}
-
-\item{seed}{Integer: Seed value for bootstrapping. Results may differ is \code{parallel = TRUE}.}
+\item{useMultipleCores}{Logical: Set to TRUE if parallelizing. (Default is FALSE).}
 }
 \value{
 Returns a list for variance options inputted into \code{fastCrr}.

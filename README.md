@@ -9,19 +9,9 @@ Features
  - Currently supports unpenalized and penalized (LASSO, ridge, SCAD, MCP) regression.
  - Can perform CIF estimation with interval/band estimation via bootstrap.
 
-Examples
+What’s New in Version 1.0.1?
 ========
-
-```r
-library(fastcmprsk)
-set.seed(10)
-ftime <- rexp(200)
-fstatus <- sample(0:2, 200, replace = TRUE)
-cov <- matrix(runif(1000), nrow = 200)
-dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
-fit1 <- fastCrr(ftime, fstatus, cov, variance = FALSE)
-summary(fit1)
-```
+ - Implemented multicore capability for parallelizing bootstrap procedure.
  
 Implementation
 ============
@@ -37,6 +27,7 @@ install.packages("devtools")
 devtools::install_github(“erickawaguchi/fastcmprsk”)
 ```
 
+
 System Requirements
 ===================
 Requires R (version 3.5.0 or higher). 
@@ -45,6 +36,7 @@ Requires R (version 3.5.0 or higher).
 User Documentation
 ==================
 * Package manual: Currently unavailable. 
+* Please cite [Kawaguchi et al. (2019)](https://arxiv.org/abs/1905.07438).
 
 License
 =======

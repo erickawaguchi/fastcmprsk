@@ -16,6 +16,7 @@
 #' @details Calculates the CIF using \code{fcrr} output conditional on \code{cov}.
 #'
 #' @import survival dynpred
+#' @import foreach
 #' @export
 #' @useDynLib fastcmprsk
 #' @examples
@@ -26,14 +27,13 @@
 #' dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
 #' fit <- fastCrr(ftime, fstatus, cov)
 #' cov2 <- rnorm(5)
-#' getCIF(fit, cov2)
+#' predict(fit, cov2)
 #' @references
 #' Fine J. and Gray R. (1999) A proportional hazards model for the subdistribution of a competing risk.  \emph{JASA} 94:496-509.
 
-predict.fcrr <- function(fit, cov, getBootstrapVariance = TRUE, B = 100,
-                   type = "none",
-                   alpha = 0.05, seed = 1991,
-                   tL = NULL, tU = NULL, ...){
+predict.fcrr <- function(fit, cov, getBootstrapVariance = TRUE,
+                         var.control = varianceControl(B = 100, useMultipleCores = FALSE),
+                         type = "none", alpha = 0.05, tL = NULL, tU = NULL, ...){
 
   ## Error checking
   if(class(fit) != "fcrr") {
@@ -59,10 +59,6 @@ predict.fcrr <- function(fit, cov, getBootstrapVariance = TRUE, B = 100,
     warning("alpha is incorrectly specified. Set to 0.05")
   }
 
-  if(B < 0) {
-    B = 100
-    warning("B is incorrectly specified. Set to 100")
-  }
 
   if(is.null(tL)) tL <- min(fit$uftime)
   if(is.null(tU)) tU <- max(fit$uftime)
@@ -91,24 +87,40 @@ predict.fcrr <- function(fit, cov, getBootstrapVariance = TRUE, B = 100,
 
   res  <- data.frame(ftime = fit$uftime, CIF = CIF.hat, lower = NA, upper = NA)
   #Get SD via bootstrap
-  set.seed(seed)
   if(getBootstrapVariance) {
-    CIF.boot <- matrix(NA, nrow = B, ncol = length(fit$uftime))
-    colnames(CIF.boot) <- round(fit$uftime, 3)
+    controls = var.control
+    if (!missing(controls))
+      controls[names(controls)] <- controls
+    B        <- controls$B
+    seed     <- controls$seed
+    mcores   <- controls$mcores
+    # Are we using multiple cores (parallel) or not
+    if(mcores) `%mydo%` <- `%dopar%`
+    else          `%mydo%` <- `%do%`
+
+    i <- NULL  #this is only to trick R CMD check,
+
+    set.seed(seed)
+    seeds = sample.int(2^25, B, replace = FALSE)
+    CIF.boot <- numeric()
     ftime <- fit$df$ftime
     fstatus <- fit$df$fstatus
     n <- length(ftime)
-    X <- as.matrix(fit$df[, -(1:2)])
-    for(i in 1:B) {
+    X <- as.matrix(fit$df[, -(1:2)]) #Remove event time and censoring indicator
+
+    CIF.boot <- foreach(i = seeds, .combine = 'rbind', .packages = "fastcmprsk") %mydo% {
+      set.seed(i)
       bsamp  <- sample(n, n, replace = TRUE) #Bootstrap sample index
       fit.bs <- fastCrr(ftime[bsamp], fstatus[bsamp], X[bsamp, ], variance = FALSE, ...)
       CIF.bs <- 1 - exp(-cumsum(exp(sum(cov * fit.bs$coef)) * fit.bs$breslowJump[, 2]))
-      CIF.boot[i, ] <- evalstep(fit.bs$breslowJump$time,
+      return(evalstep(fit.bs$breslowJump$time,
                                 stepf = CIF.bs,
                                 subst = 1E-16,
-                                newtime = fit$uftime)
+                                newtime = fit$uftime))
+      rm(fit.bs)
     }
-    rm(CIF.bs)
+    #colnames(CIF.boot) <- round(fit$uftime, 3)
+
     #Variance Stabalization: f(x) = log(-log(x))
     CIF.hat  <- log(-log(CIF.hat))
     CIF.boot <- log(-log(CIF.boot))
