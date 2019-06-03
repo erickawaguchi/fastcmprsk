@@ -36,6 +36,7 @@ Requires R (version 3.5.0 or higher).
 User Documentation
 ==================
 * Package manual: Currently unavailable. 
+* Please cite [Kawaguchi et al. (2019)](https://arxiv.org/abs/1905.07438).
 
 License
 =======
