@@ -6,9 +6,9 @@
 \usage{
 fastCrrp(ftime, fstatus, X, failcode = 1, cencode = 0, eps = 1e-06,
   max.iter = 1000, getBreslowJumps = TRUE, standardize = TRUE,
-  penalty = c("LASSO", "RIDGE", "MCP", "SCAD"), lambda = NULL,
-  penalty.factor = rep(1, ncol(X)), gamma = switch(penalty, scad = 3.7,
-  2.7))
+  penalty = c("LASSO", "RIDGE", "MCP", "SCAD", "ENET"), lambda = NULL,
+  alpha = 0, penalty.factor = rep(1, ncol(X)),
+  gamma = switch(penalty, scad = 3.7, 2.7))
 }
 \arguments{
 \item{ftime}{A vector of event/censoring times.}
@@ -27,9 +27,11 @@ fastCrrp(ftime, fstatus, X, failcode = 1, cencode = 0, eps = 1e-06,
 
 \item{standardize}{Logical: Standardize design matrix.}
 
-\item{penalty}{Character: Penalty to be applied to the model. Options are "lasso", "scad", "ridge", and "mcp".}
+\item{penalty}{Character: Penalty to be applied to the model. Options are "lasso", "scad", "ridge", "mcp", and "enet".}
 
 \item{lambda}{A user-specified sequence of \code{lambda} values for tuning parameters.}
+
+\item{alpha}{L1/L2 weight for elastic net regression.}
 
 \item{penalty.factor}{A vector of weights applied to the penalty for each coefficient. Vector must be of length equal to the number of columns in \code{X}.}
 
