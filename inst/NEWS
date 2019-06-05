@@ -7,7 +7,9 @@ Reference:
 
 ---------------------------------------------------------------------------------
 RELEASE 1.0.2
-1) Implemented elastic net regression.
+1) Implemented (adaptvie) elastic net regression.
+2) Created function to produce a data-driven grid for penalized regression (see crrp).
+
 ---------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------

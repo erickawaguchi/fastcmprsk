@@ -7,7 +7,7 @@
 fastCrrp(ftime, fstatus, X, failcode = 1, cencode = 0, eps = 1e-06,
   max.iter = 1000, getBreslowJumps = TRUE, standardize = TRUE,
   penalty = c("LASSO", "RIDGE", "MCP", "SCAD", "ENET"), lambda = NULL,
-  alpha = 0, lambda.min = 0.001, nlambda = 25,
+  alpha = 0, lambda.min.ratio = 0.001, nlambda = 25,
   penalty.factor = rep(1, ncol(X)), gamma = switch(penalty, scad = 3.7,
   2.7))
 }
@@ -34,7 +34,7 @@ fastCrrp(ftime, fstatus, X, failcode = 1, cencode = 0, eps = 1e-06,
 
 \item{alpha}{L1/L2 weight for elastic net regression.}
 
-\item{lambda.min}{Minimum value of lambda used for grid (if \code{lambda} is NULL).}
+\item{lambda.min.ratio}{Smallest value for \code{lambda}, as a fraction of \code{lambda.max} (if \code{lambda} is NULL).}
 
 \item{nlambda}{Number of \code{lambda} values (default is 25).}
 
