@@ -15,7 +15,7 @@
 #' @param penalty Character: Penalty to be applied to the model. Options are "lasso", "scad", "ridge", "mcp", and "enet".
 #' @param lambda A user-specified sequence of \code{lambda} values for tuning parameters.
 #' @param alpha L1/L2 weight for elastic net regression.
-#' @param lambda.min Minimum value of lambda used for grid (if \code{lambda} is NULL).
+#' @param lambda.min.ratio Smallest value for \code{lambda}, as a fraction of \code{lambda.max} (if \code{lambda} is NULL).
 #' @param nlambda Number of \code{lambda} values (default is 25).
 #' @param penalty.factor A vector of weights applied to the penalty for each coefficient. Vector must be of length equal to the number of columns in \code{X}.
 #' @param gamma Tuning parameter for the MCP/SCAD penalty. Default is 2.7 for MCP and 3.7 for SCAD and should be left unchanged.
@@ -50,7 +50,7 @@ fastCrrp <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
                     standardize = TRUE,
                     penalty = c("LASSO", "RIDGE", "MCP", "SCAD", "ENET"),
                     lambda = NULL, alpha = 0,
-                    lambda.min = 0.001, nlambda = 25,
+                    lambda.min.ratio = 0.001, nlambda = 25,
                     penalty.factor = rep(1, ncol(X)),
                     gamma = switch(penalty, scad = 3.7, 2.7)){
 
@@ -99,7 +99,7 @@ fastCrrp <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
 
   # Create data-driven lambda path if one is not provided
   if(is.null(lambda)) {
-    if(lambda.min < 0) stop("lambda.min must be positive.")
+    if(lambda.min.ratio < 0 | lambda.min.ratio > 1) stop("lambda.min.ratio must be between 0 and 1.")
     if(nlambda < 1) stop("nlambda must be larger than one")
 
     sw <- .C("getGradientAndHessian", as.double(ftime), as.integer(fstatus),
@@ -111,7 +111,7 @@ fastCrrp <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
     r0 <- ifelse(w0 == 0, 0, score0 / w0)
     z <- eta0 + r0
     lambda.max <- max(t(w0 * z) %*% XX) / n # TO DO: Import this into C
-    lambda = 10^(seq(log10(lambda.max), log10(lambda.min), len = nlambda))
+    lambda = 10^(seq(log10(lambda.max), log10(lambda.min.ratio * lambda.max), len = nlambda))
   }
 
 
