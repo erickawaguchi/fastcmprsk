@@ -7,8 +7,9 @@
 fastCrrp(ftime, fstatus, X, failcode = 1, cencode = 0, eps = 1e-06,
   max.iter = 1000, getBreslowJumps = TRUE, standardize = TRUE,
   penalty = c("LASSO", "RIDGE", "MCP", "SCAD", "ENET"), lambda = NULL,
-  alpha = 0, penalty.factor = rep(1, ncol(X)),
-  gamma = switch(penalty, scad = 3.7, 2.7))
+  alpha = 0, lambda.min = 0.001, nlambda = 25,
+  penalty.factor = rep(1, ncol(X)), gamma = switch(penalty, scad = 3.7,
+  2.7))
 }
 \arguments{
 \item{ftime}{A vector of event/censoring times.}
@@ -32,6 +33,10 @@ fastCrrp(ftime, fstatus, X, failcode = 1, cencode = 0, eps = 1e-06,
 \item{lambda}{A user-specified sequence of \code{lambda} values for tuning parameters.}
 
 \item{alpha}{L1/L2 weight for elastic net regression.}
+
+\item{lambda.min}{Minimum value of lambda used for grid (if \code{lambda} is NULL).}
+
+\item{nlambda}{Number of \code{lambda} values (default is 25).}
 
 \item{penalty.factor}{A vector of weights applied to the penalty for each coefficient. Vector must be of length equal to the number of columns in \code{X}.}
 

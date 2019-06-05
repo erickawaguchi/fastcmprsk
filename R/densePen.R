@@ -15,6 +15,8 @@
 #' @param penalty Character: Penalty to be applied to the model. Options are "lasso", "scad", "ridge", "mcp", and "enet".
 #' @param lambda A user-specified sequence of \code{lambda} values for tuning parameters.
 #' @param alpha L1/L2 weight for elastic net regression.
+#' @param lambda.min Minimum value of lambda used for grid (if \code{lambda} is NULL).
+#' @param nlambda Number of \code{lambda} values (default is 25).
 #' @param penalty.factor A vector of weights applied to the penalty for each coefficient. Vector must be of length equal to the number of columns in \code{X}.
 #' @param gamma Tuning parameter for the MCP/SCAD penalty. Default is 2.7 for MCP and 3.7 for SCAD and should be left unchanged.
 #'
@@ -48,14 +50,15 @@ fastCrrp <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
                     standardize = TRUE,
                     penalty = c("LASSO", "RIDGE", "MCP", "SCAD", "ENET"),
                     lambda = NULL, alpha = 0,
+                    lambda.min = 0.001, nlambda = 25,
                     penalty.factor = rep(1, ncol(X)),
                     gamma = switch(penalty, scad = 3.7, 2.7)){
 
   ## Error checking
   if(max.iter < 1) stop("max.iter must be positive integer.")
   if(eps <= 0) stop("eps must be a positive number.")
-  if(!(penalty %in% c("LASSO", "RIDGE", "MCP", "SCAD", "ENET"))) stop("penalty is incorrectly specified. Please select 'LASSO', 'RIDGE', 'MCP', 'SCAD' or 'ENET'.")
-  if(min(lambda) < 0) stop("lambda must be a non-negative number.")
+  if(!(penalty %in% c("LASSO", "RIDGE", "MCP", "SCAD", "ENET")))
+    stop("penalty is incorrectly specified. Please select 'LASSO', 'RIDGE', 'MCP', 'SCAD' or 'ENET'.")
   if (gamma <= 1 & penalty == "MCP")
     stop("gamma must be greater than 1 for the MCP penalty")
   if (gamma <= 2 & penalty == "SCAD")
@@ -94,11 +97,27 @@ fastCrrp <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
     scale <- 1
   }
 
-  # Skeleton for adding data-driven lambda path
+  # Create data-driven lambda path if one is not provided
+  if(is.null(lambda)) {
+    if(lambda.min < 0) stop("lambda.min must be positive.")
+    if(nlambda < 1) stop("nlambda must be larger than one")
+
+    sw <- .C("getGradientAndHessian", as.double(ftime), as.integer(fstatus),
+             as.integer(n), as.double(uuu),
+             as.double(eta0), double(n), double(n), double(1),
+             PACKAGE = "fastcmprsk") #Linearized version of crrp function
+    score0 <- sw[[6]]
+    w0 <- sw[[8]]
+    r0 <- ifelse(w0 == 0, 0, score0 / w0)
+    z <- eta0 + r0
+    lambda.max <- max(t(w0 * z) %*% XX) / n # TO DO: Import this into C
+    lambda = 10^(seq(log10(lambda.max), log10(lambda.min), len = nlambda))
+  }
 
 
 
   # Order lambda in decreasing order increasing order. [Dense -> Sparse Model]
+  if(min(lambda) < 0) stop("lambda(s) must be non negative.")
   lambda <- sort(lambda, decreasing = TRUE)
 
   # Fit the PSH penalized model
