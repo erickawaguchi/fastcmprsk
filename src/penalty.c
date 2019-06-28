@@ -44,3 +44,11 @@ double getScad(double grad, double hess, double a, double lam, double gamma) {
   else if (fabs(z) <= gamma * lam) return(s * (fabs(z) - gamma * lam / (gamma - 1)) / (hess * (1 - 1 / (gamma - 1))));
   else return(z / hess);
 }
+
+//Include Elastic Net (06/04/2019)
+double getElasticNet(double grad, double hess, double a, double lam, double alpha) {
+  double z = hess * a - grad;
+  int s = sgn(z);
+  if (fabs(z) <= (lam * alpha)) return(0);
+  else return(s * (fabs(z) - (lam * alpha)) / (hess + lam * (1 - alpha)));
+}

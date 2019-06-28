@@ -1,4 +1,4 @@
-#' Penalized Fine-Gray Model Estimation via two-wasy linear scan
+#' Penalized Fine-Gray Model Estimation via two-way linear scan
 #'
 #' @description Performs penalized regression for the proportional subdistribution hazards model.
 #' Penalties currently include LASSO, MCP, SCAD, and ridge regression. User-specificed weights can be assigned
@@ -12,8 +12,11 @@
 #' @param eps Numeric: algorithm stops when the relative change in any coefficient is less than \code{eps} (default is \code{1E-6})
 #' @param max.iter Numeric: maximum iterations to achieve convergence (default is 1000)
 #' @param standardize Logical: Standardize design matrix.
-#' @param penalty Character: Penalty to be applied to the model. Options are "lasso", "scad", "ridge", and "mcp".
+#' @param penalty Character: Penalty to be applied to the model. Options are "lasso", "scad", "ridge", "mcp", and "enet".
 #' @param lambda A user-specified sequence of \code{lambda} values for tuning parameters.
+#' @param alpha L1/L2 weight for elastic net regression.
+#' @param lambda.min.ratio Smallest value for \code{lambda}, as a fraction of \code{lambda.max} (if \code{lambda} is NULL).
+#' @param nlambda Number of \code{lambda} values (default is 25).
 #' @param penalty.factor A vector of weights applied to the penalty for each coefficient. Vector must be of length equal to the number of columns in \code{X}.
 #' @param gamma Tuning parameter for the MCP/SCAD penalty. Default is 2.7 for MCP and 3.7 for SCAD and should be left unchanged.
 #'
@@ -45,20 +48,23 @@ fastCrrp <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
                     eps = 1E-6,
                     max.iter = 1000, getBreslowJumps = TRUE,
                     standardize = TRUE,
-                    penalty = c("LASSO", "RIDGE", "MCP", "SCAD"),
-                    lambda = NULL,
+                    penalty = c("LASSO", "RIDGE", "MCP", "SCAD", "ENET"),
+                    lambda = NULL, alpha = 0,
+                    lambda.min.ratio = 0.001, nlambda = 25,
                     penalty.factor = rep(1, ncol(X)),
                     gamma = switch(penalty, scad = 3.7, 2.7)){
 
   ## Error checking
   if(max.iter < 1) stop("max.iter must be positive integer.")
   if(eps <= 0) stop("eps must be a positive number.")
-  if(!(penalty %in% c("LASSO", "RIDGE", "MCP", "SCAD"))) stop("penalty is incorrectly specified. Please select 'LASSO', 'RIDGE', 'MCP', or 'SCAD'.")
-  if(min(lambda) < 0) stop("lambda must be a non-negative number.")
+  if(!(penalty %in% c("LASSO", "RIDGE", "MCP", "SCAD", "ENET")))
+    stop("penalty is incorrectly specified. Please select 'LASSO', 'RIDGE', 'MCP', 'SCAD' or 'ENET'.")
   if (gamma <= 1 & penalty == "MCP")
     stop("gamma must be greater than 1 for the MCP penalty")
   if (gamma <= 2 & penalty == "SCAD")
     stop("gamma must be greater than 2 for the SCAD penalty")
+  if(alpha < 0 | alpha > 1) stop("alpha must be between 0 and 1")
+
   # Sort time
   n <- length(ftime)
   p <- ncol(X)
@@ -91,17 +97,45 @@ fastCrrp <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
     scale <- 1
   }
 
+  # Create data-driven lambda path if one is not provided
+  if(is.null(lambda)) {
+    if(lambda.min.ratio < 0 | lambda.min.ratio > 1) stop("lambda.min.ratio must be between 0 and 1.")
+    if(nlambda < 1) stop("nlambda must be larger than one")
+
+    sw <- .C("getGradientAndHessian", as.double(ftime), as.integer(fstatus),
+             as.integer(n), as.double(uuu),
+             as.double(eta0), double(n), double(n), double(1),
+             PACKAGE = "fastcmprsk") #Linearized version of crrp function
+    score0 <- sw[[6]]
+    w0 <- sw[[8]]
+    r0 <- ifelse(w0 == 0, 0, score0 / w0)
+    z <- eta0 + r0
+    lambda.max <- max(t(w0 * z) %*% XX) / n # TO DO: Import this into C
+    lambda = 10^(seq(log10(lambda.max), log10(lambda.min.ratio * lambda.max), len = nlambda))
+  }
+
+
 
   # Order lambda in decreasing order increasing order. [Dense -> Sparse Model]
+  if(min(lambda) < 0) stop("lambda(s) must be non negative.")
   lambda <- sort(lambda, decreasing = TRUE)
 
   # Fit the PSH penalized model
+  if(penalty %in% c("LASSO", "RIDGE", "MCP", "SCAD")) {
   denseFit   <- .Call("ccd_dense_pen", XX, as.numeric(ftime), as.integer(fstatus), uuu,
                       eps, as.integer(max.iter), penalty, as.double(lambda),
                       as.double(penalty.factor), as.double(gamma), PACKAGE = "fastcmprsk")
 
   bhat <- matrix(denseFit[[1]], p, length(lambda)) / scale
+  } else {
+    #Elastic Net regression
+    denseFit   <- .Call("ccd_dense_enet", XX, as.numeric(ftime), as.integer(fstatus), uuu,
+                        eps, as.integer(max.iter), as.double(alpha), as.double(lambda),
+                        as.double(penalty.factor), PACKAGE = "fastcmprsk")
+    bhat <- matrix(denseFit[[1]], p, length(lambda)) / scale
+  }
   colnames(bhat) <- round(lambda, 4)
+
   # Calculate Breslow Baseline
   if(getBreslowJumps) {
     jump = matrix(NA, ncol = length(lambda) + 1, nrow = length(unique(ftime[fstatus == 1])))

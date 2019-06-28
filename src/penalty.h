@@ -6,4 +6,5 @@ double getRidge(double grad, double hess, double a, double lam);
 double getLasso(double grad, double hess, double a, double lam);
 double getScad(double grad, double hess, double a, double lam, double gamma);
 double getMcp(double grad, double hess, double a, double lam, double gamma);
+double getElasticNet(double grad, double hess, double a, double lam, double alpha);
 #endif

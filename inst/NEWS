@@ -1,9 +1,16 @@
 Package: fastcmprsk
 Information: A scalable and fast approach for penalized and unpenalized Fine-Gray estimation.
-Version: 1.0.1
+Version: 1.0.2
 Author: Eric S. Kawaguchi
 Contact: erickawaguchi [at] ucla.edu
 Reference:
+
+---------------------------------------------------------------------------------
+RELEASE 1.0.2
+1) Implemented (adaptvie) elastic net regression.
+2) Created function to produce a data-driven grid for penalized regression (see crrp).
+
+---------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------
 RELEASE 1.0.1
