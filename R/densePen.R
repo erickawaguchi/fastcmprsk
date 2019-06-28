@@ -1,4 +1,4 @@
-#' Penalized Fine-Gray Model Estimation via two-wasy linear scan
+#' Penalized Fine-Gray Model Estimation via two-way linear scan
 #'
 #' @description Performs penalized regression for the proportional subdistribution hazards model.
 #' Penalties currently include LASSO, MCP, SCAD, and ridge regression. User-specificed weights can be assigned
