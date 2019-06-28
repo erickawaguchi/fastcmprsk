@@ -9,9 +9,9 @@ Features
  - Currently supports unpenalized and penalized (LASSO, ridge, SCAD, MCP) regression.
  - Can perform CIF estimation with interval/band estimation via bootstrap.
 
-What’s New in Version 1.0.1?
+What’s New in Version 1.0.2?
 ========
- - Implemented multicore capability for parallelizing bootstrap procedure.
+ - Implemented elastic-net Fine-Gray regression.
  
 Implementation
 ============
