@@ -4,6 +4,7 @@
 #'
 #' @param x \code{predict.fcrr} object (output from \code{predict(fcrr object)})
 #' @param ... additional arguments to \code{plot()}
+#' @import graphics
 #' @export
 #'
 plot.predict.fcrr <-

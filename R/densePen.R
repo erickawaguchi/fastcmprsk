@@ -29,6 +29,8 @@
 #' @export
 #' @useDynLib fastcmprsk
 #' @examples
+#' library(fastcmprsk)
+#' library(crrp)
 #' set.seed(10)
 #' ftime <- rexp(200)
 #' fstatus <- sample(0:2, 200, replace = TRUE)
@@ -102,6 +104,7 @@ fastCrrp <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
     if(lambda.min.ratio < 0 | lambda.min.ratio > 1) stop("lambda.min.ratio must be between 0 and 1.")
     if(nlambda < 1) stop("nlambda must be larger than one")
 
+    eta0 <- rep(0, n) #Linear predictor when beta = 0
     sw <- .C("getGradientAndHessian", as.double(ftime), as.integer(fstatus),
              as.integer(n), as.double(uuu),
              as.double(eta0), double(n), double(n), double(1),

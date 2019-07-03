@@ -13,6 +13,7 @@
 #' @param returnX Logical: Whether to return \code{X} or not. Default is TRUE. Recommended if \code{X} is NULL.
 #' @details The function simulates data according to the setup by Fine and Gray (1999). See their paper for more information.
 #' @return Returns a list with \code{ftime}, \code{fstatus}, \code{X}.
+#' @import stats
 #' @examples
 #' set.seed(2019)
 #' nobs <- 500

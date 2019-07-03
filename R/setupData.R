@@ -1,4 +1,4 @@
-#' @import survival
+#' @import survival stats
 #' @export
 #' @useDynLib fastcmprsk
 

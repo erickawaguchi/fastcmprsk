@@ -2,7 +2,7 @@
 % Please edit documentation in R/densePen.R
 \name{fastCrrp}
 \alias{fastCrrp}
-\title{Penalized Fine-Gray Model Estimation via two-wasy linear scan}
+\title{Penalized Fine-Gray Model Estimation via two-way linear scan}
 \usage{
 fastCrrp(ftime, fstatus, X, failcode = 1, cencode = 0, eps = 1e-06,
   max.iter = 1000, getBreslowJumps = TRUE, standardize = TRUE,
@@ -56,6 +56,8 @@ Parameter estimation is performed via cyclic coordinate descent and using a two-
 calculate the gradient and Hessian values. Current implementation includes LASSO, SCAD, MCP, and ridge regression.
 }
 \examples{
+library(fastcmprsk)
+library(crrp)
 set.seed(10)
 ftime <- rexp(200)
 fstatus <- sample(0:2, 200, replace = TRUE)
