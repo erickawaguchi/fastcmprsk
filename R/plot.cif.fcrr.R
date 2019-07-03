@@ -8,15 +8,15 @@
 #' @export
 #'
 plot.predict.fcrr <-
-  function(x, ...) {
-    if(x$type == "none") {
-      plot(x$CIF ~ x$ftime, xlab = "Time", ylab = "Estimated CIF",
+  function(object, ...) {
+    if(object$type == "none") {
+      plot(object$CIF ~ object$ftime, xlab = "Time", ylab = "Estimated CIF",
            type = "s", ...)
     } else {
-      plot(x$CIF ~ x$ftime, xlab = "Time", ylab = "Estimated CIF",
-           ylim = c(min(x$lower), max(x$upper)),
-           xlim = c(min(x$ftime), max(x$ftime)), type = "s", ...)
-      lines(x$lower ~ x$ftime, lty = 2, type = "s")
-      lines(x$upper ~ x$ftime, lty = 2, type = "s")
+      plot(object$CIF ~ object$ftime, xlab = "Time", ylab = "Estimated CIF",
+           ylim = c(min(object$lower), max(object$upper)),
+           xlim = c(min(object$ftime), max(object$ftime)), type = "s", ...)
+      lines(object$lower ~ object$ftime, lty = 2, type = "s")
+      lines(object$upper ~ object$ftime, lty = 2, type = "s")
     }
   }

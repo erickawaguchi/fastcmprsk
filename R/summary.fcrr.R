@@ -11,21 +11,21 @@
 #' @export
 
 summary.fcrr <-
-  function(x, conf.int = TRUE, alpha = 0.05, digits = max(options()$digits - 5, 2), ...) {
+  function(object, conf.int = TRUE, alpha = 0.05, digits = max(options()$digits - 5, 2), ...) {
 
-    if(!x$isVariance) {
+    if(!object$isVariance) {
       se <- NA
     } else {
-      se <- sqrt(diag(x$var))
+      se <- sqrt(diag(object$var))
     }
 
-    beta <- x$coef
-    out <- list(call = x$call, converged = x$converged,
-                iterations = x$iter,
-                logLik = x$logLik,
-                logLik.null = x$logLik.null,
-                ncov = length(x$coef),
-                lrt = x$lrt)
+    beta <- object$coef
+    out <- list(call = object$call, converged = object$converged,
+                iterations = object$iter,
+                logLik = object$logLik,
+                logLik.null = object$logLik.null,
+                ncov = length(object$coef),
+                lrt = object$lrt)
     names(beta) <- ifelse(is.null(names(beta)), paste0("cov", 1:length(beta)), names(beta))
     tmp <- cbind(beta, exp(beta), se, beta / se,
                  signif(2 * (1 - pnorm(abs(beta) / se)), digits))
