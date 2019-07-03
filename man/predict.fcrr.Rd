@@ -4,13 +4,11 @@
 \alias{predict.fcrr}
 \title{Cumulative Incidence Function Estimation}
 \usage{
-\method{predict}{fcrr}(fit, cov, getBootstrapVariance = TRUE,
+\method{predict}{fcrr}(object, cov, getBootstrapVariance = TRUE,
   var.control = varianceControl(B = 100, useMultipleCores = FALSE),
   type = "none", alpha = 0.05, tL = NULL, tU = NULL, ...)
 }
 \arguments{
-\item{fit}{Output from \code{fcrr} object.}
-
 \item{cov}{A set of covariate values.}
 
 \item{getBootstrapVariance}{Logical: Calculate variance for CIF via bootstrap.}
@@ -24,6 +22,8 @@
 \item{tU}{Upper time for band estimation.}
 
 \item{...}{additional arguments affecting the fastCrr procedure.}
+
+\item{fit}{Output from \code{fcrr} object.}
 
 \item{B}{Number of bootstrap samples for variance estimation.}
 

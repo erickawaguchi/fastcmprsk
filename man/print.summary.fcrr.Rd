@@ -4,13 +4,13 @@
 \alias{print.summary.fcrr}
 \title{Prints summary of a fcrr object}
 \usage{
-\method{print}{summary.fcrr}(x, digits = max(options()$digits - 4, 3),
-  ...)
+\method{print}{summary.fcrr}(object, digits = max(options()$digits - 4,
+  3), ...)
 }
 \arguments{
-\item{x}{\code{fcrr} object (output from \code{fastCrr()})}
-
 \item{...}{additional arguments to \code{print()}}
+
+\item{x}{\code{fcrr} object (output from \code{fastCrr()})}
 }
 \description{
 Prints summary statistics of a fcrr object

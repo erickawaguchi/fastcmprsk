@@ -4,12 +4,12 @@
 \alias{plot.fcrrp}
 \title{Plots solution path for penalized methods}
 \usage{
-\method{plot}{fcrrp}(x, ...)
+\method{plot}{fcrrp}(object, ...)
 }
 \arguments{
-\item{x}{\code{fcrrp} object (output from \code{fastCrrp()})}
-
 \item{...}{additional arguments to \code{plot()}}
+
+\item{x}{\code{fcrrp} object (output from \code{fastCrrp()})}
 }
 \description{
 Plots solution path for penalized methods

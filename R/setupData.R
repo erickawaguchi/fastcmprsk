@@ -1,7 +1,3 @@
-#' @import survival stats
-#' @export
-#' @useDynLib fastcmprsk
-
 #Sorts data apporpriately and calcualtes IPCW
 setupData <- function(ftime, fstatus, X, cencode, failcode, standardize) {
   d <- data.frame(ftime = ftime, fstatus = fstatus)

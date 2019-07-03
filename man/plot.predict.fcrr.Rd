@@ -4,12 +4,12 @@
 \alias{plot.predict.fcrr}
 \title{Plots predicted cumulative incidence function}
 \usage{
-\method{plot}{predict.fcrr}(x, ...)
+\method{plot}{predict.fcrr}(object, ...)
 }
 \arguments{
-\item{x}{\code{predict.fcrr} object (output from \code{predict(fcrr object)})}
-
 \item{...}{additional arguments to \code{plot()}}
+
+\item{x}{\code{predict.fcrr} object (output from \code{predict(fcrr object)})}
 }
 \description{
 Plots predicted cumulative incidence function

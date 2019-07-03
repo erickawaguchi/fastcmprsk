@@ -4,12 +4,10 @@
 \alias{summary.fcrr}
 \title{SUmmary method for fastCrr}
 \usage{
-\method{summary}{fcrr}(x, conf.int = TRUE, alpha = 0.05,
+\method{summary}{fcrr}(object, conf.int = TRUE, alpha = 0.05,
   digits = max(options()$digits - 5, 2), ...)
 }
 \arguments{
-\item{x}{\code{fcrr} x (output from \code{fastCrr()})}
-
 \item{conf.int}{Logical. Whether or not to outut confidence intervals.}
 
 \item{alpha}{Significance level of the confidence intervals.}
@@ -17,6 +15,8 @@
 \item{digits}{Numer of significant difits to round to.}
 
 \item{...}{additional arguments to \code{print()}}
+
+\item{x}{\code{fcrr} x (output from \code{fastCrr()})}
 }
 \description{
 Generate and print summaries of \code{fastCrr} output.
