@@ -11,6 +11,7 @@
 #' @param cencode Integer: code of \code{fstatus} that denotes censored observations (default is 0)
 #' @param eps Numeric: algorithm stops when the relative change in any coefficient is less than \code{eps} (default is \code{1E-6})
 #' @param max.iter Numeric: maximum iterations to achieve convergence (default is 1000)
+#' @param getBreslowJumps Logical: Output jumps in Breslow estimator for the cumulative hazard.
 #' @param standardize Logical: Standardize design matrix.
 #' @param penalty Character: Penalty to be applied to the model. Options are "lasso", "scad", "ridge", "mcp", and "enet".
 #' @param lambda A user-specified sequence of \code{lambda} values for tuning parameters.
@@ -27,10 +28,9 @@
 #'
 #' @import survival doParallel
 #' @export
-#' @useDynLib fastcmprsk
+#' @useDynLib fastcmprsk, .registration = TRUE
 #' @examples
 #' library(fastcmprsk)
-#' library(crrp)
 #' set.seed(10)
 #' ftime <- rexp(200)
 #' fstatus <- sample(0:2, 200, replace = TRUE)

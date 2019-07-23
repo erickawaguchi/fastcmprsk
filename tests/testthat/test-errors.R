@@ -1,8 +1,10 @@
 library("testthat")
 library("fastcmprsk")
 library("cmprsk")
-library("Matrix")
 library("crrp")
+
+context("test-errors.R")
+
 
 test_that("fastCrrp throws error for unknown penalty", {
   set.seed(10)

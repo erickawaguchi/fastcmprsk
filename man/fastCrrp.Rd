@@ -26,6 +26,8 @@ fastCrrp(ftime, fstatus, X, failcode = 1, cencode = 0, eps = 1e-06,
 
 \item{max.iter}{Numeric: maximum iterations to achieve convergence (default is 1000)}
 
+\item{getBreslowJumps}{Logical: Output jumps in Breslow estimator for the cumulative hazard.}
+
 \item{standardize}{Logical: Standardize design matrix.}
 
 \item{penalty}{Character: Penalty to be applied to the model. Options are "lasso", "scad", "ridge", "mcp", and "enet".}
@@ -57,13 +59,12 @@ calculate the gradient and Hessian values. Current implementation includes LASSO
 }
 \examples{
 library(fastcmprsk)
-library(crrp)
 set.seed(10)
 ftime <- rexp(200)
 fstatus <- sample(0:2, 200, replace = TRUE)
 cov <- matrix(runif(1000), nrow = 200)
 dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
-fit <- crrp(ftime, fstatus, cov, lambda = 1, penalty = "RIDGE")
+fit <- fastCrrp(ftime, fstatus, cov, lambda = 1, penalty = "RIDGE")
 fit$coef
 }
 \references{

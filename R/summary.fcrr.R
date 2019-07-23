@@ -1,8 +1,8 @@
-#' SUmmary method for fastCrr
+#' Summary method for fastCrr
 #'
 #' @description  Generate and print summaries of \code{fastCrr} output.
 #'
-#' @param x \code{fcrr} x (output from \code{fastCrr()})
+#' @param object \code{fcrr} x (output from \code{fastCrr()})
 #' @param conf.int Logical. Whether or not to outut confidence intervals.
 #' @param alpha Significance level of the confidence intervals.
 #' @param digits Numer of significant difits to round to.

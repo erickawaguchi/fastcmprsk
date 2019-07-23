@@ -1,8 +1,10 @@
 library("testthat")
 library("fastcmprsk")
 library("cmprsk")
-library("Matrix")
 library("crrp")
+
+context("test-modelFits.R")
+
 
 test_that("Compare crr with fastCrr", {
   set.seed(4291)
@@ -72,7 +74,7 @@ test_that("Compare crr with fastCrr (CIF)", {
   fit.fast   <- fastCrr(ftime, fstatus, cov, variance = FALSE, returnDataFrame = TRUE)
   z0 <- rnorm(3)
   p1 <- predict(fit.crr, cov1 = z0)[,2]
-  p2 <- predict(fit.fast, cov = z0, getBootstrapVariance = FALSE)$CIF
+  p2 <- predict(fit.fast, newdata = z0, getBootstrapVariance = FALSE)$CIF
   expect_equal(p1, p2, tolerance = 1E-4)
 })
 

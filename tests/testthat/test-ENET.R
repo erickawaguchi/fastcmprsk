@@ -1,8 +1,10 @@
 library("testthat")
 library("fastcmprsk")
 library("cmprsk")
-library("Matrix")
 library("crrp")
+
+context("test-ENET.R")
+
 
 test_that("Test Elastic Net (LASSO)", {
   set.seed(4291)

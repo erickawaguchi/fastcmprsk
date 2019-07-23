@@ -33,27 +33,9 @@ fastCrr(ftime, fstatus, X, failcode = 1, cencode = 0, eps = 1e-06,
 \item{var.control}{List of options for variance estimation.}
 
 \item{returnDataFrame}{Logical: Return (ordered) data frame.}
-
-\item{$coef}{Fine-Gray regression coefficient estimates}
-
-\item{$var}{Variance-covariance estimates via bootstrap (if \code{variance = TRUE})}
-
-\item{$loglik}{log pseudo-likelihood evaluated at \code{$coef}.}
-
-\item{$logLik.null}{log-pseudo likelihood where coefficients are all 0.}
-
-\item{$lrt}{pseudo-likelihood ratio test statistic.}
-
-\item{$iter}{Number of iterations it took for convergence}
-
-\item{$breslowJump}{Jumps in the Breslow-type estimate of the underlying sub-distribution cumulative hazard.}
-
-\item{$uftime}{Vector of unique \code{failcode} event times.}
-
-\item{$df}{Returned data frame that is ordered by decreasing event time. (If \code{returnDataFrame = TRUE}).}
 }
 \value{
-Returns a list of class \code{fcrr} with the following components:
+Returns a list of class \code{fcrr}.
 }
 \description{
 Estimates parameters for the proportional subdistribution hazards model using two-way linear scan approach.
@@ -62,7 +44,6 @@ Estimates parameters for the proportional subdistribution hazards model using tw
 Fits the 'proportional subdistribution hazards' regression model described in Fine and Gray (1999) using a novel two-way linear scan approach.
 }
 \examples{
-library(cmprsk)
 library(fastcmprsk)
 
 set.seed(10)
@@ -70,9 +51,7 @@ ftime <- rexp(200)
 fstatus <- sample(0:2, 200, replace = TRUE)
 cov <- matrix(runif(1000), nrow = 200)
 dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
-fit1 <- fastCrr(ftime, fstatus, cov, variance = FALSE)
-fit2 <- crr(ftime, fstatus, cov)
-max(abs(fit1$coef - fit2$coef))
+fit <- fastCrr(ftime, fstatus, cov, variance = FALSE)
 
 #To parallellize variance estimation (make sure doParallel is loaded)
 myClust <- makeCluster(2)

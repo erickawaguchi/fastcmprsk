@@ -1,9 +1,10 @@
-#' Prints summary of a fcrr object
+#' Prints summary of a fcrr x
 #'
-#' @description  Prints summary statistics of a fcrr object
+#' @description  Prints summary statistics of a fcrr x
 #'
-#' @param x \code{fcrr} x (output from \code{fastCrr()})
-#' @param ... additional arguments to \code{print()}
+#' @param x output from \code{fastCrr()}.
+#' @param digits digits for rounding.
+#' @param ... additional arguments to \code{print()}.
 #' @details Prints the convergence status,
 #' log-pseudo likelihood, the estimated coefficients, the estimated standard errors, and the two-sided p-values for the test of the individual coefficients equal to 0.
 #' @export

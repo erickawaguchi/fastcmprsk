@@ -2,18 +2,18 @@
 #'
 #' @description Predicts cumulative incidence function from a \code{fcrr} object.
 #'
-#' @param fit Output from \code{fcrr} object.
-#' @param cov A set of covariate values.
+#' @param object Output from \code{fcrr} object.
+#' @param newdata A set of covariate values to predict the CIF.
 #' @param getBootstrapVariance Logical: Calculate variance for CIF via bootstrap.
+#' @param var.control List of variance parameters from \code{varianceControl()}.
 #' @param B Number of bootstrap samples for variance estimation.
 #' @param type Confidence intervals or confidence bands.
 #' @param alpha Significance level to compute intervals or bands
-#' @param seed Seed number of bootstrap sampling.
 #' @param tL Lower time for band estimation.
 #' @param tU Upper time for band estimation.
 #' @param ... additional arguments affecting the fastCrr procedure.
 #'
-#' @details Calculates the CIF using \code{fcrr} output conditional on \code{cov}.
+#' @details Calculates the CIF using \code{fcrr} output conditional on \code{newdata}.
 #'
 #' @import survival dynpred
 #' @import foreach
@@ -25,13 +25,13 @@
 #' fstatus <- sample(0:2, 200, replace = TRUE)
 #' cov <- matrix(runif(1000), nrow = 200)
 #' dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
-#' fit <- fastCrr(ftime, fstatus, cov)
+#' fit <- fastCrr(ftime, fstatus, cov, returnDataFrame = TRUE)
 #' cov2 <- rnorm(5)
-#' predict(fit, cov2)
+#' predict(fit, newdata = cov2)
 #' @references
 #' Fine J. and Gray R. (1999) A proportional hazards model for the subdistribution of a competing risk.  \emph{JASA} 94:496-509.
 
-predict.fcrr <- function(object, cov, getBootstrapVariance = TRUE,
+predict.fcrr <- function(object, newdata, getBootstrapVariance = TRUE,
                          var.control = varianceControl(B = 100, useMultipleCores = FALSE),
                          type = "none", alpha = 0.05, tL = NULL, tU = NULL, ...){
 
@@ -78,11 +78,11 @@ predict.fcrr <- function(object, cov, getBootstrapVariance = TRUE,
   min.idx = min(which(object$uftime >= tL))
   max.idx = max(which(object$uftime <= tU))
 
-  if (length(object$coef) == length(cov)) {
-    CIF.hat <- cumsum(exp(sum(cov * object$coef)) * object$breslowJump[, 2]) #This is cumulative hazard
+  if (length(object$coef) == length(newdata)) {
+    CIF.hat <- cumsum(exp(sum(newdata * object$coef)) * object$breslowJump[, 2]) #This is cumulative hazard
     CIF.hat <- 1 - exp(-CIF.hat)
   } else {
-    stop("Parameter dimension of 'cov' does not match dimension of '$coef' from object.")
+    stop("Parameter dimension of 'newdata' does not match dimension of '$coef' from object.")
   }
 
   res  <- data.frame(ftime = object$uftime, CIF = CIF.hat, lower = NA, upper = NA)
@@ -112,7 +112,7 @@ predict.fcrr <- function(object, cov, getBootstrapVariance = TRUE,
       set.seed(i)
       bsamp  <- sample(n, n, replace = TRUE) #Bootstrap sample index
       fit.bs <- fastCrr(ftime[bsamp], fstatus[bsamp], X[bsamp, ], variance = FALSE, ...)
-      CIF.bs <- 1 - exp(-cumsum(exp(sum(cov * fit.bs$coef)) * fit.bs$breslowJump[, 2]))
+      CIF.bs <- 1 - exp(-cumsum(exp(sum(newdata * fit.bs$coef)) * fit.bs$breslowJump[, 2]))
       return(evalstep(fit.bs$breslowJump$time,
                                 stepf = CIF.bs,
                                 subst = 1E-16,
