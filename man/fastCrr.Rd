@@ -4,21 +4,15 @@
 \alias{fastCrr}
 \title{Fast Fine-Gray Model Estimation}
 \usage{
-fastCrr(ftime, fstatus, X, failcode = 1, cencode = 0, eps = 1e-06,
-  max.iter = 1000, getBreslowJumps = TRUE, standardize = TRUE,
-  variance = TRUE, var.control = varianceControl(B = 100,
-  useMultipleCores = FALSE), returnDataFrame = FALSE)
+fastCrr(formula, data, eps = 1e-06, max.iter = 1000,
+  getBreslowJumps = TRUE, standardize = TRUE, variance = TRUE,
+  var.control = varianceControl(B = 100, useMultipleCores = FALSE),
+  returnDataFrame = FALSE)
 }
 \arguments{
-\item{ftime}{A vector of event/censoring times.}
+\item{formula}{a formula object, with the response on the left of a ~ operator, and the terms on the right. The response must be a Crisk object as returned by the \code{Crisk} function.}
 
-\item{fstatus}{A vector with unique code for each event type and a separate code for censored observations.}
-
-\item{X}{A matrix of fixed covariates (nobs x ncovs)}
-
-\item{failcode}{Integer: code of \code{fstatus} that event type of interest (default is 1)}
-
-\item{cencode}{Integer: code of \code{fstatus} that denotes censored observations (default is 0)}
+\item{data}{a data.frame in which to interpret the variables named in the formula.}
 
 \item{eps}{Numeric: algorithm stops when the relative change in any coefficient is less than \code{eps} (default is \code{1E-6})}
 
@@ -42,6 +36,7 @@ Estimates parameters for the proportional subdistribution hazards model using tw
 }
 \details{
 Fits the 'proportional subdistribution hazards' regression model described in Fine and Gray (1999) using a novel two-way linear scan approach.
+By default, the \code{Crisk} object will specify which observations are censored (0), the event of interest (1), or competing risks (2).
 }
 \examples{
 library(fastcmprsk)
@@ -51,12 +46,12 @@ ftime <- rexp(200)
 fstatus <- sample(0:2, 200, replace = TRUE)
 cov <- matrix(runif(1000), nrow = 200)
 dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
-fit <- fastCrr(ftime, fstatus, cov, variance = FALSE)
+fit <- fastCrr(Crisk(ftime, fstatus) ~ cov, variance = FALSE)
 
 #To parallellize variance estimation (make sure doParallel is loaded)
 myClust <- makeCluster(2)
 registerDoParallel(myClust)
-fit1 <- fastCrr(ftime, fstatus, cov, variance = FALSE,
+fit1 <- fastCrr(Crisk(ftime, fstatus) ~ cov, variance = FALSE,
 var.control = varianceControl(B = 100, useMultipleCores = TRUE))
 stopCluster(myClust)
 

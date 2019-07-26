@@ -4,8 +4,8 @@
 #' Penalties currently include LASSO, MCP, SCAD, and ridge regression. User-specificed weights can be assigned
 #' to the penalty for each coefficient (e.g. implementing adaptive LASSO and broken adaptive ridge regerssion).
 #'
-#' @param ftime A vector of event/censoring times.
-#' @param fstatus A vector with unique code for each event type and a separate code for censored observations.
+#' @param formula a formula object, with the response on the left of a ~ operator, and the terms on the right. The response must be a Crisk object as returned by the \code{Crisk} function.
+#' @param data a data.frame in which to interpret the variables named in the formula.
 #' @param X A matrix of fixed covariates (nobs x ncovs)
 #' @param failcode Integer: code of \code{fstatus} that event type of interest (default is 1)
 #' @param cencode Integer: code of \code{fstatus} that denotes censored observations (default is 0)
@@ -36,7 +36,7 @@
 #' fstatus <- sample(0:2, 200, replace = TRUE)
 #' cov <- matrix(runif(1000), nrow = 200)
 #' dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
-#' fit <- fastCrrp(ftime, fstatus, cov, lambda = 1, penalty = "RIDGE")
+#' fit <- fastCrrp(Crisk(ftime, fstatus) ~ cov, lambda = 1, penalty = "RIDGE")
 #' fit$coef
 #' @references
 #' Fu, Z., Parikh, C.R., Zhou, B. (2017) Penalized variable selection in competing risks
@@ -46,7 +46,7 @@
 #'
 #' Fine J. and Gray R. (1999) A proportional hazards model for the subdistribution of a competing risk.  \emph{JASA} 94:496-509.
 
-fastCrrp <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
+fastCrrp <- function(formula, data,
                     eps = 1E-6,
                     max.iter = 1000, getBreslowJumps = TRUE,
                     standardize = TRUE,
@@ -66,6 +66,29 @@ fastCrrp <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
   if (gamma <= 2 & penalty == "SCAD")
     stop("gamma must be greater than 2 for the SCAD penalty")
   if(alpha < 0 | alpha > 1) stop("alpha must be between 0 and 1")
+
+  # Setup formula object
+  #----------
+  cl <- match.call() #
+  mf.all <- match.call(expand.dots = FALSE)
+  m.d <- match(c("formula", "data"), names(mf.all), 0L)
+  mf.d <- mf.all[c(1L, m.d)]
+  mf.d$drop.unused.levels <- TRUE
+  mf.d[[1L]] <- quote(stats::model.frame)
+  mf.d <- eval(mf.d, parent.frame())
+  outcome <- model.response(mf.d)
+
+  # Check to see if outcome is of class Crisk
+  if (!inherits(outcome, "Crisk")) stop("Outcome must be of class Crisk")
+  ftime   <- as.numeric(outcome[, 1])
+  fstatus <- as.numeric(outcome[, 2])
+
+  # Design matrix
+  mt.d <- attr(mf.d, "terms")
+
+  X <- as.matrix(model.matrix(mt.d, mf.d)[, -1])
+  dlabels <- labels(cov)[[2]]
+  #----------
 
   # Sort time
   n <- length(ftime)

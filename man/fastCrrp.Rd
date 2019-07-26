@@ -4,23 +4,16 @@
 \alias{fastCrrp}
 \title{Penalized Fine-Gray Model Estimation via two-way linear scan}
 \usage{
-fastCrrp(ftime, fstatus, X, failcode = 1, cencode = 0, eps = 1e-06,
-  max.iter = 1000, getBreslowJumps = TRUE, standardize = TRUE,
-  penalty = c("LASSO", "RIDGE", "MCP", "SCAD", "ENET"), lambda = NULL,
-  alpha = 0, lambda.min.ratio = 0.001, nlambda = 25,
-  penalty.factor = rep(1, ncol(X)), gamma = switch(penalty, scad = 3.7,
-  2.7))
+fastCrrp(formula, data, eps = 1e-06, max.iter = 1000,
+  getBreslowJumps = TRUE, standardize = TRUE, penalty = c("LASSO",
+  "RIDGE", "MCP", "SCAD", "ENET"), lambda = NULL, alpha = 0,
+  lambda.min.ratio = 0.001, nlambda = 25, penalty.factor = rep(1,
+  ncol(X)), gamma = switch(penalty, scad = 3.7, 2.7))
 }
 \arguments{
-\item{ftime}{A vector of event/censoring times.}
+\item{formula}{a formula object, with the response on the left of a ~ operator, and the terms on the right. The response must be a Crisk object as returned by the \code{Crisk} function.}
 
-\item{fstatus}{A vector with unique code for each event type and a separate code for censored observations.}
-
-\item{X}{A matrix of fixed covariates (nobs x ncovs)}
-
-\item{failcode}{Integer: code of \code{fstatus} that event type of interest (default is 1)}
-
-\item{cencode}{Integer: code of \code{fstatus} that denotes censored observations (default is 0)}
+\item{data}{a data.frame in which to interpret the variables named in the formula.}
 
 \item{eps}{Numeric: algorithm stops when the relative change in any coefficient is less than \code{eps} (default is \code{1E-6})}
 
@@ -43,6 +36,12 @@ fastCrrp(ftime, fstatus, X, failcode = 1, cencode = 0, eps = 1e-06,
 \item{penalty.factor}{A vector of weights applied to the penalty for each coefficient. Vector must be of length equal to the number of columns in \code{X}.}
 
 \item{gamma}{Tuning parameter for the MCP/SCAD penalty. Default is 2.7 for MCP and 3.7 for SCAD and should be left unchanged.}
+
+\item{X}{A matrix of fixed covariates (nobs x ncovs)}
+
+\item{failcode}{Integer: code of \code{fstatus} that event type of interest (default is 1)}
+
+\item{cencode}{Integer: code of \code{fstatus} that denotes censored observations (default is 0)}
 }
 \value{
 Returns a list of class \code{fcrrp}.
@@ -64,7 +63,7 @@ ftime <- rexp(200)
 fstatus <- sample(0:2, 200, replace = TRUE)
 cov <- matrix(runif(1000), nrow = 200)
 dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
-fit <- fastCrrp(ftime, fstatus, cov, lambda = 1, penalty = "RIDGE")
+fit <- fastCrrp(Crisk(ftime, fstatus) ~ cov, lambda = 1, penalty = "RIDGE")
 fit$coef
 }
 \references{
