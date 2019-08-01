@@ -26,7 +26,9 @@ summary.fcrr <-
                 logLik.null = object$logLik.null,
                 ncov = length(object$coef),
                 lrt = object$lrt)
-    names(beta) <- ifelse(is.null(names(beta)), paste0("cov", 1:length(beta)), names(beta))
+    if(is.null(names(beta))) {
+      names(beta) <- paste0("x", 1:length(beta))
+    }
     tmp <- cbind(beta, exp(beta), se, beta / se,
                  signif(2 * (1 - pnorm(abs(beta) / se)), digits))
     dimnames(tmp) <- list(names(beta), c("coef", "exp(coef)",

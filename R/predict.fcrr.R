@@ -25,7 +25,7 @@
 #' fstatus <- sample(0:2, 200, replace = TRUE)
 #' cov <- matrix(runif(1000), nrow = 200)
 #' dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
-#' fit <- fastCrr(ftime, fstatus, cov, returnDataFrame = TRUE)
+#' fit <- fastCrr(Crisk(ftime, fstatus) ~ cov, returnDataFrame = TRUE)
 #' cov2 <- rnorm(5)
 #' predict(fit, newdata = cov2)
 #' @references
@@ -111,7 +111,7 @@ predict.fcrr <- function(object, newdata, getBootstrapVariance = TRUE,
     CIF.boot <- foreach(i = seeds, .combine = 'rbind', .packages = "fastcmprsk") %mydo% {
       set.seed(i)
       bsamp  <- sample(n, n, replace = TRUE) #Bootstrap sample index
-      fit.bs <- fastCrr(ftime[bsamp], fstatus[bsamp], X[bsamp, ], variance = FALSE, ...)
+      fit.bs <- fastCrr(Crisk(ftime[bsamp], fstatus[bsamp]) ~ X[bsamp, ], variance = FALSE, ...)
       CIF.bs <- 1 - exp(-cumsum(exp(sum(newdata * fit.bs$coef)) * fit.bs$breslowJump[, 2]))
       return(evalstep(fit.bs$breslowJump$time,
                                 stepf = CIF.bs,

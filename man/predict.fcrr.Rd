@@ -41,7 +41,7 @@ ftime <- rexp(200)
 fstatus <- sample(0:2, 200, replace = TRUE)
 cov <- matrix(runif(1000), nrow = 200)
 dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
-fit <- fastCrr(ftime, fstatus, cov, returnDataFrame = TRUE)
+fit <- fastCrr(Crisk(ftime, fstatus) ~ cov, returnDataFrame = TRUE)
 cov2 <- rnorm(5)
 predict(fit, newdata = cov2)
 }

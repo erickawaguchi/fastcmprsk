@@ -36,12 +36,6 @@ fastCrrp(formula, data, eps = 1e-06, max.iter = 1000,
 \item{penalty.factor}{A vector of weights applied to the penalty for each coefficient. Vector must be of length equal to the number of columns in \code{X}.}
 
 \item{gamma}{Tuning parameter for the MCP/SCAD penalty. Default is 2.7 for MCP and 3.7 for SCAD and should be left unchanged.}
-
-\item{X}{A matrix of fixed covariates (nobs x ncovs)}
-
-\item{failcode}{Integer: code of \code{fstatus} that event type of interest (default is 1)}
-
-\item{cencode}{Integer: code of \code{fstatus} that denotes censored observations (default is 0)}
 }
 \value{
 Returns a list of class \code{fcrrp}.

@@ -51,7 +51,7 @@ fit <- fastCrr(Crisk(ftime, fstatus) ~ cov, variance = FALSE)
 #To parallellize variance estimation (make sure doParallel is loaded)
 myClust <- makeCluster(2)
 registerDoParallel(myClust)
-fit1 <- fastCrr(Crisk(ftime, fstatus) ~ cov, variance = FALSE,
+fit1 <- fastCrr(Crisk(ftime, fstatus) ~ cov, variance = TRUE,
 var.control = varianceControl(B = 100, useMultipleCores = TRUE))
 stopCluster(myClust)
 

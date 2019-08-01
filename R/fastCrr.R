@@ -33,7 +33,7 @@
 #' #To parallellize variance estimation (make sure doParallel is loaded)
 #' myClust <- makeCluster(2)
 #' registerDoParallel(myClust)
-#' fit1 <- fastCrr(Crisk(ftime, fstatus) ~ cov, variance = FALSE,
+#' fit1 <- fastCrr(Crisk(ftime, fstatus) ~ cov, variance = TRUE,
 #' var.control = varianceControl(B = 100, useMultipleCores = TRUE))
 #' stopCluster(myClust)
 #'
@@ -75,12 +75,13 @@ fastCrr <- function(formula, data,
   mt.d <- attr(mf.d, "terms")
 
   X <- as.matrix(model.matrix(mt.d, mf.d)[, -1])
-  dlabels <- labels(cov)[[2]]
+  dlabels <- labels(X)[[2]]
   #----------
 
   # Sort time
   n <- length(ftime)
   p <- ncol(X)
+  cencode = 0; failcode = 1 #Preset
   dat <- setupData(ftime, fstatus, X, cencode, failcode, standardize)
 
   #Fit model here

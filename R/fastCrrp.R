@@ -6,9 +6,6 @@
 #'
 #' @param formula a formula object, with the response on the left of a ~ operator, and the terms on the right. The response must be a Crisk object as returned by the \code{Crisk} function.
 #' @param data a data.frame in which to interpret the variables named in the formula.
-#' @param X A matrix of fixed covariates (nobs x ncovs)
-#' @param failcode Integer: code of \code{fstatus} that event type of interest (default is 1)
-#' @param cencode Integer: code of \code{fstatus} that denotes censored observations (default is 0)
 #' @param eps Numeric: algorithm stops when the relative change in any coefficient is less than \code{eps} (default is \code{1E-6})
 #' @param max.iter Numeric: maximum iterations to achieve convergence (default is 1000)
 #' @param getBreslowJumps Logical: Output jumps in Breslow estimator for the cumulative hazard.
@@ -87,12 +84,13 @@ fastCrrp <- function(formula, data,
   mt.d <- attr(mf.d, "terms")
 
   X <- as.matrix(model.matrix(mt.d, mf.d)[, -1])
-  dlabels <- labels(cov)[[2]]
+  dlabels <- labels(X)[[2]]
   #----------
 
   # Sort time
   n <- length(ftime)
   p <- ncol(X)
+  cencode = 0; failcode = 1 #Preset
   d <- data.frame(ftime = ftime, fstatus = fstatus)
   if (!missing(X)) d$X <- as.matrix(X)
   d        <- d[order(d$ftime, -d$fstatus, decreasing = TRUE), ]
@@ -175,9 +173,6 @@ fastCrrp <- function(formula, data,
     colnames(jump) = c("time", paste0("Lam:", round(lambda, 4)))
     getBreslowJumps <- data.frame(jump)
   } #End Breslow jump
-
-  #Do not calculate bootstrap variances for penalized model. Can be unstable
-
 
   #Results to store:
   val <- structure(list(coef = bhat,
