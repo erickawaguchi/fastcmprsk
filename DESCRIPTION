@@ -5,7 +5,7 @@ Version: 1.0.3
 Author: Eric S. Kawaguchi
 Maintainer: Eric S. Kawaguchi <erickawaguchi@ucla.edu>
 Description: Performs penalized and unpenalized Fine-Gray regression via forward-backward scan. 
-Depends: R (>= 3.5.0), doParallel, dynpred, foreach, survival
+Depends: R (>= 3.3.0), doParallel, dynpred, foreach, survival
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
