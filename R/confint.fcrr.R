@@ -5,8 +5,8 @@
 #' @param object \code{fcrr} object (output from \code{fastCrr()})
 #' @param parm a specification of which parameters are to be given confidence intervals, either a vector of numbers or a vector of names. If missing, all parameters are considered.
 #' @param level the confidence level required
-#' @param digits Numer of significant difits to round to.
-#' @param ... some methods for this generic function require additional arguments. This package does not.
+#' @param digits Number of significant difits to round to.
+#' @param ... Additional arguments. Not implemented.
 #' @details Prints out table of confidence intervals for the Fine-Gray model.
 #' @export
 

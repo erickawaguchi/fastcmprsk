@@ -9,7 +9,7 @@
 \arguments{
 \item{object}{\code{fcrr} object}
 
-\item{...}{some methods for this generic function require additional arguments. This package does not.}
+\item{...}{Additional arguments. Not implemented.}
 }
 \description{
 Similar functional utility to \code{coef} methods.

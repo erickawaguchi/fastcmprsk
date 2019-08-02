@@ -1,10 +1,10 @@
-#' Extract log-pseudo likelihood from an "fcrr" object.
+#' Extract log-pseudo likelihood from an "fcrrp" object.
 #'
 #' @description  Similar functional utility to \code{coef} methods.
 #'
-#' @param object \code{fcrr} object
+#' @param object \code{fcrrp} object
 #' @param ... Additional arguments. Not implemented.
 #' @export
 #'
-logLik.fcrr <- function(object, ...)
+logLik.fcrrp <- function(object, ...)
   object$logLik

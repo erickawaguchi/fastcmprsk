@@ -14,9 +14,9 @@
 
 \item{level}{the confidence level required}
 
-\item{digits}{Numer of significant difits to round to.}
+\item{digits}{Number of significant difits to round to.}
 
-\item{...}{some methods for this generic function require additional arguments. This package does not.}
+\item{...}{Additional arguments. Not implemented.}
 }
 \description{
 Computes confidence intervals for one or more parameters in a fitted model of class \code{fcrr}.

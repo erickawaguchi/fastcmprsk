@@ -3,7 +3,7 @@
 #' @description  Similar functional utility to \code{vcov} methods.
 #'
 #' @param object \code{fcrr} object.
-#' @param ... some methods for this generic function require additional arguments. This package does not.
+#' @param ... Additional arguments. Not implemented.
 #' @export
 #'
 vcov.fcrr <- function(object, ...) {

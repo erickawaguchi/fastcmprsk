@@ -1,10 +1,10 @@
-#' Extract coefficients from an "fcrr" object.
+#' Extract coefficients from an "fcrrp" object.
 #'
 #' @description  Similar functional utility to \code{coef} methods.
 #'
-#' @param object \code{fcrr} object
+#' @param object \code{fcrrp} object
 #' @param ... Additional arguments. Not implemented.
 #' @export
 #'
-coef.fcrr <- function(object, ...)
+coef.fcrrp <- function(object, ...)
   object$coef
