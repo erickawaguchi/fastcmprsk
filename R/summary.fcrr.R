@@ -32,7 +32,7 @@ summary.fcrr <-
     tmp <- cbind(beta, exp(beta), se, beta / se,
                  signif(2 * (1 - pnorm(abs(beta) / se)), digits))
     dimnames(tmp) <- list(names(beta), c("coef", "exp(coef)",
-                                         "se(coef)", "z", "p-value"))
+                                         "se(coef)", "z value", "Pr(>|z|)"))
 
     out$coef <- tmp
     if(conf.int)
