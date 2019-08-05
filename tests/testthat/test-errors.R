@@ -1,7 +1,5 @@
 library("testthat")
 library("fastcmprsk")
-library("cmprsk")
-library("crrp")
 
 context("test-errors.R")
 

@@ -8,4 +8,4 @@
 #' @export
 #'
 AIC.fcrrp <- function(object, ..., k = 2)
-  -2 * object$logLik + k * apply(fit$coef, 2, function(x) sum(x != 0))
+  -2 * object$logLik + k * apply(object$coef, 2, function(x) sum(x != 0))
