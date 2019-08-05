@@ -2,11 +2,8 @@
 #'
 #' @description Estimates parameters for the proportional subdistribution hazards model using two-way linear scan approach.
 #'
-#' @param ftime A vector of event/censoring times.
-#' @param fstatus A vector with unique code for each event type and a separate code for censored observations.
-#' @param X A matrix of fixed covariates (nobs x ncovs)
-#' @param failcode Integer: code of \code{fstatus} that event type of interest (default is 1)
-#' @param cencode Integer: code of \code{fstatus} that denotes censored observations (default is 0)
+#' @param formula a formula object, with the response on the left of a ~ operator, and the terms on the right. The response must be a Crisk object as returned by the \code{Crisk} function.
+#' @param data a data.frame in which to interpret the variables named in the formula.
 #' @param eps Numeric: algorithm stops when the relative change in any coefficient is less than \code{eps} (default is \code{1E-6})
 #' @param max.iter Numeric: maximum iterations to achieve convergence (default is 1000)
 #' @param getBreslowJumps Logical: Output jumps in Breslow estimator for the cumulative hazard.
@@ -16,23 +13,14 @@
 #' @param returnDataFrame Logical: Return (ordered) data frame.
 #'
 #' @details Fits the 'proportional subdistribution hazards' regression model described in Fine and Gray (1999) using a novel two-way linear scan approach.
+#' By default, the \code{Crisk} object will specify which observations are censored (0), the event of interest (1), or competing risks (2).
 #'
-#' @return Returns a list of class \code{fcrr} with the following components:
-#' @param $coef Fine-Gray regression coefficient estimates
-#' @param $var Variance-covariance estimates via bootstrap (if \code{variance = TRUE})
-#' @param $loglik log pseudo-likelihood evaluated at \code{$coef}.
-#' @param $logLik.null log-pseudo likelihood where coefficients are all 0.
-#' @param $lrt pseudo-likelihood ratio test statistic.
-#' @param $iter Number of iterations it took for convergence
-#' @param $breslowJump Jumps in the Breslow-type estimate of the underlying sub-distribution cumulative hazard.
-#' @param $uftime Vector of unique \code{failcode} event times.
-#' @param $df Returned data frame that is ordered by decreasing event time. (If \code{returnDataFrame = TRUE}).
+#' @return Returns a list of class \code{fcrr}.
 #' @importFrom survival survfit
 #' @import foreach
 #' @export
-#' @useDynLib fastcmprsk
+#' @useDynLib fastcmprsk, .registration = TRUE
 #' @examples
-#' library(cmprsk)
 #' library(fastcmprsk)
 #'
 #' set.seed(10)
@@ -40,14 +28,12 @@
 #' fstatus <- sample(0:2, 200, replace = TRUE)
 #' cov <- matrix(runif(1000), nrow = 200)
 #' dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
-#' fit1 <- fastCrr(ftime, fstatus, cov, variance = FALSE)
-#' fit2 <- crr(ftime, fstatus, cov)
-#' max(abs(fit1$coef - fit2$coef))
+#' fit <- fastCrr(Crisk(ftime, fstatus) ~ cov, variance = FALSE)
 #'
 #' #To parallellize variance estimation (make sure doParallel is loaded)
 #' myClust <- makeCluster(2)
 #' registerDoParallel(myClust)
-#' fit1 <- fastCrr(ftime, fstatus, cov, variance = FALSE,
+#' fit1 <- fastCrr(Crisk(ftime, fstatus) ~ cov, variance = TRUE,
 #' var.control = varianceControl(B = 100, useMultipleCores = TRUE))
 #' stopCluster(myClust)
 #'
@@ -57,7 +43,7 @@
 #' Fine J. and Gray R. (1999) A proportional hazards model for the subdistribution of a competing risk.  \emph{JASA} 94:496-509.
 #'
 
-fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
+fastCrr <- function(formula, data,
                     eps = 1E-6,
                     max.iter = 1000, getBreslowJumps = TRUE,
                     standardize = TRUE,
@@ -68,11 +54,34 @@ fastCrr <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
   ## Error checking
   if(max.iter < 1) stop("max.iter must be positive integer.")
   if(eps <= 0) stop("eps must be a positive number.")
-  if(!is.matrix(X)) X = as.matrix(X)
+
+  # Setup formula object
+  #----------
+  cl <- match.call() #
+  mf.all <- match.call(expand.dots = FALSE)
+  m.d <- match(c("formula", "data"), names(mf.all), 0L)
+  mf.d <- mf.all[c(1L, m.d)]
+  mf.d$drop.unused.levels <- TRUE
+  mf.d[[1L]] <- quote(stats::model.frame)
+  mf.d <- eval(mf.d, parent.frame())
+  outcome <- model.response(mf.d)
+
+  # Check to see if outcome is of class Crisk
+  if (!inherits(outcome, "Crisk")) stop("Outcome must be of class Crisk")
+  ftime   <- as.numeric(outcome[, 1])
+  fstatus <- as.numeric(outcome[, 2])
+
+  # Design matrix
+  mt.d <- attr(mf.d, "terms")
+
+  X <- as.matrix(model.matrix(mt.d, mf.d)[, -1])
+  dlabels <- labels(X)[[2]]
+  #----------
 
   # Sort time
   n <- length(ftime)
   p <- ncol(X)
+  cencode = 0; failcode = 1 #Preset
   dat <- setupData(ftime, fstatus, X, cencode, failcode, standardize)
 
   #Fit model here

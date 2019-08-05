@@ -4,13 +4,11 @@
 #' Penalties currently include LASSO, MCP, SCAD, and ridge regression. User-specificed weights can be assigned
 #' to the penalty for each coefficient (e.g. implementing adaptive LASSO and broken adaptive ridge regerssion).
 #'
-#' @param ftime A vector of event/censoring times.
-#' @param fstatus A vector with unique code for each event type and a separate code for censored observations.
-#' @param X A matrix of fixed covariates (nobs x ncovs)
-#' @param failcode Integer: code of \code{fstatus} that event type of interest (default is 1)
-#' @param cencode Integer: code of \code{fstatus} that denotes censored observations (default is 0)
+#' @param formula a formula object, with the response on the left of a ~ operator, and the terms on the right. The response must be a Crisk object as returned by the \code{Crisk} function.
+#' @param data a data.frame in which to interpret the variables named in the formula.
 #' @param eps Numeric: algorithm stops when the relative change in any coefficient is less than \code{eps} (default is \code{1E-6})
 #' @param max.iter Numeric: maximum iterations to achieve convergence (default is 1000)
+#' @param getBreslowJumps Logical: Output jumps in Breslow estimator for the cumulative hazard.
 #' @param standardize Logical: Standardize design matrix.
 #' @param penalty Character: Penalty to be applied to the model. Options are "lasso", "scad", "ridge", "mcp", and "enet".
 #' @param lambda A user-specified sequence of \code{lambda} values for tuning parameters.
@@ -27,14 +25,15 @@
 #'
 #' @import survival doParallel
 #' @export
-#' @useDynLib fastcmprsk
+#' @useDynLib fastcmprsk, .registration = TRUE
 #' @examples
+#' library(fastcmprsk)
 #' set.seed(10)
 #' ftime <- rexp(200)
 #' fstatus <- sample(0:2, 200, replace = TRUE)
 #' cov <- matrix(runif(1000), nrow = 200)
 #' dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
-#' fit <- crrp(ftime, fstatus, cov, lambda = 1, penalty = "RIDGE")
+#' fit <- fastCrrp(Crisk(ftime, fstatus) ~ cov, lambda = 1, penalty = "RIDGE")
 #' fit$coef
 #' @references
 #' Fu, Z., Parikh, C.R., Zhou, B. (2017) Penalized variable selection in competing risks
@@ -44,7 +43,7 @@
 #'
 #' Fine J. and Gray R. (1999) A proportional hazards model for the subdistribution of a competing risk.  \emph{JASA} 94:496-509.
 
-fastCrrp <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
+fastCrrp <- function(formula, data,
                     eps = 1E-6,
                     max.iter = 1000, getBreslowJumps = TRUE,
                     standardize = TRUE,
@@ -65,9 +64,33 @@ fastCrrp <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
     stop("gamma must be greater than 2 for the SCAD penalty")
   if(alpha < 0 | alpha > 1) stop("alpha must be between 0 and 1")
 
+  # Setup formula object
+  #----------
+  cl <- match.call() #
+  mf.all <- match.call(expand.dots = FALSE)
+  m.d <- match(c("formula", "data"), names(mf.all), 0L)
+  mf.d <- mf.all[c(1L, m.d)]
+  mf.d$drop.unused.levels <- TRUE
+  mf.d[[1L]] <- quote(stats::model.frame)
+  mf.d <- eval(mf.d, parent.frame())
+  outcome <- model.response(mf.d)
+
+  # Check to see if outcome is of class Crisk
+  if (!inherits(outcome, "Crisk")) stop("Outcome must be of class Crisk")
+  ftime   <- as.numeric(outcome[, 1])
+  fstatus <- as.numeric(outcome[, 2])
+
+  # Design matrix
+  mt.d <- attr(mf.d, "terms")
+
+  X <- as.matrix(model.matrix(mt.d, mf.d)[, -1])
+  dlabels <- labels(X)[[2]]
+  #----------
+
   # Sort time
   n <- length(ftime)
   p <- ncol(X)
+  cencode = 0; failcode = 1 #Preset
   d <- data.frame(ftime = ftime, fstatus = fstatus)
   if (!missing(X)) d$X <- as.matrix(X)
   d        <- d[order(d$ftime, -d$fstatus, decreasing = TRUE), ]
@@ -102,6 +125,7 @@ fastCrrp <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
     if(lambda.min.ratio < 0 | lambda.min.ratio > 1) stop("lambda.min.ratio must be between 0 and 1.")
     if(nlambda < 1) stop("nlambda must be larger than one")
 
+    eta0 <- rep(0, n) #Linear predictor when beta = 0
     sw <- .C("getGradientAndHessian", as.double(ftime), as.integer(fstatus),
              as.integer(n), as.double(uuu),
              as.double(eta0), double(n), double(n), double(1),
@@ -149,9 +173,6 @@ fastCrrp <- function(ftime, fstatus, X, failcode = 1, cencode = 0,
     colnames(jump) = c("time", paste0("Lam:", round(lambda, 4)))
     getBreslowJumps <- data.frame(jump)
   } #End Breslow jump
-
-  #Do not calculate bootstrap variances for penalized model. Can be unstable
-
 
   #Results to store:
   val <- structure(list(coef = bhat,

@@ -2,18 +2,18 @@
 #'
 #' @description Predicts cumulative incidence function from a \code{fcrr} object.
 #'
-#' @param fit Output from \code{fcrr} object.
-#' @param cov A set of covariate values.
+#' @param object Output from \code{fcrr} object.
+#' @param newdata A set of covariate values to predict the CIF.
 #' @param getBootstrapVariance Logical: Calculate variance for CIF via bootstrap.
+#' @param var.control List of variance parameters from \code{varianceControl()}.
 #' @param B Number of bootstrap samples for variance estimation.
 #' @param type Confidence intervals or confidence bands.
 #' @param alpha Significance level to compute intervals or bands
-#' @param seed Seed number of bootstrap sampling.
 #' @param tL Lower time for band estimation.
 #' @param tU Upper time for band estimation.
 #' @param ... additional arguments affecting the fastCrr procedure.
 #'
-#' @details Calculates the CIF using \code{fcrr} output conditional on \code{cov}.
+#' @details Calculates the CIF using \code{fcrr} output conditional on \code{newdata}.
 #'
 #' @import survival dynpred
 #' @import foreach
@@ -25,26 +25,26 @@
 #' fstatus <- sample(0:2, 200, replace = TRUE)
 #' cov <- matrix(runif(1000), nrow = 200)
 #' dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
-#' fit <- fastCrr(ftime, fstatus, cov)
+#' fit <- fastCrr(Crisk(ftime, fstatus) ~ cov, returnDataFrame = TRUE)
 #' cov2 <- rnorm(5)
-#' predict(fit, cov2)
+#' predict(fit, newdata = cov2)
 #' @references
 #' Fine J. and Gray R. (1999) A proportional hazards model for the subdistribution of a competing risk.  \emph{JASA} 94:496-509.
 
-predict.fcrr <- function(fit, cov, getBootstrapVariance = TRUE,
+predict.fcrr <- function(object, newdata, getBootstrapVariance = TRUE,
                          var.control = varianceControl(B = 100, useMultipleCores = FALSE),
                          type = "none", alpha = 0.05, tL = NULL, tU = NULL, ...){
 
   ## Error checking
-  if(class(fit) != "fcrr") {
+  if(class(object) != "fcrr") {
     stop("Object 'fit' must be of class fcrr")
   }
 
-  if(is.null(fit$breslowJump)) {
+  if(is.null(object$breslowJump)) {
     stop("Breslow jumps were not calculated. Please re-run model with 'getBreslowJumps = TRUE'")
   }
 
-  if(is.null(fit$df)) {
+  if(is.null(object$df)) {
     stop("Ordered data frame not returned. Please re-run model with 'returnDataFrame = TRUE'")
   }
 
@@ -60,32 +60,32 @@ predict.fcrr <- function(fit, cov, getBootstrapVariance = TRUE,
   }
 
 
-  if(is.null(tL)) tL <- min(fit$uftime)
-  if(is.null(tU)) tU <- max(fit$uftime)
+  if(is.null(tL)) tL <- min(object$uftime)
+  if(is.null(tU)) tU <- max(object$uftime)
 
-  if(tL <= 0 | tL >= max(fit$uftime)) {
-    tL <- min(fit$uftime)
+  if(tL <= 0 | tL >= max(object$uftime)) {
+    tL <- min(object$uftime)
     warning("tL is incorrectly specified (can not be nonpositive or larger than largest observed event time.
             Set to smallest observed event time")
   }
 
-  if(tU <= 0 | tU <= min(fit$uftime)) {
-    tU <- max(fit$uftime)
+  if(tU <= 0 | tU <= min(object$uftime)) {
+    tU <- max(object$uftime)
     warning("tU is incorrectly specified (can not be nonpositive or smaller than smallest observed event time.
             Set to largest observed event time")
   }
 
-  min.idx = min(which(fit$uftime >= tL))
-  max.idx = max(which(fit$uftime <= tU))
+  min.idx = min(which(object$uftime >= tL))
+  max.idx = max(which(object$uftime <= tU))
 
-  if (length(fit$coef) == length(cov)) {
-    CIF.hat <- cumsum(exp(sum(cov * fit$coef)) * fit$breslowJump[, 2]) #This is cumulative hazard
+  if (length(object$coef) == length(newdata)) {
+    CIF.hat <- cumsum(exp(sum(newdata * object$coef)) * object$breslowJump[, 2]) #This is cumulative hazard
     CIF.hat <- 1 - exp(-CIF.hat)
   } else {
-    stop("Parameter dimension of 'cov' does not match dimension of '$coef' from object.")
+    stop("Parameter dimension of 'newdata' does not match dimension of '$coef' from object.")
   }
 
-  res  <- data.frame(ftime = fit$uftime, CIF = CIF.hat, lower = NA, upper = NA)
+  res  <- data.frame(ftime = object$uftime, CIF = CIF.hat, lower = NA, upper = NA)
   #Get SD via bootstrap
   if(getBootstrapVariance) {
     controls = var.control
@@ -103,23 +103,23 @@ predict.fcrr <- function(fit, cov, getBootstrapVariance = TRUE,
     set.seed(seed)
     seeds = sample.int(2^25, B, replace = FALSE)
     CIF.boot <- numeric()
-    ftime <- fit$df$ftime
-    fstatus <- fit$df$fstatus
+    ftime <- object$df$ftime
+    fstatus <- object$df$fstatus
     n <- length(ftime)
-    X <- as.matrix(fit$df[, -(1:2)]) #Remove event time and censoring indicator
+    X <- as.matrix(object$df[, -(1:2)]) #Remove event time and censoring indicator
 
     CIF.boot <- foreach(i = seeds, .combine = 'rbind', .packages = "fastcmprsk") %mydo% {
       set.seed(i)
       bsamp  <- sample(n, n, replace = TRUE) #Bootstrap sample index
-      fit.bs <- fastCrr(ftime[bsamp], fstatus[bsamp], X[bsamp, ], variance = FALSE, ...)
-      CIF.bs <- 1 - exp(-cumsum(exp(sum(cov * fit.bs$coef)) * fit.bs$breslowJump[, 2]))
+      fit.bs <- fastCrr(Crisk(ftime[bsamp], fstatus[bsamp]) ~ X[bsamp, ], variance = FALSE, ...)
+      CIF.bs <- 1 - exp(-cumsum(exp(sum(newdata * fit.bs$coef)) * fit.bs$breslowJump[, 2]))
       return(evalstep(fit.bs$breslowJump$time,
                                 stepf = CIF.bs,
                                 subst = 1E-16,
-                                newtime = fit$uftime))
+                                newtime = object$uftime))
       rm(fit.bs)
     }
-    #colnames(CIF.boot) <- round(fit$uftime, 3)
+    #colnames(CIF.boot) <- round(object$uftime, 3)
 
     #Variance Stabalization: f(x) = log(-log(x))
     CIF.hat  <- log(-log(CIF.hat))
@@ -132,12 +132,12 @@ predict.fcrr <- function(fit, cov, getBootstrapVariance = TRUE,
       z.stat <- quantile(sup, 1 - alpha / 2) #Find bootstrap quantile of sup|Fhat - F|
       llim   <- CIF.hat + z.stat * CIF.sd
       ulim   <- CIF.hat - z.stat * CIF.sd
-      res  <- data.frame(ftime = fit$uftime, CIF = exp(-exp(CIF.hat)), lower = exp(-exp(llim)), upper = exp(-exp(ulim)))
+      res  <- data.frame(ftime = object$uftime, CIF = exp(-exp(CIF.hat)), lower = exp(-exp(llim)), upper = exp(-exp(ulim)))
     } else if (type == "interval") {
       #If interval type if pointwise
       llim   <- CIF.hat + qnorm(1 - alpha / 2) * CIF.sd
       ulim   <- CIF.hat - qnorm(1 - alpha / 2) * CIF.sd
-      res  <- data.frame(ftime = fit$uftime, CIF = exp(-exp(CIF.hat)), lower = exp(-exp(llim)), upper = exp(-exp(ulim)))
+      res  <- data.frame(ftime = object$uftime, CIF = exp(-exp(CIF.hat)), lower = exp(-exp(llim)), upper = exp(-exp(ulim)))
     }
   }
   #Subset corresponding to tL and tU

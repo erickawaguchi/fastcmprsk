@@ -2,8 +2,9 @@
 #'
 #' @description  Plots predicted cumulative incidence function
 #'
-#' @param x \code{predict.fcrr} object (output from \code{predict(fcrr object)})
+#' @param x \code{predict.fcrr} object (output from \code{predict(fcrr x)})
 #' @param ... additional arguments to \code{plot()}
+#' @import graphics
 #' @export
 #'
 plot.predict.fcrr <-

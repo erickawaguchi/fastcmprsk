@@ -2,18 +2,20 @@
 % Please edit documentation in R/print.summary.fcrr.R
 \name{print.summary.fcrr}
 \alias{print.summary.fcrr}
-\title{Prints summary of a fcrr object}
+\title{Prints summary of a fcrr x}
 \usage{
 \method{print}{summary.fcrr}(x, digits = max(options()$digits - 4, 3),
   ...)
 }
 \arguments{
-\item{x}{\code{fcrr} object (output from \code{fastCrr()})}
+\item{x}{output from \code{fastCrr()}.}
 
-\item{...}{additional arguments to \code{print()}}
+\item{digits}{digits for rounding.}
+
+\item{...}{additional arguments to \code{print()}.}
 }
 \description{
-Prints summary statistics of a fcrr object
+Prints summary statistics of a fcrr x
 }
 \details{
 Prints the convergence status,

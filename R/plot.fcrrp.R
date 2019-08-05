@@ -5,6 +5,7 @@
 #' @param x \code{fcrrp} object (output from \code{fastCrrp()})
 #' @param ... additional arguments to \code{plot()}
 #' @details Plots solution path for penalized methods. x-axis: log tuning parameter values. y-axis: coeffcient estimates.
+#' @import graphics
 #' @export
 #'
 

@@ -7,7 +7,7 @@
 \method{plot}{predict.fcrr}(x, ...)
 }
 \arguments{
-\item{x}{\code{predict.fcrr} object (output from \code{predict(fcrr object)})}
+\item{x}{\code{predict.fcrr} object (output from \code{predict(fcrr x)})}
 
 \item{...}{additional arguments to \code{plot()}}
 }

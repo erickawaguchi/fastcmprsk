@@ -4,16 +4,18 @@
 \alias{predict.fcrr}
 \title{Cumulative Incidence Function Estimation}
 \usage{
-\method{predict}{fcrr}(fit, cov, getBootstrapVariance = TRUE,
+\method{predict}{fcrr}(object, newdata, getBootstrapVariance = TRUE,
   var.control = varianceControl(B = 100, useMultipleCores = FALSE),
   type = "none", alpha = 0.05, tL = NULL, tU = NULL, ...)
 }
 \arguments{
-\item{fit}{Output from \code{fcrr} object.}
+\item{object}{Output from \code{fcrr} object.}
 
-\item{cov}{A set of covariate values.}
+\item{newdata}{A set of covariate values to predict the CIF.}
 
 \item{getBootstrapVariance}{Logical: Calculate variance for CIF via bootstrap.}
+
+\item{var.control}{List of variance parameters from \code{varianceControl()}.}
 
 \item{type}{Confidence intervals or confidence bands.}
 
@@ -26,14 +28,12 @@
 \item{...}{additional arguments affecting the fastCrr procedure.}
 
 \item{B}{Number of bootstrap samples for variance estimation.}
-
-\item{seed}{Seed number of bootstrap sampling.}
 }
 \description{
 Predicts cumulative incidence function from a \code{fcrr} object.
 }
 \details{
-Calculates the CIF using \code{fcrr} output conditional on \code{cov}.
+Calculates the CIF using \code{fcrr} output conditional on \code{newdata}.
 }
 \examples{
 set.seed(10)
@@ -41,9 +41,9 @@ ftime <- rexp(200)
 fstatus <- sample(0:2, 200, replace = TRUE)
 cov <- matrix(runif(1000), nrow = 200)
 dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
-fit <- fastCrr(ftime, fstatus, cov)
+fit <- fastCrr(Crisk(ftime, fstatus) ~ cov, returnDataFrame = TRUE)
 cov2 <- rnorm(5)
-predict(fit, cov2)
+predict(fit, newdata = cov2)
 }
 \references{
 Fine J. and Gray R. (1999) A proportional hazards model for the subdistribution of a competing risk.  \emph{JASA} 94:496-509.

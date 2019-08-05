@@ -1,38 +1,34 @@
-#' Summary method for fastCrr
+#' Print Coefficient Matrices
 #'
 #' @description  Generate and print summaries of \code{fastCrr} output.
 #'
-#' @param object \code{fcrr} x (output from \code{fastCrr()})
+#' @param x \code{fcrr} object (output from \code{fastCrr()})
 #' @param conf.int Logical. Whether or not to outut confidence intervals.
 #' @param alpha Significance level of the confidence intervals.
 #' @param digits Numer of significant difits to round to.
-#' @param ... additional arguments to \code{print()}
+#' @param ... Additional arguments. Not implemented.
 #' @details The summary method produces an ANOVA table for the coefficient estimates of the Fine-Gray model.
 #' @export
 
-summary.fcrr <-
-  function(object, conf.int = TRUE, alpha = 0.05, digits = max(options()$digits - 5, 2), ...) {
+printCoefmat.fcrr <-
+  function(x, conf.int = TRUE, alpha = 0.05, digits = max(options()$digits - 5, 2), ...) {
 
-    if(!object$isVariance) {
+    if(!x$isVariance) {
       se <- NA
     } else {
-      se <- sqrt(diag(object$var))
+      se <- sqrt(diag(x$var))
     }
 
-    beta <- object$coef
-    out <- list(call = object$call, converged = object$converged,
-                iterations = object$iter,
-                logLik = object$logLik,
-                logLik.null = object$logLik.null,
-                ncov = length(object$coef),
-                lrt = object$lrt)
+    beta <- x$coef
     if(is.null(names(beta))) {
-      names(beta) <- paste0("x", 1:length(beta))
+      names(beta) = paste0("x", 1:length(beta))
+    } else {
+      names(beta)
     }
     tmp <- cbind(beta, exp(beta), se, beta / se,
                  signif(2 * (1 - pnorm(abs(beta) / se)), digits))
     dimnames(tmp) <- list(names(beta), c("coef", "exp(coef)",
-                                         "se(coef)", "z value", "Pr(>|z|)"))
+                                         "se(coef)", "z", "p-value"))
 
     out$coef <- tmp
     if(conf.int)
@@ -47,6 +43,5 @@ summary.fcrr <-
                                                       digits = 3), "%", sep="")))
     out$conf.int <- tmp
     }
-    class(out) <- "summary.fcrr"
     out
   }

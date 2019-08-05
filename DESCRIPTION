@@ -1,10 +1,11 @@
 Package: fastcmprsk
 Type: Package
 Title: Fine-Gray Regression via Forward-Backward Scan
-Version: 1.0.2
+Version: 1.0.3
 Author: Eric S. Kawaguchi
-Maintainer: Eric S. Kawaguchi <erickawaguchi@ucla.edu>
+Maintainer: Eric S. Kawaguchi <ekawaguc@usc.edu>
 Description: Performs penalized and unpenalized Fine-Gray regression via forward-backward scan. 
+Depends: R (>= 3.3.0), doParallel, dynpred, foreach, survival
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
