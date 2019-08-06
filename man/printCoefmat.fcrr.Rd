@@ -7,7 +7,6 @@
 printCoefmat.fcrr(x, conf.int = TRUE, alpha = 0.05,
   digits = max(options()$digits - 5, 2), ...)
 }
-\arguments{
 \item{x}{\code{fcrr} object (output from \code{fastCrr()})}
 
 \item{conf.int}{Logical. Whether or not to outut confidence intervals.}

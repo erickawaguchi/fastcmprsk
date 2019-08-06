@@ -2,7 +2,8 @@
 setupData <- function(ftime, fstatus, X, cencode, failcode, standardize) {
   d <- data.frame(ftime = ftime, fstatus = fstatus)
   if (!missing(X)) d$X <- as.matrix(X)
-  d        <- d[order(d$ftime, -d$fstatus, decreasing = TRUE), ]
+  idx      <- order(d$ftime, -d$fstatus, decreasing = TRUE)
+  d        <- d[idx, ]
   ftime    <- d$ftime
   cenind   <- ifelse(d$fstatus == cencode, 1, 0)
   fstatus  <- ifelse(d$fstatus == failcode, 1, 2 * (1 - cenind))
@@ -35,6 +36,7 @@ setupData <- function(ftime, fstatus, X, cencode, failcode, standardize) {
     X = XX,
     scale = scale,
     center = center,
-    wt = uuu
+    wt = uuu,
+    idx = idx
   ))
 }
