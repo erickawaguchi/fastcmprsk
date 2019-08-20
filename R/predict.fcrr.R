@@ -18,7 +18,6 @@
 #' @import survival dynpred
 #' @import foreach
 #' @export
-#' @useDynLib fastcmprsk
 #' @examples
 #' set.seed(10)
 #' ftime <- rexp(200)

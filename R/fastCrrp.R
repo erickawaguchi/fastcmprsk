@@ -25,7 +25,6 @@
 #'
 #' @import survival doParallel
 #' @export
-#' @useDynLib fastcmprsk, .registration = TRUE
 #' @examples
 #' library(fastcmprsk)
 #' set.seed(10)

@@ -1,5 +1,6 @@
 Introduction
 ============
+[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/erickawaguchi/fastcmprsk?branch=master&svg=true)](https://ci.appveyor.com/project/erickawaguchi/fastcmprsk)
 
 fastcmprsk is an R package for performing Fine-Gray regression via a forward-backward scan algorithm.
 

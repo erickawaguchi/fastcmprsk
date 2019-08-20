@@ -262,7 +262,17 @@ SEXP ccd_dense_enet(SEXP x_, SEXP t2_, SEXP ici_, SEXP wt_,
   Free(accNum2);
   Free(accSum);
 
-  res =  getResultsCrrp(beta, Dev, iter, residuals, score, hessian, linpred, converged);
+  // Store results here:
+  PROTECT(res = allocVector(VECSXP, 8));
+  SET_VECTOR_ELT(res, 0, beta); //coefficient estimates
+  SET_VECTOR_ELT(res, 1, Dev); //deviance = -2*loglik
+  SET_VECTOR_ELT(res, 2, iter); //iterations until convergence
+  SET_VECTOR_ELT(res, 3, residuals); //residuals
+  SET_VECTOR_ELT(res, 4, score); //gradient
+  SET_VECTOR_ELT(res, 5, hessian); //hessian
+  SET_VECTOR_ELT(res, 6, linpred); //hessian
+  SET_VECTOR_ELT(res, 7, converged); //check convergence
+  UNPROTECT(9);
   return(res);
 }
 
