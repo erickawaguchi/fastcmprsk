@@ -233,7 +233,18 @@ SEXP ccd_dense(SEXP x_, SEXP t2_, SEXP ici_, SEXP wt_,
         }
         if (converged)  break;
     } //for while loop
-    res = cleanupCRR(a, eta, st, w, diffBeta, accNum1, accNum2, accSum, beta, Dev, iter, residuals, score, hessian, linpred);
+
+    // Free Calloc variables:
+    Free(a);
+    Free(eta);
+    Free(st);
+    Free(w);
+    Free(diffBeta);
+    Free(accNum1);
+    Free(accNum2);
+    Free(accSum);
+
+    res = getResultsCrr(beta, Dev, iter, residuals, score, hessian, linpred);
     return(res);
 }
 

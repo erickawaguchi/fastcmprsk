@@ -136,13 +136,15 @@ fastCrr <- function(formula, data,
   } #End variance option
 
   if(returnDataFrame) {
-    df <- data.frame(ftime = ftime, fstatus = fstatus, X)
+    df <- data.frame(ftime = ftime[dat$idx], fstatus = fstatus[dat$idx], X[dat$idx, ])
   } else {
     df <- NULL
   }
 
   lrt = denseFit[[2]][1] - denseFit[[2]][2] #Calculate lilkelihood ratio test
   converged <- ifelse(denseFit[[3]] < max.iter, TRUE, FALSE)
+
+
   #Results to store:
   val <- structure(list(coef = denseFit[[1]] / dat$scale,
                         var = sigma,

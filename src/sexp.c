@@ -77,16 +77,7 @@ SEXP evalLogLikelihood(SEXP t2_, SEXP ici_, SEXP eta_, SEXP wt_) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
-SEXP cleanupCRR(double *a, double *eta, double *st, double *w, double *diffBeta, double *accNum1, double *accNum2, double *accSum,
-                SEXP beta, SEXP Dev, SEXP iter, SEXP residuals, SEXP score, SEXP hessian, SEXP linpred) {
-    Free(a);
-    Free(eta);
-    Free(st);
-    Free(w);
-    Free(diffBeta);
-    Free(accNum1);
-    Free(accNum2);
-    Free(accSum);
+SEXP getResultsCrr(SEXP beta, SEXP Dev, SEXP iter, SEXP residuals, SEXP score, SEXP hessian, SEXP linpred) {
     SEXP res;
     PROTECT(res = allocVector(VECSXP, 7));
     SET_VECTOR_ELT(res, 0, beta); //coefficient estimates
@@ -100,17 +91,7 @@ SEXP cleanupCRR(double *a, double *eta, double *st, double *w, double *diffBeta,
     return(res);
 }
 
-SEXP cleanupCRRP(double *a,  double *eta, double *st, double *w, double *diffBeta, double *accNum1, double *accNum2, double *accSum,
-                   SEXP beta, SEXP Dev, SEXP iter, SEXP residuals, SEXP score, SEXP hessian, SEXP linpred, SEXP converged) {
-  // Free up all intermediate step variables
-  Free(a);
-  Free(eta);
-  Free(st);
-  Free(w);
-  Free(diffBeta);
-  Free(accNum1);
-  Free(accNum2);
-  Free(accSum);
+SEXP getResultsCrrp(SEXP beta, SEXP Dev, SEXP iter, SEXP residuals, SEXP score, SEXP hessian, SEXP linpred, SEXP converged) {
   SEXP res;
   PROTECT(res = allocVector(VECSXP, 8));
   SET_VECTOR_ELT(res, 0, beta); //coefficient estimates

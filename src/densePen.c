@@ -79,7 +79,7 @@ SEXP ccd_dense_pen(SEXP x_, SEXP t2_, SEXP ici_, SEXP wt_,
 
   //internal storage
   double nullDev; //to store null deviance
-  double grad, hess, shift, si, delta, l1;
+  double grad, hess, shift, si, l1;
   int i, j, i2; //for loop indices
   double tmp1 = 0; //track backward sum for uncensored events risk set
   double tmp2 = 0; //track forward sum for competing risks risk set
@@ -256,7 +256,18 @@ SEXP ccd_dense_pen(SEXP x_, SEXP t2_, SEXP ici_, SEXP wt_,
       if (INTEGER(converged)[l])  break;
     } //for while loop
   }
-  res = cleanupCRRP(a, eta, st, w, diffBeta, accNum1, accNum2, accSum, beta, Dev, iter, residuals, score, hessian, linpred, converged);
+
+  //Free Calloc variables:
+  Free(a);
+  Free(eta);
+  Free(st);
+  Free(w);
+  Free(diffBeta);
+  Free(accNum1);
+  Free(accNum2);
+  Free(accSum);
+
+  res =  getResultsCrrp(beta, Dev, iter, residuals, score, hessian, linpred, converged);
   return(res);
 }
 
