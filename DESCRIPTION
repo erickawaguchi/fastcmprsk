@@ -6,8 +6,8 @@ Author: Eric S. Kawaguchi
 Maintainer: Eric S. Kawaguchi <ekawaguc@usc.edu>
 Description: Performs penalized and unpenalized Fine-Gray regression via forward-backward scan. 
 Depends: R (>= 3.5.0)
-Imports: cmprsk, crrp, doParallel, dynpred, foreach, survival
-Suggests: testthat
+Imports: doParallel, dynpred, foreach, survival
+Suggests: testthat, cmprsk, crrp 
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

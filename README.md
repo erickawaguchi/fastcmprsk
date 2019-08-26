@@ -7,12 +7,12 @@ fastcmprsk is an R package for performing Fine-Gray regression via a forward-bac
 Features
 ========
  - Scalable Fine-Gray estimation procedure for large-scale competing risks data.
- - Currently supports unpenalized and penalized (LASSO, ridge, SCAD, MCP) regression.
+ - Currently supports unpenalized and penalized (LASSO, ridge, SCAD, MCP, elastic-net) regression.
  - Can perform CIF estimation with interval/band estimation via bootstrap.
 
-What’s New in Version 1.0.1?
+What’s New in Version 1.0.4?
 ========
- - Implemented multicore capability for parallelizing bootstrap procedure.
+ - Official version is loaded onto CRAN.
  
 Implementation
 ============
@@ -46,4 +46,3 @@ fastcmprsk is licensed under GPL-3.
 Development
 ===========
 fastcmprsk is being developed in R Studio.
-

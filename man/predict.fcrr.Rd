@@ -36,6 +36,7 @@ Predicts cumulative incidence function from a \code{fcrr} object.
 Calculates the CIF using \code{fcrr} output conditional on \code{newdata}.
 }
 \examples{
+library(fastcmprsk)
 set.seed(10)
 ftime <- rexp(200)
 fstatus <- sample(0:2, 200, replace = TRUE)

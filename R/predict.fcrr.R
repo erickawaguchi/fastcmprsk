@@ -19,6 +19,7 @@
 #' @import foreach
 #' @export
 #' @examples
+#' library(fastcmprsk)
 #' set.seed(10)
 #' ftime <- rexp(200)
 #' fstatus <- sample(0:2, 200, replace = TRUE)
