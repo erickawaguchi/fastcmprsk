@@ -23,7 +23,7 @@
 #' calculate the gradient and Hessian values. Current implementation includes LASSO, SCAD, MCP, and ridge regression.
 #' @return Returns a list of class \code{fcrrp}.
 #'
-#' @import survival doParallel
+#' @import survival
 #' @export
 #' @examples
 #' library(fastcmprsk)
