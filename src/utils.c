@@ -1,11 +1,10 @@
 #include <math.h>
-#include <Rmath.h>
 #include <string.h>
-#include <Rinternals.h>
-#include <R_ext/Rdynload.h>
+#include "Rinternals.h"
+#include "R_ext/Rdynload.h"
 #include <R.h>
-#include <R_ext/Applic.h>
-#include <stdlib.h>
+#include "R_ext/Applic.h"
+
 #define LEN sizeof(double)
 
 //////////////////////////////////////////////////////////////////////////////////////
