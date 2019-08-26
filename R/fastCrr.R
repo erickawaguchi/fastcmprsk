@@ -31,6 +31,7 @@
 #' fit <- fastCrr(Crisk(ftime, fstatus) ~ cov, variance = FALSE)
 #'
 #' #To parallellize variance estimation (make sure doParallel is loaded)
+#' library(doParallel)
 #' myClust <- makeCluster(2)
 #' registerDoParallel(myClust)
 #' fit1 <- fastCrr(Crisk(ftime, fstatus) ~ cov, variance = TRUE,
