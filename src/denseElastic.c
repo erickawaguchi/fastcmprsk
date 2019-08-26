@@ -133,7 +133,7 @@ SEXP ccd_dense_enet(SEXP x_, SEXP t2_, SEXP ici_, SEXP wt_,
 
       //taking into account ties [O(n)]
       for(i2 = (n - 1); i2 >= 0; i2--) {
-        if(ici[i2] == 2 || ici[i2 - 1] != 1 || i2 == 0) continue;
+        if(ici[i2] == 2 || i2 == 0 || ici[i2 - 1] != 1) continue;
         if(t2[i2] == t2[i2 - 1]) {
           accSum[i2 - 1] = accSum[i2];
         }
@@ -159,7 +159,7 @@ SEXP ccd_dense_enet(SEXP x_, SEXP t2_, SEXP ici_, SEXP wt_,
       //Fix ties here:
       for(i = 0; i < n; i++) {
         //only needs to be adjusted consective event times
-        if(ici[i] != 1 || ici[i + 1] != 1 || i == (n - 1)) continue;
+        if(ici[i] != 1 || i == (n - 1) || ici[i + 1] != 1) continue;
         if(t2[i] == t2[i + 1]) {
           accNum1[i + 1] = accNum1[i];
           accNum2[i + 1] = accNum2[i];
