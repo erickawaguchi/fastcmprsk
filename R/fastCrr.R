@@ -30,13 +30,13 @@
 #' dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
 #' fit <- fastCrr(Crisk(ftime, fstatus) ~ cov, variance = FALSE)
 #'
-#' #To parallellize variance estimation (make sure doParallel is loaded)
-#' library(doParallel)
-#' myClust <- makeCluster(2)
-#' registerDoParallel(myClust)
-#' fit1 <- fastCrr(Crisk(ftime, fstatus) ~ cov, variance = TRUE,
-#' var.control = varianceControl(B = 100, useMultipleCores = TRUE))
-#' stopCluster(myClust)
+#' # Not run: How to set up multiple cores for boostrapping
+#' # library(doParallel) #  make sure necessary packages are loaded
+#' # myClust <- makeCluster(2)
+#' # registerDoParallel(myClust)
+#' # fit1 <- fastCrr(Crisk(ftime, fstatus) ~ cov, variance = TRUE,
+#' # var.control = varianceControl(B = 100, useMultipleCores = TRUE))
+#' # stopCluster(myClust)
 #'
 #'
 #'
