@@ -36,6 +36,7 @@ Predicts cumulative incidence function from a \code{fcrr} object.
 Calculates the CIF using \code{fcrr} output conditional on \code{newdata}.
 }
 \examples{
+\dontrun{
 library(fastcmprsk)
 set.seed(10)
 ftime <- rexp(200)
@@ -45,6 +46,7 @@ dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
 fit <- fastCrr(Crisk(ftime, fstatus) ~ cov, returnDataFrame = TRUE)
 cov2 <- rnorm(5)
 predict(fit, newdata = cov2)
+}
 }
 \references{
 Fine J. and Gray R. (1999) A proportional hazards model for the subdistribution of a competing risk.  \emph{JASA} 94:496-509.
