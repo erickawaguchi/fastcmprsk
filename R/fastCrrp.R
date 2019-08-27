@@ -10,7 +10,7 @@
 #' @param max.iter Numeric: maximum iterations to achieve convergence (default is 1000)
 #' @param getBreslowJumps Logical: Output jumps in Breslow estimator for the cumulative hazard.
 #' @param standardize Logical: Standardize design matrix.
-#' @param penalty Character: Penalty to be applied to the model. Options are "lasso", "scad", "ridge", "mcp", and "enet".
+#' @param penalty Character: ıPenalty to be applied to the model. Options are "lasso", "scad", "ridge", "mcp", and "enet".
 #' @param lambda A user-specified sequence of \code{lambda} values for tuning parameters.
 #' @param alpha L1/L2 weight for elastic net regression.
 #' @param lambda.min.ratio Smallest value for \code{lambda}, as a fraction of \code{lambda.max} (if \code{lambda} is NULL).

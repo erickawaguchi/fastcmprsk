@@ -23,7 +23,7 @@ fastCrrp(formula, data, eps = 1e-06, max.iter = 1000,
 
 \item{standardize}{Logical: Standardize design matrix.}
 
-\item{penalty}{Character: Penalty to be applied to the model. Options are "lasso", "scad", "ridge", "mcp", and "enet".}
+\item{penalty}{Character: ıPenalty to be applied to the model. Options are "lasso", "scad", "ridge", "mcp", and "enet".}
 
 \item{lambda}{A user-specified sequence of \code{lambda} values for tuning parameters.}
 
