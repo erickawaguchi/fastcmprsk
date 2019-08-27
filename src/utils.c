@@ -412,7 +412,7 @@ void getNullGradient(double *t2, int *ici, int *nin, double *wt, double *st)
     }
   }
 
-  free(accNum1);
-  free(accNum2);
-  free(accSum);
+  Free(accNum1);
+  Free(accNum2);
+  Free(accSum);
 }

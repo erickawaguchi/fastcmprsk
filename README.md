@@ -1,8 +1,10 @@
 Introduction
 ============
-[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/erickawaguchi/fastcmprsk?branch=master&svg=true)](https://ci.appveyor.com/project/erickawaguchi/fastcmprsk)
+[![Travis build status](https://travis-ci.org/erickawaguchi/fastcmprsk.svg?branch=developer)](https://travis-ci.org/erickawaguchi/fastcmprsk)
 
 fastcmprsk is an R package for performing Fine-Gray regression via a forward-backward scan algorithm.
+
+Official release is available on CRAN and master branch on GitHub.
 
 Features
 ========
@@ -10,14 +12,13 @@ Features
  - Currently supports unpenalized and penalized (LASSO, ridge, SCAD, MCP, elastic-net) regression.
  - Can perform CIF estimation with interval/band estimation via bootstrap.
 
-What’s New in Version 1.0.4?
+What’s New in Version 1.1.0?
 ========
  - Official version is loaded onto CRAN.
  
 Implementation
 ============
 fastcmprsk in an R package with most functionality implemented in C. The package uses cyclic coordinate descent to optimize the likelihood function.
-
 
 Installation
 ============

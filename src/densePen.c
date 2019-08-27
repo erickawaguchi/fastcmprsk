@@ -4,14 +4,46 @@
 #include "R_ext/Rdynload.h"
 #include <R.h>
 #include "R_ext/Applic.h"
-
-#include "utils.h"
-#include "sexp.h"
-#include "penalty.h"
-#define LEN sizeof(double)
+double getLogLikelihood(double *t2, int *ici, double *eta, double *wt, int nin);
+int checkConvergence(double *beta, double *beta_old, double eps, int l, int p);
+double sgn(double z);
+double getWeightedCrossProduct(double *X, double *y, double *w, int n, int j);
+double getWeightedSumSquares(double *X, double *w, int n, int j);
+double getLasso(double grad, double hess, double a, double lam);
+double getScad(double grad, double hess, double a, double lam, double gamma);
+double getMcp(double grad, double hess, double a, double lam, double gamma);
+double getRidge(double grad, double hess, double a, double lam);
 
 
 //////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+// Memory handling
+SEXP getResultsCrrp(double *a, double *resid, double *eta, double *st, double *w, double *diffBeta, double *accNum1, double *accNum2, double *accSum,
+                   SEXP beta, SEXP Dev, SEXP iter, SEXP residuals, SEXP score, SEXP hessian, SEXP linpred, SEXP converged) {
+  Free(a);
+  Free(resid);
+  Free(eta);
+  Free(st);
+  Free(w);
+  Free(diffBeta);
+  Free(accNum1);
+  Free(accNum2);
+  Free(accSum);
+
+  SEXP res;
+  PROTECT(res = allocVector(VECSXP, 8));
+  SET_VECTOR_ELT(res, 0, beta); //coefficient estimates
+  SET_VECTOR_ELT(res, 1, Dev); //deviance = -2*loglik
+  SET_VECTOR_ELT(res, 2, iter); //iterations until convergence
+  SET_VECTOR_ELT(res, 3, residuals); //residuals
+  SET_VECTOR_ELT(res, 4, score); //gradient
+  SET_VECTOR_ELT(res, 5, hessian); //hessian
+  SET_VECTOR_ELT(res, 6, linpred); //linear predictor
+  SET_VECTOR_ELT(res, 7, converged); //check convergence
+  UNPROTECT(1);
+  return(res);
+}
+
 //Coordinate Descent Algorithm for Dense Fine-Gray Model
 SEXP ccd_dense_pen(SEXP x_, SEXP t2_, SEXP ici_, SEXP wt_,
                    SEXP eps_, SEXP max_iter_, SEXP penalty_, SEXP lambda_, SEXP mult_,
@@ -25,24 +57,34 @@ SEXP ccd_dense_pen(SEXP x_, SEXP t2_, SEXP ici_, SEXP wt_,
   //Output
   SEXP res, beta, Dev, iter, residuals, score, hessian, converged, linpred;
   PROTECT(beta = allocVector(REALSXP, L * p));
+  for (int j = 0; j < (L * p); j++) REAL(beta)[j] = 0;
   double *b = REAL(beta);
-  for (int j = 0; j < (L * p); j++) b[j] = 0;
+
   PROTECT (score = allocVector(REALSXP, L * n));
+  for (int i = 0; i < (L * n); i++) REAL(score)[i] = 0;
   double *s = REAL(score);
-  for (int i = 0; i < (L * n); i++) s[i] = 0;
+
   PROTECT (hessian = allocVector(REALSXP, L * n));
+  for (int i = 0; i <  (L * n); i++) REAL(hessian)[i] = 0;
   double *h = REAL(hessian);
-  for (int i = 0; i <  (L * n); i++) h[i] = 0;
-  PROTECT(residuals = allocVector(REALSXP, n));
+
+  PROTECT(residuals = allocVector(REALSXP, L * n));
+  for (int i = 0; i < (L * n); i++) REAL(residuals)[i] = 0;
   double *r = REAL(residuals);
+
   PROTECT(Dev = allocVector(REALSXP, L + 1));
   for (int i = 0; i < (L + 1); i++) REAL(Dev)[i] = 0;
+
   PROTECT(iter = allocVector(INTSXP, L));
   for (int i = 0; i < L; i++) INTEGER(iter)[i] = 0;
+
   PROTECT(converged = allocVector(INTSXP, L));
   for (int i = 0; i < L; i++) INTEGER(converged)[i] = 0;
-  PROTECT(linpred = allocVector(REALSXP, n));
+
+  PROTECT(linpred = allocVector(REALSXP, L * n));
+  for (int i = 0; i < (L * n); i ++) REAL(linpred)[i] = 0;
   double *lp = REAL(linpred);
+
   for (int i = 0; i <  n; i++) lp[i] = 0;
 
   //Intermediate quantities for internal use (must be freed afterwards!)
@@ -51,7 +93,9 @@ SEXP ccd_dense_pen(SEXP x_, SEXP t2_, SEXP ici_, SEXP wt_,
   double *st = Calloc(n, double);
   for (int i = 0; i < n; i++) st[i] = 0;
   double *w = Calloc(n, double);
-  for ( int i = 0; i < n; i++) w[i] = 0;
+  for (int i = 0; i < n; i++) w[i] = 0;
+  double *resid = Calloc(n, double);
+  for (int i = 0; i < n; i++) resid[i] = 0;
   double *eta = Calloc(n, double);
   for (int i = 0; i < n; i++) eta[i] = 0;
   double *diffBeta = Calloc(p, double);
@@ -95,7 +139,6 @@ SEXP ccd_dense_pen(SEXP x_, SEXP t2_, SEXP ici_, SEXP wt_,
     if (l != 0) {
       for (int j = 0; j < p; j++) {
         a[j] = b[(l - 1) * p + j]; //warm start
-        //diffBeta[j] = 1; //reset diffBeta
       }
     }
 
@@ -208,7 +251,7 @@ SEXP ccd_dense_pen(SEXP x_, SEXP t2_, SEXP ici_, SEXP wt_,
 
       for (i = 0; i < n; i++){
         if (w[i] == 0) r[i] = 0;
-        else r[i] = st[i] / w[i];
+        else resid[i] = st[i] / w[i];
       }
 
       // calculate xwr and xwx & update beta_j
@@ -224,16 +267,12 @@ SEXP ccd_dense_pen(SEXP x_, SEXP t2_, SEXP ici_, SEXP wt_,
         if (strcmp(penalty, "SCAD") == 0) b[l * p + j] = getScad(grad, hess, a[j], l1, gamma);
         if (strcmp(penalty, "MCP") == 0) b[l * p + j] = getMcp(grad, hess, a[j], l1, gamma);
 
-        // Employ trust region as in Genkin et al. (2007) for quadratic approximation.
-        //b[l * p + j] = a[j] + sgn(delta) * fmin(fabs(delta), diffBeta[j]);
-        //diffBeta[j] = fmax(2 * fabs(delta), diffBeta[j] / 2);
-
         // Update r
         shift = b[l * p + j] - a[j];
         if (shift != 0) {
           for (int i = 0; i < n; i++) {
             si = shift * x[j * n + i];
-            r[i] -= si;
+            resid[i] -= si;
             eta[i] += si;
           }
         } //end shift
@@ -248,7 +287,8 @@ SEXP ccd_dense_pen(SEXP x_, SEXP t2_, SEXP ici_, SEXP wt_,
       REAL(Dev)[l + 1] = -2 * getLogLikelihood(t2, ici, eta, wt, n);
 
       for (i = 0; i < n; i++){
-        lp[i] = eta[i];
+        lp[l * n + i] = eta[i];
+        r[l * n + i] = resid[i];
         s[l * n + i] = st[i];
         h[l * n + i] = w[i];
       }
@@ -256,27 +296,10 @@ SEXP ccd_dense_pen(SEXP x_, SEXP t2_, SEXP ici_, SEXP wt_,
     } //for while loop
   }
 
-  //Free Calloc variables:
-  Free(a);
-  Free(eta);
-  Free(st);
-  Free(w);
-  Free(diffBeta);
-  Free(accNum1);
-  Free(accNum2);
-  Free(accSum);
-
-  // Store results here:
-  PROTECT(res = allocVector(VECSXP, 8));
-  SET_VECTOR_ELT(res, 0, beta); //coefficient estimates
-  SET_VECTOR_ELT(res, 1, Dev); //deviance = -2*loglik
-  SET_VECTOR_ELT(res, 2, iter); //iterations until convergence
-  SET_VECTOR_ELT(res, 3, residuals); //residuals
-  SET_VECTOR_ELT(res, 4, score); //gradient
-  SET_VECTOR_ELT(res, 5, hessian); //hessian
-  SET_VECTOR_ELT(res, 6, linpred); //hessian
-  SET_VECTOR_ELT(res, 7, converged); //check convergence
-  UNPROTECT(9);
+  // Free Calloc variables:
+  res = getResultsCrrp(a, resid, eta, st, w, diffBeta, accNum1, accNum2, accSum,
+                      beta, Dev, iter, residuals, score, hessian, linpred, converged);
+  UNPROTECT(8);
   return(res);
 }
 
