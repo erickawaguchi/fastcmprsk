@@ -12,7 +12,10 @@
 #' @param p Numeric: value between 0 and 1 which controls the mixture probability.
 #' @param returnX Logical: Whether to return \code{X} or not. Default is TRUE. Recommended if \code{X} is NULL.
 #' @details The function simulates data according to the setup by Fine and Gray (1999). See their paper for more information.
-#' @return Returns a list with \code{ftime}, \code{fstatus}, \code{X}.
+#' @return Returns a list with the following:
+#' \item{ftime}{vector of \code{nobs} simulated event times}
+#' \item{ftime}{vector of \code{nobs} simulated event indicators (0/1/2)}
+#' \item{X}{design matrix if \code{returnX = TRUE}. (simulated design matrix if \code{X = NULL}.)}
 #' @import stats
 #' @examples
 #' set.seed(2019)

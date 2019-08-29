@@ -30,6 +30,17 @@ fastCrr(formula, data, eps = 1e-06, max.iter = 1000,
 }
 \value{
 Returns a list of class \code{fcrr}.
+\item{coef}{the estimated regression coefficients}
+\item{var}{estimated variance-covariance matrix via bootstrap (if \code{variance = TRUE})}
+\item{logLik}{log-pseudo likelihood at the estimated regression coefficients}
+\item{logLik.null}{log-pseudo likelihood when the regression coefficients are 0}
+\item{lrt}{log-pseudo likelihood ratio test statistic for the estimated model vs. the null model.}
+\item{iter}{iterations of coordinate descent until convergence}
+\item{converged}{logical.}
+\item{breslowJump}{Jumps in the Breslow baseline cumulative hazard (used by \code{predict.fcrr})}
+\item{uftime}{vector of unique failure (event) times}
+\item{isVariance}{logical to return if variance is chosen to be estimated}
+\item{df}{returned ordered data frame if \code{returnDataFrame = TRUE}.}
 }
 \description{
 Estimates parameters for the proportional subdistribution hazards model using two-way linear scan approach.

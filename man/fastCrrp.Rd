@@ -23,7 +23,7 @@ fastCrrp(formula, data, eps = 1e-06, max.iter = 1000,
 
 \item{standardize}{Logical: Standardize design matrix.}
 
-\item{penalty}{Character: ıPenalty to be applied to the model. Options are "lasso", "scad", "ridge", "mcp", and "enet".}
+\item{penalty}{Character: Penalty to be applied to the model. Options are "lasso", "scad", "ridge", "mcp", and "enet".}
 
 \item{lambda}{A user-specified sequence of \code{lambda} values for tuning parameters.}
 
@@ -39,6 +39,17 @@ fastCrrp(formula, data, eps = 1e-06, max.iter = 1000,
 }
 \value{
 Returns a list of class \code{fcrrp}.
+\item{coef}{fitted coefficients matrix with \code{nlambda} columns and \code{nvars} columns}
+\item{logLik}{vector of log-pseudo likelihood at the estimated regression coefficients}
+\item{logLik.null}{log-pseudo likelihood when the regression coefficients are 0}
+\item{lambda.path}{sequence of tuning parameter values}
+\item{iter}{number of iterations needed until convergence at each tuning parameter value}
+\item{converged}{convergence status at each tuning parameter value}
+\item{breslowJump}{Jumps in the Breslow baseline cumulative hazard (used by \code{predict.fcrr})}
+\item{uftime}{vector of unique failure (event) times}
+\item{penalty}{same as above}
+\item{gamma}{same as above}
+\item{above}{same as above}
 }
 \description{
 Performs penalized regression for the proportional subdistribution hazards model.

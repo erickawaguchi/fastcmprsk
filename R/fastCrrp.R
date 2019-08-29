@@ -10,7 +10,7 @@
 #' @param max.iter Numeric: maximum iterations to achieve convergence (default is 1000)
 #' @param getBreslowJumps Logical: Output jumps in Breslow estimator for the cumulative hazard.
 #' @param standardize Logical: Standardize design matrix.
-#' @param penalty Character: ıPenalty to be applied to the model. Options are "lasso", "scad", "ridge", "mcp", and "enet".
+#' @param penalty Character: Penalty to be applied to the model. Options are "lasso", "scad", "ridge", "mcp", and "enet".
 #' @param lambda A user-specified sequence of \code{lambda} values for tuning parameters.
 #' @param alpha L1/L2 weight for elastic net regression.
 #' @param lambda.min.ratio Smallest value for \code{lambda}, as a fraction of \code{lambda.max} (if \code{lambda} is NULL).
@@ -22,6 +22,17 @@
 #' Parameter estimation is performed via cyclic coordinate descent and using a two-way linear scan approach to effiiciently
 #' calculate the gradient and Hessian values. Current implementation includes LASSO, SCAD, MCP, and ridge regression.
 #' @return Returns a list of class \code{fcrrp}.
+#' \item{coef}{fitted coefficients matrix with \code{nlambda} columns and \code{nvars} columns}
+#' \item{logLik}{vector of log-pseudo likelihood at the estimated regression coefficients}
+#' \item{logLik.null}{log-pseudo likelihood when the regression coefficients are 0}
+#' \item{lambda.path}{sequence of tuning parameter values}
+#' \item{iter}{number of iterations needed until convergence at each tuning parameter value}
+#' \item{converged}{convergence status at each tuning parameter value}
+#' \item{breslowJump}{Jumps in the Breslow baseline cumulative hazard (used by \code{predict.fcrr})}
+#' \item{uftime}{vector of unique failure (event) times}
+#' \item{penalty}{same as above}
+#' \item{gamma}{same as above}
+#' \item{above}{same as above}
 #'
 #' @import survival
 #' @export
@@ -186,6 +197,7 @@ fastCrrp <- function(formula, data,
                         uftime = unique(rev(ftime[fstatus == 1])),
                         penalty = penalty,
                         gamma = gamma,
+                        alpha = alpha,
                         call = sys.call()),
                    class = "fcrrp")
   val

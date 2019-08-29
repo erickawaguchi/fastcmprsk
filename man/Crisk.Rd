@@ -19,6 +19,8 @@ Crisk(ftime, fstatus, cencode = 0, failcode = 1, silent = TRUE)
 }
 \value{
 Returns an object, used as a response variable, of class \code{Crisk}.
+\item{time}{vector of observed event times}
+\item{status}{vector of event indicators. 0 = censored, 1 = event of interest, 2 = competing risks}
 }
 \description{
 Create a competing risk object, used as a response variable in the model formula for \code{fastCrr} and \code{fastCrrp}.

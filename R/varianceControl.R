@@ -6,12 +6,16 @@
 #' @param seed Integer: Seed value for bootstrapping. Results may differ if parallelized.
 #' @param useMultipleCores Logical: Set to TRUE if parallelizing. (Default is FALSE).
 #' @return Returns a list for variance options inputted into \code{fastCrr}.
+#' \item{B}{same as what is defined in function.}
+#' \item{seed}{same as what is defined in function.}
+#' \item{useMultipleCores}{same as what is defined in function.}
+#'
 #' @export
 #' @details Variance-covariance estimation is done via bootstrap.
 #' Independent bootstrap runs can be performed both in serial and parallel. Parallelization is done via the
 #' \code{doParallel} package.
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' library(fastcmprsk)
 #' set.seed(10)
 #' ftime <- rexp(200)

@@ -4,7 +4,7 @@ Title: Fine-Gray Regression via Forward-Backward Scan
 Version: 1.1.0
 Author: Eric S. Kawaguchi
 Maintainer: Eric S. Kawaguchi <ekawaguc@usc.edu>
-Description: Performs penalized and unpenalized Fine-Gray regression via forward-backward scan. 
+Description: In competing risks regression, the proportional subdistribution hazards (PSH) model is popular for its direct assessment of covariate effects on the cumulative incidence function. This package allows for both penalized and unpenalized PSH regression in linear time using a novel forward-backward scan. Penalties include Ridge, LASSO, SCAD, MCP, and elastic net. 
 Depends: R (>= 3.5.0)
 Imports: dynpred, foreach, survival
 Suggests: testthat, cmprsk, crrp 

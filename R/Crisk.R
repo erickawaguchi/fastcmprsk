@@ -9,6 +9,9 @@
 #' @param silent Logical: print information about coding.
 #'
 #' @return Returns an object, used as a response variable, of class \code{Crisk}.
+#' \item{time}{vector of observed event times}
+#' \item{status}{vector of event indicators. 0 = censored, 1 = event of interest, 2 = competing risks}
+#'
 #' @importFrom survival Surv
 #' @export
 #' @examples

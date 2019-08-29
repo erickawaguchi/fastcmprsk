@@ -25,7 +25,10 @@ simulateTwoCauseFineGrayModel(nobs, beta1, beta2, X = NULL, u.min = 0,
 \item{returnX}{Logical: Whether to return \code{X} or not. Default is TRUE. Recommended if \code{X} is NULL.}
 }
 \value{
-Returns a list with \code{ftime}, \code{fstatus}, \code{X}.
+Returns a list with the following:
+\item{ftime}{vector of \code{nobs} simulated event times}
+\item{ftime}{vector of \code{nobs} simulated event indicators (0/1/2)}
+\item{X}{design matrix if \code{returnX = TRUE}. (simulated design matrix if \code{X = NULL}.)}
 }
 \description{
 Simulate data from the model proposed in Fine and Gray (1999) for two causes. Cause 1 is assumed
