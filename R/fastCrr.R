@@ -33,7 +33,7 @@
 #' @export
 #' @useDynLib fastcmprsk, .registration = TRUE
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' library(fastcmprsk)
 #'
 #' set.seed(10)

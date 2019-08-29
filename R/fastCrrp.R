@@ -37,7 +37,7 @@
 #' @import survival
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' library(fastcmprsk)
 #' set.seed(10)
 #' ftime <- rexp(200)

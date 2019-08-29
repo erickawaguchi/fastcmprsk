@@ -62,7 +62,7 @@ Parameter estimation is performed via cyclic coordinate descent and using a two-
 calculate the gradient and Hessian values. Current implementation includes LASSO, SCAD, MCP, and ridge regression.
 }
 \examples{
-\dontrun{
+\donttest{
 library(fastcmprsk)
 set.seed(10)
 ftime <- rexp(200)

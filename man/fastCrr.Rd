@@ -50,7 +50,7 @@ Fits the 'proportional subdistribution hazards' regression model described in Fi
 By default, the \code{Crisk} object will specify which observations are censored (0), the event of interest (1), or competing risks (2).
 }
 \examples{
-\dontrun{
+\donttest{
 library(fastcmprsk)
 
 set.seed(10)
