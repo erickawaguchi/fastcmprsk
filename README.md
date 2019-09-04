@@ -4,7 +4,7 @@ Introduction
 
 fastcmprsk is an R package for performing Fine-Gray regression via a forward-backward scan algorithm.
 
-Official release is available on CRAN and master branch on GitHub.
+Official release is available on CRAN and the master branch on GitHub.
 
 Features
 ========

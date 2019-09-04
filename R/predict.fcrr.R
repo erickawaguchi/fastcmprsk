@@ -15,11 +15,18 @@
 #'
 #' @details Calculates the CIF using \code{fcrr} output conditional on \code{newdata}.
 #'
+#' @return Returns a list of class \code{predict.fcrr}.
+#' \item{ftime}{Unique observed failure times}
+#' \item{CIF}{predicted CIF at time \code{ftime}}
+#' \item{lower}{lower interval/band limit}
+#' \item{upper}{upper interval/band limit}
+#' \item{type}{same as original argument}
+
 #' @import survival dynpred
 #' @import foreach
 #' @export
 #' @examples
-#' \dontrun{
+#'
 #' library(fastcmprsk)
 #' set.seed(10)
 #' ftime <- rexp(200)
@@ -29,7 +36,7 @@
 #' fit <- fastCrr(Crisk(ftime, fstatus) ~ cov, returnDataFrame = TRUE)
 #' cov2 <- rnorm(5)
 #' predict(fit, newdata = cov2)
-#' }
+#'
 #' @references
 #' Fine J. and Gray R. (1999) A proportional hazards model for the subdistribution of a competing risk.  \emph{JASA} 94:496-509.
 

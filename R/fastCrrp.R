@@ -37,7 +37,7 @@
 #' @import survival
 #' @export
 #' @examples
-#' \donttest{
+#'
 #' library(fastcmprsk)
 #' set.seed(10)
 #' ftime <- rexp(200)
@@ -46,7 +46,7 @@
 #' dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
 #' fit <- fastCrrp(Crisk(ftime, fstatus) ~ cov, lambda = 1, penalty = "RIDGE")
 #' fit$coef
-#' }
+#'
 #' @references
 #' Fu, Z., Parikh, C.R., Zhou, B. (2017) Penalized variable selection in competing risks
 #' regression. \emph{Lifetime Data Analysis} 23:353-376.

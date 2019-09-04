@@ -15,7 +15,7 @@
 #' Independent bootstrap runs can be performed both in serial and parallel. Parallelization is done via the
 #' \code{doParallel} package.
 #' @examples
-#' \donttest{
+#'
 #' library(fastcmprsk)
 #' set.seed(10)
 #' ftime <- rexp(200)
@@ -25,7 +25,7 @@
 #' vc <- varianceControl(B = 100, seed = 2019, useMultipleCores = FALSE)
 #' fit1 <- fastCrr(Crisk(ftime, fstatus) ~ cov, variance = TRUE, var.control = vc)
 #' fit1$var # Estimated covariance matrix via bootstrap
-#' }
+#'
 
 varianceControl <- function(B = 100L, seed = 1991L, useMultipleCores = FALSE)
 {

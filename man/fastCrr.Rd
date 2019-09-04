@@ -50,7 +50,7 @@ Fits the 'proportional subdistribution hazards' regression model described in Fi
 By default, the \code{Crisk} object will specify which observations are censored (0), the event of interest (1), or competing risks (2).
 }
 \examples{
-\donttest{
+
 library(fastcmprsk)
 
 set.seed(10)
@@ -59,7 +59,7 @@ fstatus <- sample(0:2, 200, replace = TRUE)
 cov <- matrix(runif(1000), nrow = 200)
 dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
 fit <- fastCrr(Crisk(ftime, fstatus) ~ cov, variance = FALSE)
-}
+
 # Not run: How to set up multiple cores for boostrapping
 # library(doParallel) #  make sure necessary packages are loaded
 # myClust <- makeCluster(2)

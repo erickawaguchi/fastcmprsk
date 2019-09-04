@@ -29,6 +29,14 @@
 
 \item{B}{Number of bootstrap samples for variance estimation.}
 }
+\value{
+Returns a list of class \code{predict.fcrr}.
+\item{ftime}{Unique observed failure times}
+\item{CIF}{predicted CIF at time \code{ftime}}
+\item{lower}{lower interval/band limit}
+\item{upper}{upper interval/band limit}
+\item{type}{same as original argument}
+}
 \description{
 Predicts cumulative incidence function from a \code{fcrr} object.
 }
@@ -36,7 +44,7 @@ Predicts cumulative incidence function from a \code{fcrr} object.
 Calculates the CIF using \code{fcrr} output conditional on \code{newdata}.
 }
 \examples{
-\dontrun{
+
 library(fastcmprsk)
 set.seed(10)
 ftime <- rexp(200)
@@ -46,7 +54,7 @@ dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
 fit <- fastCrr(Crisk(ftime, fstatus) ~ cov, returnDataFrame = TRUE)
 cov2 <- rnorm(5)
 predict(fit, newdata = cov2)
-}
+
 }
 \references{
 Fine J. and Gray R. (1999) A proportional hazards model for the subdistribution of a competing risk.  \emph{JASA} 94:496-509.

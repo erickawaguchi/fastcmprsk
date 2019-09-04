@@ -33,7 +33,7 @@
 #' @export
 #' @useDynLib fastcmprsk, .registration = TRUE
 #' @examples
-#' \donttest{
+#'
 #' library(fastcmprsk)
 #'
 #' set.seed(10)
@@ -42,7 +42,7 @@
 #' cov <- matrix(runif(1000), nrow = 200)
 #' dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
 #' fit <- fastCrr(Crisk(ftime, fstatus) ~ cov, variance = FALSE)
-#' }
+#'
 #' # Not run: How to set up multiple cores for boostrapping
 #' # library(doParallel) #  make sure necessary packages are loaded
 #' # myClust <- makeCluster(2)
