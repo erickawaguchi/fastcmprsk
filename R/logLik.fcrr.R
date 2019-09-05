@@ -4,6 +4,7 @@
 #'
 #' @param object \code{fcrr} object
 #' @param ... Additional arguments. Not implemented.
+#' @return Returns the log-pseudo likelihood of object \code{object}.
 #' @export
 #'
 logLik.fcrr <- function(object, ...)

@@ -13,6 +13,9 @@
 
 \item{k}{Numeric, the penalty per parameter to be used; the default k = 2 is the classical AIC.}
 }
+\value{
+A numeric value with the corresponding AIC (or BIC, or ..., depending on \code{k}).
+}
 \description{
 Similar functional utility to \code{coef} methods.
 }

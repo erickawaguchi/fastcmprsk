@@ -5,6 +5,7 @@
 #' @param x \code{predict.fcrr} object (output from \code{predict(fcrr x)})
 #' @param ... additional arguments to \code{plot()}
 #' @import graphics
+#' @return A plot of the estimated cumulative incidence function.
 #' @export
 #'
 plot.predict.fcrr <-

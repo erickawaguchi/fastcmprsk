@@ -11,6 +11,9 @@
 
 \item{...}{additional arguments to \code{plot()}}
 }
+\value{
+A plot of the estimated cumulative incidence function.
+}
 \description{
 Plots predicted cumulative incidence function
 }

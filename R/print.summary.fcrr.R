@@ -7,6 +7,8 @@
 #' @param ... additional arguments to \code{print()}.
 #' @details Prints the convergence status,
 #' log-pseudo likelihood, the estimated coefficients, the estimated standard errors, and the two-sided p-values for the test of the individual coefficients equal to 0.
+#' @return Prints the convergence status,
+#' log-pseudo likelihood, the estimated coefficients, the estimated standard errors, and the two-sided p-values for the test of the individual coefficients equal to 0.
 #' @export
 
 print.summary.fcrr <- function (x, digits = max(options()$digits - 4, 3), ...)

@@ -11,6 +11,9 @@
 
 \item{...}{additional arguments to \code{plot()}}
 }
+\value{
+A plot of the solution path for the chosen penalized method.
+}
 \description{
 Plots solution path for penalized methods
 }
