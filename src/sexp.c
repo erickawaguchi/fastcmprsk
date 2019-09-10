@@ -1,18 +1,22 @@
 #include <math.h>
+#include <Rmath.h>
 #include <string.h>
-#include "Rinternals.h"
-#include "R_ext/Rdynload.h"
+#include <Rinternals.h>
+#include <R_ext/Rdynload.h>
 #include <R.h>
-#include "R_ext/Applic.h"
-double getLogLikelihood(double *t2, int *ici, double *eta, double *wt, int nin);
-
+#include <R_ext/Applic.h>
+#include <stdlib.h>
+#include "utils.h"
+#define LEN sizeof(double)
 
 //////////////////////////////////////////////////////////////////////////////////////
 // ERIC S. KAWAGUCHI
 //////////////////////////////////////////////////////////////////////////////////////
 // SEXP arguments that are used across several functions
 
-// Standardize design matrix
+
+//////////////////////////////////////////////////////////////////////////////////////
+//Standardize design matrix
 // Returns standardized design matrix, vector of column means, vector of column sd.
 SEXP standardize(SEXP X_) {
     // Declarations
@@ -71,3 +75,34 @@ SEXP evalLogLikelihood(SEXP t2_, SEXP ici_, SEXP eta_, SEXP wt_) {
     double loglik = getLogLikelihood(t2, ici, eta, wt, n);
     return(ScalarReal(loglik));
 }
+
+//////////////////////////////////////////////////////////////////////////////////////
+SEXP getResultsCrr(SEXP beta, SEXP Dev, SEXP iter, SEXP residuals, SEXP score, SEXP hessian, SEXP linpred) {
+    SEXP res;
+    PROTECT(res = allocVector(VECSXP, 7));
+    SET_VECTOR_ELT(res, 0, beta); //coefficient estimates
+    SET_VECTOR_ELT(res, 1, Dev); //deviance = -2*loglik
+    SET_VECTOR_ELT(res, 2, iter); //iterations until convergence
+    SET_VECTOR_ELT(res, 3, residuals); //residuals
+    SET_VECTOR_ELT(res, 4, score); //gradient
+    SET_VECTOR_ELT(res, 5, hessian); //hessian
+    SET_VECTOR_ELT(res, 6, linpred); //hessian
+    UNPROTECT(8);
+    return(res);
+}
+
+SEXP getResultsCrrp(SEXP beta, SEXP Dev, SEXP iter, SEXP residuals, SEXP score, SEXP hessian, SEXP linpred, SEXP converged) {
+  SEXP res;
+  PROTECT(res = allocVector(VECSXP, 8));
+  SET_VECTOR_ELT(res, 0, beta); //coefficient estimates
+  SET_VECTOR_ELT(res, 1, Dev); //deviance = -2*loglik
+  SET_VECTOR_ELT(res, 2, iter); //iterations until convergence
+  SET_VECTOR_ELT(res, 3, residuals); //residuals
+  SET_VECTOR_ELT(res, 4, score); //gradient
+  SET_VECTOR_ELT(res, 5, hessian); //hessian
+  SET_VECTOR_ELT(res, 6, linpred); //hessian
+  SET_VECTOR_ELT(res, 7, converged); //check convergence
+  UNPROTECT(9);
+  return(res);
+}
+

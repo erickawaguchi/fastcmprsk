@@ -36,19 +36,19 @@ test_that("Compare crrp with fastCrrp ", {
   cov <- matrix(runif(600),nrow=200)
 
   #LASSO
-  fit.crrp    <- crrp(ftime, fstatus, cov, penalty = "LASSO", lambda = 0.05)
-  fit.fast   <- fastCrrp(Crisk(ftime, fstatus) ~ cov, penalty = "LASSO", lambda = 0.05)
+  fit.crrp    <- crrp(ftime, fstatus, cov, penalty = "LASSO", lambda = 0.01)
+  fit.fast   <- fastCrrp(Crisk(ftime, fstatus) ~ cov, penalty = "LASSO", lambda = 0.01)
   expect_equal(as.vector(fit.crrp$beta), as.vector(fit.fast$coef), tolerance = 1E-4)
 
   #SCAD
-  fit.crrp    <- crrp(ftime, fstatus, cov, penalty = "SCAD", lambda = 0.05)
-  fit.fast   <- fastCrrp(Crisk(ftime, fstatus) ~ cov, penalty = "SCAD", lambda = 0.05)
+  fit.crrp    <- crrp(ftime, fstatus, cov, penalty = "SCAD", lambda = 0.01)
+  fit.fast   <- fastCrrp(Crisk(ftime, fstatus) ~ cov, penalty = "SCAD", lambda = 0.01)
   expect_equal(as.vector(fit.crrp$beta), as.vector(fit.fast$coef), tolerance = 1E-4)
 
 
   #MCP
-  fit.crrp    <- crrp(ftime, fstatus, cov, penalty = "MCP", lambda = 0.05)
-  fit.fast   <- fastCrrp(Crisk(ftime, fstatus) ~ cov, penalty = "MCP", lambda = 0.05)
+  fit.crrp    <- crrp(ftime, fstatus, cov, penalty = "MCP", lambda = 0.01)
+  fit.fast   <- fastCrrp(Crisk(ftime, fstatus) ~ cov, penalty = "MCP", lambda = 0.01)
   expect_equal(as.vector(fit.crrp$beta), as.vector(fit.fast$coef), tolerance = 1E-4)
 
 })

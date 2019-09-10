@@ -1,10 +1,11 @@
 #include <math.h>
+#include <Rmath.h>
 #include <string.h>
-#include "Rinternals.h"
-#include "R_ext/Rdynload.h"
+#include <Rinternals.h>
+#include <R_ext/Rdynload.h>
 #include <R.h>
-#include "R_ext/Applic.h"
-
+#include <R_ext/Applic.h>
+#include <stdlib.h>
 #define LEN sizeof(double)
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -82,7 +83,7 @@ double getLogLikelihood(double *t2, int *ici, double *eta, double *wt, int nin)
   }
 
   //Forward Scan (To take into account the competing risks component) [O(n)]
-  for (int i2 = (n - 1); i2 >= 0; i2--) {
+  for(int i2 = (n - 1); i2 >= 0; i2--) {
     if (ici[i2] == 2) {
       tmp2 += exp(eta[i2]) / wt[i2];
     }
@@ -93,8 +94,8 @@ double getLogLikelihood(double *t2, int *ici, double *eta, double *wt, int nin)
 
   //taking into account ties [O(n)]
   for (int i2 = (n - 1); i2 >= 0; i2--) {
-    if (ici[i2] == 2 || ici[i2 - 1] != 1 || i2 == 0) continue;
-    if (t2[i2] == t2[i2 - 1]) {
+    if(ici[i2] == 2 || i2 == 0 || ici[i2 - 1] != 1) continue;
+    if(t2[i2] == t2[i2 - 1]) {
       accSum[i2 - 1] = accSum[i2];
     }
   }
@@ -146,7 +147,7 @@ void getBreslowJumps(double *t2, int *ici, double *x, int *ncov, int *nin, doubl
   }
 
   //Forward Scan (To take into account the competing risks component) [O(n)]
-  for (int i2 = (n - 1); i2 >= 0; i2--) {
+  for(int i2 = (n - 1); i2 >= 0; i2--) {
     if (ici[i2] == 2) {
       tmp2 += exp(eta[i2]) / wt[i2];
     }
@@ -157,8 +158,8 @@ void getBreslowJumps(double *t2, int *ici, double *x, int *ncov, int *nin, doubl
 
   //taking into account ties [O(n)]
   for (int i2 = (n - 1); i2 >= 0; i2--) {
-    if (ici[i2] == 2 || ici[i2 - 1] != 1 || i2 == 0) continue;
-    if (t2[i2] == t2[i2 - 1]) {
+    if(ici[i2] == 2 || i2 == 0 || ici[i2 - 1] != 1) continue;
+    if(t2[i2] == t2[i2 - 1]) {
       accSum[i2 - 1] = accSum[i2];
     }
   }
@@ -194,6 +195,7 @@ void getGradientAndHessian(double *t2, int *ici, int *nin, double *wt,
   double tmp1 = 0; //track backward sum for uncensored events risk set
   double tmp2 = 0; //track forward sum for competing risks risk set
   double loglik = 0;
+
   //initialization
   for (int i = 0; i < n; i++)
   {
@@ -208,7 +210,7 @@ void getGradientAndHessian(double *t2, int *ici, int *nin, double *wt,
   }
 
   //Forward Scan (To take into account the competing risks component) [O(n)]
-  for (int i2 = (n - 1); i2 >= 0; i2--) {
+  for(int i2 = (n - 1); i2 >= 0; i2--) {
     if (ici[i2] == 2) {
       tmp2 += exp(eta[i2]) / wt[i2];
     }
@@ -219,8 +221,8 @@ void getGradientAndHessian(double *t2, int *ici, int *nin, double *wt,
 
   //taking into account ties [O(n)]
   for (int i2 = (n - 1); i2 >= 0; i2--) {
-    if (ici[i2] == 2 || ici[i2 - 1] != 1 || i2 == 0) continue;
-    if (t2[i2] == t2[i2 - 1]) {
+    if(ici[i2] == 2 || i2 == 0 || ici[i2 - 1] != 1) continue;
+    if(t2[i2] == t2[i2 - 1]) {
       accSum[i2 - 1] = accSum[i2];
     }
   }
@@ -231,7 +233,7 @@ void getGradientAndHessian(double *t2, int *ici, int *nin, double *wt,
 
   //linear scan for non-competing risks (backwards scan)
   for (int i = (n - 1); i >= 0; i--) {
-    if (ici[i] == 1) {
+    if(ici[i] == 1) {
       tmp1 += 1 / accSum[i];
       tmp2 += 1 / pow(accSum[i], 2);
       accNum1[i] = tmp1;
@@ -245,8 +247,8 @@ void getGradientAndHessian(double *t2, int *ici, int *nin, double *wt,
   //Fix ties here:
   for (int i = 0; i < n; i++) {
     //only needs to be adjusted consective event times
-    if (ici[i] != 1 || ici[i + 1] != 1 || i == (n - 1)) continue;
-    if (t2[i] == t2[i + 1]) {
+    if(ici[i] != 1 || i == (n - 1) || ici[i + 1] != 1) continue;
+    if(t2[i] == t2[i + 1]) {
       accNum1[i + 1] = accNum1[i];
       accNum2[i + 1] = accNum2[i];
     }
@@ -265,11 +267,11 @@ void getGradientAndHessian(double *t2, int *ici, int *nin, double *wt,
   for (int i = 0; i < n; i++) {
     accNum1[i] = 0;
     accNum2[i] = 0;
-    if (ici[i] == 1) {
+    if(ici[i] == 1) {
       tmp1 += wt[i] / accSum[i];
       tmp2 += pow(wt[i] / accSum[i], 2);
     }
-    if (ici[i] != 2) continue;
+    if(ici[i] != 2) continue;
     accNum1[i] = tmp1;
     accNum2[i] = tmp2;
   }
@@ -283,7 +285,7 @@ void getGradientAndHessian(double *t2, int *ici, int *nin, double *wt,
 
   for (int i = 0; i < n; i++) {
     w[i] = (st[i] - w[i]);
-    if (ici[i] != 1) {
+    if(ici[i] != 1) {
       st[i] = - st[i];
     } else {
       st[i] = (1 - st[i]);
@@ -340,8 +342,8 @@ void getNullGradient(double *t2, int *ici, int *nin, double *wt, double *st)
 
   //taking into account ties [O(n)]
   for (int i2 = (n - 1); i2 >= 0; i2--) {
-    if (ici[i2] == 2 || i2 == 0 || ici[i2 - 1] != 1) continue;
-    if (t2[i2] == t2[i2 - 1]) {
+    if(ici[i2] == 2 || i2 == 0 || ici[i2 - 1] != 1) continue;
+    if(t2[i2] == t2[i2 - 1]) {
       accSum[i2 - 1] = accSum[i2];
     }
   }
@@ -352,7 +354,7 @@ void getNullGradient(double *t2, int *ici, int *nin, double *wt, double *st)
 
   //linear scan for non-competing risks (backwards scan)
   for (int i = (n - 1); i >= 0; i--) {
-    if (ici[i] == 1) {
+    if(ici[i] == 1) {
       tmp1 += 1 / accSum[i];
       tmp2 += 1 / pow(accSum[i], 2);
       accNum1[i] = tmp1;
@@ -364,10 +366,10 @@ void getNullGradient(double *t2, int *ici, int *nin, double *wt, double *st)
   }
 
   //Fix ties here:
-  for(int i = 0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     //only needs to be adjusted consective event times
-    if (ici[i] != 1 || i == (n - 1) || ici[i + 1] != 1) continue;
-    if (t2[i] == t2[i + 1]) {
+    if(ici[i] != 1 || i == (n - 1) || ici[i + 1] != 1) continue;
+    if(t2[i] == t2[i + 1]) {
       accNum1[i + 1] = accNum1[i];
       accNum2[i + 1] = accNum2[i];
     }
@@ -385,11 +387,11 @@ void getNullGradient(double *t2, int *ici, int *nin, double *wt, double *st)
   for (int i = 0; i < n; i++) {
     accNum1[i] = 0;
     accNum2[i] = 0;
-    if (ici[i] == 1) {
+    if(ici[i] == 1) {
       tmp1 += wt[i] / accSum[i];
       tmp2 += pow(wt[i] / accSum[i], 2);
     }
-    if (ici[i] != 2) continue;
+    if(ici[i] != 2) continue;
     accNum1[i] = tmp1;
     accNum2[i] = tmp2;
   }
@@ -401,7 +403,7 @@ void getNullGradient(double *t2, int *ici, int *nin, double *wt, double *st)
   }
 
   for (int i = 0; i < n; i++) {
-    if (ici[i] != 1) {
+    if(ici[i] != 1) {
       st[i] = - st[i];
     } else {
       st[i] = (1 - st[i]);
