@@ -10,6 +10,10 @@ Features
  - Scalable Fine-Gray estimation procedure for large-scale competing risks data.
  - Currently supports unpenalized and penalized (LASSO, ridge, SCAD, MCP, elastic-net) regression.
  - Can perform CIF estimation with interval/band estimation via bootstrap.
+
+What’s New in Version 1.1.1?
+========
+- Official release to CRAN!
  
 Implementation
 ============
