@@ -4,6 +4,7 @@
 #'
 #' @param object \code{fcrr} object.
 #' @param ... Additional arguments. Not implemented.
+#' @return Returns the estimated variance-covariance matrix (via bootstrap) from object \code{object}.
 #' @export
 #'
 vcov.fcrr <- function(object, ...) {

@@ -14,6 +14,10 @@
 
 \item{...}{additional arguments to \code{print()}.}
 }
+\value{
+Prints the convergence status,
+log-pseudo likelihood, the estimated coefficients, the estimated standard errors, and the two-sided p-values for the test of the individual coefficients equal to 0.
+}
 \description{
 Prints summary statistics of a fcrr x
 }

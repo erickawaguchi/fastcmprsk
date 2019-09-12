@@ -8,6 +8,7 @@
 #' @param digits Numer of significant difits to round to.
 #' @param ... additional arguments to \code{print()}
 #' @details The summary method produces an ANOVA table for the coefficient estimates of the Fine-Gray model.
+#' @return The form of the value returned by \code{summary} depends on the class of its argument. See the documentation of the particular methods for details of what is produced by that method.
 #' @export
 
 summary.fcrr <-

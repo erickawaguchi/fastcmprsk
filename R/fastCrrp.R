@@ -22,11 +22,22 @@
 #' Parameter estimation is performed via cyclic coordinate descent and using a two-way linear scan approach to effiiciently
 #' calculate the gradient and Hessian values. Current implementation includes LASSO, SCAD, MCP, and ridge regression.
 #' @return Returns a list of class \code{fcrrp}.
+#' \item{coef}{fitted coefficients matrix with \code{nlambda} columns and \code{nvars} columns}
+#' \item{logLik}{vector of log-pseudo likelihood at the estimated regression coefficients}
+#' \item{logLik.null}{log-pseudo likelihood when the regression coefficients are 0}
+#' \item{lambda.path}{sequence of tuning parameter values}
+#' \item{iter}{number of iterations needed until convergence at each tuning parameter value}
+#' \item{converged}{convergence status at each tuning parameter value}
+#' \item{breslowJump}{Jumps in the Breslow baseline cumulative hazard (used by \code{predict.fcrr})}
+#' \item{uftime}{vector of unique failure (event) times}
+#' \item{penalty}{same as above}
+#' \item{gamma}{same as above}
+#' \item{above}{same as above}
 #'
-#' @import survival doParallel
+#' @import survival
 #' @export
-#' @useDynLib fastcmprsk, .registration = TRUE
 #' @examples
+#'
 #' library(fastcmprsk)
 #' set.seed(10)
 #' ftime <- rexp(200)
@@ -35,6 +46,7 @@
 #' dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
 #' fit <- fastCrrp(Crisk(ftime, fstatus) ~ cov, lambda = 1, penalty = "RIDGE")
 #' fit$coef
+#'
 #' @references
 #' Fu, Z., Parikh, C.R., Zhou, B. (2017) Penalized variable selection in competing risks
 #' regression. \emph{Lifetime Data Analysis} 23:353-376.
@@ -185,6 +197,7 @@ fastCrrp <- function(formula, data,
                         uftime = unique(rev(ftime[fstatus == 1])),
                         penalty = penalty,
                         gamma = gamma,
+                        alpha = alpha,
                         call = sys.call()),
                    class = "fcrrp")
   val

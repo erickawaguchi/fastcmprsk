@@ -8,6 +8,7 @@
 #' @param digits Number of significant difits to round to.
 #' @param ... Additional arguments. Not implemented.
 #' @details Prints out table of confidence intervals for the Fine-Gray model.
+#' @return A matrix (or vector) with columns giving lower and upper confidence limits for each coefficient estimate.
 #' @export
 
 confint.fcrr <-

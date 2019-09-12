@@ -59,7 +59,6 @@ int checkConvergence(double *beta, double *beta_old, double eps, int l, int p) {
 // Calculate Log-Partial Likelihood
 double getLogLikelihood(double *t2, int *ici, double *eta, double *wt, int nin)
 {
-  int i, i2;
   const int n = nin;
   double tmp1 = 0; //track backward sum for uncensored events risk set
   double tmp2 = 0; //track forward sum for competing risks risk set
@@ -71,7 +70,7 @@ double getLogLikelihood(double *t2, int *ici, double *eta, double *wt, int nin)
 
   //Note: t2, ici, and x should be ordered in DECREASING order. (First time is largest)
   //Backward Scan [O(n)]
-  for (i = 0; i < n; i++)
+  for (int i = 0; i < n; i++)
   {
     tmp1 += exp(eta[i]); //track cumulative sum over 1:n
     if (ici[i] != 1) {
@@ -84,7 +83,7 @@ double getLogLikelihood(double *t2, int *ici, double *eta, double *wt, int nin)
   }
 
   //Forward Scan (To take into account the competing risks component) [O(n)]
-  for(i2 = (n - 1); i2 >= 0; i2--) {
+  for(int i2 = (n - 1); i2 >= 0; i2--) {
     if (ici[i2] == 2) {
       tmp2 += exp(eta[i2]) / wt[i2];
     }
@@ -94,8 +93,8 @@ double getLogLikelihood(double *t2, int *ici, double *eta, double *wt, int nin)
 
 
   //taking into account ties [O(n)]
-  for(i2 = (n - 1); i2 >= 0; i2--) {
-    if(ici[i2] == 2 || ici[i2 - 1] != 1 || i2 == 0) continue;
+  for (int i2 = (n - 1); i2 >= 0; i2--) {
+    if(ici[i2] == 2 || i2 == 0 || ici[i2 - 1] != 1) continue;
     if(t2[i2] == t2[i2 - 1]) {
       accSum[i2 - 1] = accSum[i2];
     }
@@ -103,7 +102,7 @@ double getLogLikelihood(double *t2, int *ici, double *eta, double *wt, int nin)
 
 
   //calculate loglik [O(n)]
-  for(i = 0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     if (ici[i] != 1) continue;
     loglik  -= log(accSum[i]);
   }
@@ -116,7 +115,6 @@ double getLogLikelihood(double *t2, int *ici, double *eta, double *wt, int nin)
 void getBreslowJumps(double *t2, int *ici, double *x, int *ncov, int *nin, double *wt, double *b, double *bj)
 {
   // Look at Eq (2) from Fu et al. 2017.
-  int i, j, i2;
   const int p = ncov[0],  n = nin[0];
   double tmp1 = 0; //track backward sum for uncensored events risk set
   double tmp2 = 0; //track forward sum for competing risks risk set
@@ -127,17 +125,17 @@ void getBreslowJumps(double *t2, int *ici, double *x, int *ncov, int *nin, doubl
   double *accSum = Calloc(n, double); //accumulate sum over both accNum1 and accNum2
   for (int i = 0; i < n; i++) accSum[i] = 0;
 
-  for(i = 0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     //initialize values to 0
     eta[i] = 0;
 
-    for (j = 0; j < p; j++)
+    for (int j = 0; j < p; j++)
       eta[i] += b[j] * x[n * j + i];
   }
 
   //Note: t2, ici, and x should be ordered in DECREASING order. (First time is largest)
   //Backward Scan [O(n)]
-  for (i = 0; i < n; i++)
+  for (int i = 0; i < n; i++)
   {
     tmp1 += exp(eta[i]); //track cumulative sum over 1:n
     if (ici[i] != 1) {
@@ -149,7 +147,7 @@ void getBreslowJumps(double *t2, int *ici, double *x, int *ncov, int *nin, doubl
   }
 
   //Forward Scan (To take into account the competing risks component) [O(n)]
-  for(i2 = (n - 1); i2 >= 0; i2--) {
+  for(int i2 = (n - 1); i2 >= 0; i2--) {
     if (ici[i2] == 2) {
       tmp2 += exp(eta[i2]) / wt[i2];
     }
@@ -159,8 +157,8 @@ void getBreslowJumps(double *t2, int *ici, double *x, int *ncov, int *nin, doubl
 
 
   //taking into account ties [O(n)]
-  for(i2 = (n - 1); i2 >= 0; i2--) {
-    if(ici[i2] == 2 || ici[i2 - 1] != 1 || i2 == 0) continue;
+  for (int i2 = (n - 1); i2 >= 0; i2--) {
+    if(ici[i2] == 2 || i2 == 0 || ici[i2 - 1] != 1) continue;
     if(t2[i2] == t2[i2 - 1]) {
       accSum[i2 - 1] = accSum[i2];
     }
@@ -169,14 +167,14 @@ void getBreslowJumps(double *t2, int *ici, double *x, int *ncov, int *nin, doubl
 
   int count = 0; // count number of events. Breslow jumps only occur at these event times
   //calculate loglik [O(n)]
-  for(i = 0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     if (ici[i] != 1) continue;
     bj[count] = (1 / accSum[i]);
     count += 1;
   }
 
-  free(eta);
-  free(accSum);
+  Free(eta);
+  Free(accSum);
 }
 
 
@@ -194,12 +192,12 @@ void getGradientAndHessian(double *t2, int *ici, int *nin, double *wt,
   double *accSum = Calloc(n, double); //accumulate sum over both accNum1 and accNum2
   for (int i = 0; i < n; i++) accSum[i] = 0;
 
-  int i, i2; //for loop indices
   double tmp1 = 0; //track backward sum for uncensored events risk set
   double tmp2 = 0; //track forward sum for competing risks risk set
   double loglik = 0;
-    //initialization
-  for (i = 0; i < n; i++)
+
+  //initialization
+  for (int i = 0; i < n; i++)
   {
     tmp1 += exp(eta[i]); //track cumulative sum over 1:n
     if (ici[i] != 1) {
@@ -212,7 +210,7 @@ void getGradientAndHessian(double *t2, int *ici, int *nin, double *wt,
   }
 
   //Forward Scan (To take into account the competing risks component) [O(n)]
-  for(i2 = (n - 1); i2 >= 0; i2--) {
+  for(int i2 = (n - 1); i2 >= 0; i2--) {
     if (ici[i2] == 2) {
       tmp2 += exp(eta[i2]) / wt[i2];
     }
@@ -222,8 +220,8 @@ void getGradientAndHessian(double *t2, int *ici, int *nin, double *wt,
 
 
   //taking into account ties [O(n)]
-  for(i2 = (n - 1); i2 >= 0; i2--) {
-    if(ici[i2] == 2 || ici[i2 - 1] != 1 || i2 == 0) continue;
+  for (int i2 = (n - 1); i2 >= 0; i2--) {
+    if(ici[i2] == 2 || i2 == 0 || ici[i2 - 1] != 1) continue;
     if(t2[i2] == t2[i2 - 1]) {
       accSum[i2 - 1] = accSum[i2];
     }
@@ -234,7 +232,7 @@ void getGradientAndHessian(double *t2, int *ici, int *nin, double *wt,
   tmp1 = 0; tmp2 = 0; //reset temporary vals
 
   //linear scan for non-competing risks (backwards scan)
-  for(i = (n - 1); i >= 0; i--) {
+  for (int i = (n - 1); i >= 0; i--) {
     if(ici[i] == 1) {
       tmp1 += 1 / accSum[i];
       tmp2 += 1 / pow(accSum[i], 2);
@@ -247,9 +245,9 @@ void getGradientAndHessian(double *t2, int *ici, int *nin, double *wt,
   }
 
   //Fix ties here:
-  for(i = 0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     //only needs to be adjusted consective event times
-    if(ici[i] != 1 || ici[i + 1] != 1 || i == (n - 1)) continue;
+    if(ici[i] != 1 || i == (n - 1) || ici[i + 1] != 1) continue;
     if(t2[i] == t2[i + 1]) {
       accNum1[i + 1] = accNum1[i];
       accNum2[i + 1] = accNum2[i];
@@ -258,7 +256,7 @@ void getGradientAndHessian(double *t2, int *ici, int *nin, double *wt,
 
 
   //Store into st and w so we can reuse accNum1 and accNum2
-  for(i = 0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     st[i] = accNum1[i] * exp(eta[i]);
     w[i] = accNum2[i] * pow(exp(eta[i]), 2);
   }
@@ -266,7 +264,7 @@ void getGradientAndHessian(double *t2, int *ici, int *nin, double *wt,
   //Perform linear scan for competing risks
   tmp1 = 0;
   tmp2 = 0; //reset tmp vals
-  for(i = 0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     accNum1[i] = 0;
     accNum2[i] = 0;
     if(ici[i] == 1) {
@@ -279,13 +277,13 @@ void getGradientAndHessian(double *t2, int *ici, int *nin, double *wt,
   }
 
   //Now combine to produce score and hessian
-  for(i = 0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     //First, update st and w and then get score and hessian
     st[i] += accNum1[i] * (exp(eta[i]) / wt[i]);
     w[i] += accNum2[i] * pow(exp(eta[i]) / wt[i], 2);
   }
 
-  for(i= 0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     w[i] = (st[i] - w[i]);
     if(ici[i] != 1) {
       st[i] = - st[i];
@@ -294,15 +292,15 @@ void getGradientAndHessian(double *t2, int *ici, int *nin, double *wt,
     }
   }
 
-  for(i = 0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     if (ici[i] != 1) continue;
     loglik  -= log(accSum[i]);
   }
 
   *lik = loglik;
-  free(accNum1);
-  free(accNum2);
-  free(accSum);
+  Free(accNum1);
+  Free(accNum2);
+  Free(accSum);
 }
 
 //Calculate null gradient
@@ -318,11 +316,10 @@ void getNullGradient(double *t2, int *ici, int *nin, double *wt, double *st)
   double *accSum = Calloc(n, double); //accumulate sum over both accNum1 and accNum2
   for (int i = 0; i < n; i++) accSum[i] = 0;
 
-  int i, i2; //for loop indices
   double tmp1 = 0; //track backward sum for uncensored events risk set
   double tmp2 = 0; //track forward sum for competing risks risk set
   //initialization
-  for (i = 0; i < n; i++)
+  for (int i = 0; i < n; i++)
   {
     tmp1 += 1; //track cumulative sum over 1:n
     if (ici[i] != 1) {
@@ -334,7 +331,7 @@ void getNullGradient(double *t2, int *ici, int *nin, double *wt, double *st)
   }
 
   //Forward Scan (To take into account the competing risks component) [O(n)]
-  for(i2 = (n - 1); i2 >= 0; i2--) {
+  for (int i2 = (n - 1); i2 >= 0; i2--) {
     if (ici[i2] == 2) {
       tmp2 += 1 / wt[i2];
     }
@@ -344,8 +341,8 @@ void getNullGradient(double *t2, int *ici, int *nin, double *wt, double *st)
 
 
   //taking into account ties [O(n)]
-  for(i2 = (n - 1); i2 >= 0; i2--) {
-    if(ici[i2] == 2 || ici[i2 - 1] != 1 || i2 == 0) continue;
+  for (int i2 = (n - 1); i2 >= 0; i2--) {
+    if(ici[i2] == 2 || i2 == 0 || ici[i2 - 1] != 1) continue;
     if(t2[i2] == t2[i2 - 1]) {
       accSum[i2 - 1] = accSum[i2];
     }
@@ -356,7 +353,7 @@ void getNullGradient(double *t2, int *ici, int *nin, double *wt, double *st)
   tmp1 = 0; tmp2 = 0; //reset temporary vals
 
   //linear scan for non-competing risks (backwards scan)
-  for(i = (n - 1); i >= 0; i--) {
+  for (int i = (n - 1); i >= 0; i--) {
     if(ici[i] == 1) {
       tmp1 += 1 / accSum[i];
       tmp2 += 1 / pow(accSum[i], 2);
@@ -369,9 +366,9 @@ void getNullGradient(double *t2, int *ici, int *nin, double *wt, double *st)
   }
 
   //Fix ties here:
-  for(i = 0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     //only needs to be adjusted consective event times
-    if(ici[i] != 1 || ici[i + 1] != 1 || i == (n - 1)) continue;
+    if(ici[i] != 1 || i == (n - 1) || ici[i + 1] != 1) continue;
     if(t2[i] == t2[i + 1]) {
       accNum1[i + 1] = accNum1[i];
       accNum2[i + 1] = accNum2[i];
@@ -380,14 +377,14 @@ void getNullGradient(double *t2, int *ici, int *nin, double *wt, double *st)
 
 
   //Store into st and w so we can reuse accNum1 and accNum2
-  for(i = 0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     st[i] = accNum1[i];
   }
 
   //Perform linear scan for competing risks
   tmp1 = 0;
   tmp2 = 0; //reset tmp vals
-  for(i = 0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     accNum1[i] = 0;
     accNum2[i] = 0;
     if(ici[i] == 1) {
@@ -400,12 +397,12 @@ void getNullGradient(double *t2, int *ici, int *nin, double *wt, double *st)
   }
 
   //Now combine to produce score and hessian
-  for(i = 0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     //First, update st and w and then get score and hessian
     st[i] += accNum1[i] / wt[i];
   }
 
-  for(i= 0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     if(ici[i] != 1) {
       st[i] = - st[i];
     } else {
@@ -413,7 +410,7 @@ void getNullGradient(double *t2, int *ici, int *nin, double *wt, double *st)
     }
   }
 
-  free(accNum1);
-  free(accNum2);
-  free(accSum);
+  Free(accNum1);
+  Free(accNum2);
+  Free(accSum);
 }

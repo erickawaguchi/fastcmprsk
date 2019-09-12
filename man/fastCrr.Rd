@@ -30,6 +30,17 @@ fastCrr(formula, data, eps = 1e-06, max.iter = 1000,
 }
 \value{
 Returns a list of class \code{fcrr}.
+\item{coef}{the estimated regression coefficients}
+\item{var}{estimated variance-covariance matrix via bootstrap (if \code{variance = TRUE})}
+\item{logLik}{log-pseudo likelihood at the estimated regression coefficients}
+\item{logLik.null}{log-pseudo likelihood when the regression coefficients are 0}
+\item{lrt}{log-pseudo likelihood ratio test statistic for the estimated model vs. the null model.}
+\item{iter}{iterations of coordinate descent until convergence}
+\item{converged}{logical.}
+\item{breslowJump}{Jumps in the Breslow baseline cumulative hazard (used by \code{predict.fcrr})}
+\item{uftime}{vector of unique failure (event) times}
+\item{isVariance}{logical to return if variance is chosen to be estimated}
+\item{df}{returned ordered data frame if \code{returnDataFrame = TRUE}.}
 }
 \description{
 Estimates parameters for the proportional subdistribution hazards model using two-way linear scan approach.
@@ -39,6 +50,7 @@ Fits the 'proportional subdistribution hazards' regression model described in Fi
 By default, the \code{Crisk} object will specify which observations are censored (0), the event of interest (1), or competing risks (2).
 }
 \examples{
+
 library(fastcmprsk)
 
 set.seed(10)
@@ -48,12 +60,13 @@ cov <- matrix(runif(1000), nrow = 200)
 dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
 fit <- fastCrr(Crisk(ftime, fstatus) ~ cov, variance = FALSE)
 
-#To parallellize variance estimation (make sure doParallel is loaded)
-myClust <- makeCluster(2)
-registerDoParallel(myClust)
-fit1 <- fastCrr(Crisk(ftime, fstatus) ~ cov, variance = TRUE,
-var.control = varianceControl(B = 100, useMultipleCores = TRUE))
-stopCluster(myClust)
+# Not run: How to set up multiple cores for boostrapping
+# library(doParallel) #  make sure necessary packages are loaded
+# myClust <- makeCluster(2)
+# registerDoParallel(myClust)
+# fit1 <- fastCrr(Crisk(ftime, fstatus) ~ cov, variance = TRUE,
+# var.control = varianceControl(B = 100, useMultipleCores = TRUE))
+# stopCluster(myClust)
 
 
 

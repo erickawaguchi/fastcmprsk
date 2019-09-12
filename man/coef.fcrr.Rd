@@ -11,6 +11,9 @@
 
 \item{...}{Additional arguments. Not implemented.}
 }
+\value{
+Coefficients extracted from the model object \code{object}.
+}
 \description{
 Similar functional utility to \code{coef} methods.
 }

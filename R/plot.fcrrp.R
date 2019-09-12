@@ -6,6 +6,7 @@
 #' @param ... additional arguments to \code{plot()}
 #' @details Plots solution path for penalized methods. x-axis: log tuning parameter values. y-axis: coeffcient estimates.
 #' @import graphics
+#' @return A plot of the solution path for the chosen penalized method.
 #' @export
 #'
 

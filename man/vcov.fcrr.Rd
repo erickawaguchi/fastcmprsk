@@ -11,6 +11,9 @@
 
 \item{...}{Additional arguments. Not implemented.}
 }
+\value{
+Returns the estimated variance-covariance matrix (via bootstrap) from object \code{object}.
+}
 \description{
 Similar functional utility to \code{vcov} methods.
 }

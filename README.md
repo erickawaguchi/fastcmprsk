@@ -1,22 +1,23 @@
 Introduction
 ============
-
 fastcmprsk is an R package for performing Fine-Gray regression via a forward-backward scan algorithm.
+
+Official CRAN release (v1.1.1) is available [here](https://cran.r-project.org/web/packages/fastcmprsk/index.html).
+
 
 Features
 ========
  - Scalable Fine-Gray estimation procedure for large-scale competing risks data.
- - Currently supports unpenalized and penalized (LASSO, ridge, SCAD, MCP) regression.
+ - Currently supports unpenalized and penalized (LASSO, ridge, SCAD, MCP, elastic-net) regression.
  - Can perform CIF estimation with interval/band estimation via bootstrap.
 
-What’s New in Version 1.0.2?
+What’s New in Version 1.1.1?
 ========
- - Implemented elastic-net Fine-Gray regression.
+- Official release to CRAN!
  
 Implementation
 ============
 fastcmprsk in an R package with most functionality implemented in C. The package uses cyclic coordinate descent to optimize the likelihood function.
-
 
 Installation
 ============
@@ -45,4 +46,3 @@ fastcmprsk is licensed under GPL-3.
 Development
 ===========
 fastcmprsk is being developed in R Studio.
-

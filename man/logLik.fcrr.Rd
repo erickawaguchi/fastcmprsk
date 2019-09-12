@@ -11,6 +11,9 @@
 
 \item{...}{Additional arguments. Not implemented.}
 }
+\value{
+Returns the log-pseudo likelihood of object \code{object}.
+}
 \description{
 Similar functional utility to \code{coef} methods.
 }

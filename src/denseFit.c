@@ -72,7 +72,6 @@ SEXP ccd_dense(SEXP x_, SEXP t2_, SEXP ici_, SEXP wt_,
     double nullDev; //to store null deviance
     double grad, hess, shift,  si, delta;
     int converged; //convergence check
-    int i, j, i2; //for loop indices
     double tmp1 = 0; //track backward sum for uncensored events risk set
     double tmp2 = 0; //track forward sum for competing risks risk set
     //end of declaration;
@@ -90,13 +89,13 @@ SEXP ccd_dense(SEXP x_, SEXP t2_, SEXP ici_, SEXP wt_,
 
         //Reset values
         tmp1 = 0, tmp2 = 0;
-        for(i = 0; i < n; i++) {
+        for (int i = 0; i < n; i++) {
             st[i] = 0;
             w[i] = 0;
         }
 
         //Backward Scan [O(n)]
-        for (i = 0; i < n; i++)
+        for (int i = 0; i < n; i++)
         {
             tmp1 += exp(eta[i]); //track cumulative sum over 1:n
             if (ici[i] != 1) {
@@ -108,7 +107,7 @@ SEXP ccd_dense(SEXP x_, SEXP t2_, SEXP ici_, SEXP wt_,
         }
 
         //Forward Scan (To take into account the competing risks component) [O(n)]
-        for(i2 = (n - 1); i2 >= 0; i2--) {
+        for (int i2 = (n - 1); i2 >= 0; i2--) {
             if (ici[i2] == 2) {
                 tmp2 += exp(eta[i2]) / wt[i2];
             }
@@ -118,8 +117,8 @@ SEXP ccd_dense(SEXP x_, SEXP t2_, SEXP ici_, SEXP wt_,
 
 
         //taking into account ties [O(n)]
-        for(i2 = (n - 1); i2 >= 0; i2--) {
-            if(ici[i2] == 2 || ici[i2 - 1] != 1 || i2 == 0) continue;
+        for (int i2 = (n - 1); i2 >= 0; i2--) {
+            if(ici[i2] == 2 || i2 == 0 || ici[i2 - 1] != 1) continue;
             if(t2[i2] == t2[i2 - 1]) {
                 accSum[i2 - 1] = accSum[i2];
             }
@@ -130,7 +129,7 @@ SEXP ccd_dense(SEXP x_, SEXP t2_, SEXP ici_, SEXP wt_,
         double tmp1 = 0; tmp2 = 0; //reset temporary vals
 
         //linear scan for non-competing risks (backwards scan)
-        for(i = (n - 1); i >= 0; i--) {
+        for (int i = (n - 1); i >= 0; i--) {
             if(ici[i] == 1) {
                 tmp1 += 1 / accSum[i];
                 tmp2 += 1 / pow(accSum[i], 2);
@@ -143,9 +142,9 @@ SEXP ccd_dense(SEXP x_, SEXP t2_, SEXP ici_, SEXP wt_,
         }
 
         //Fix ties here:
-        for(i = 0; i < n; i++) {
+        for (int i = 0; i < n; i++) {
             //only needs to be adjusted consective event times
-            if(ici[i] != 1 || ici[i + 1] != 1 || i == (n - 1)) continue;
+            if(ici[i] != 1 || i == (n - 1) || ici[i + 1] != 1) continue;
             if(t2[i] == t2[i + 1]) {
                 accNum1[i + 1] = accNum1[i];
                 accNum2[i + 1] = accNum2[i];
@@ -154,14 +153,14 @@ SEXP ccd_dense(SEXP x_, SEXP t2_, SEXP ici_, SEXP wt_,
 
 
         //Store into st and w so we can reuse accNum1 and accNum2
-        for(i = 0; i < n; i++) {
+        for (int i = 0; i < n; i++) {
             st[i] = accNum1[i] * exp(eta[i]);
             w[i] = accNum2[i] * pow(exp(eta[i]), 2);
         }
 
         //Perform linear scan for competing risks
         tmp1 = 0; tmp2 = 0; //reset tmp vals
-        for(i = 0; i < n; i++) {
+        for (int i = 0; i < n; i++) {
             accNum1[i] = 0;
             accNum2[i] = 0;
             if(ici[i] == 1) {
@@ -174,13 +173,13 @@ SEXP ccd_dense(SEXP x_, SEXP t2_, SEXP ici_, SEXP wt_,
         }
 
         //Now combine to produce score and hessian
-        for(i = 0; i < n; i++) {
+        for (int i = 0; i < n; i++) {
             //First, update st and w and then get score and hessian
             st[i] += accNum1[i] * (exp(eta[i]) / wt[i]);
             w[i] += accNum2[i] * pow(exp(eta[i]) / wt[i], 2);
         }
 
-        for(i= 0; i < n; i++) {
+        for (int i = 0; i < n; i++) {
             w[i] = (st[i] - w[i]);
             if(ici[i] != 1) {
                 st[i] = - st[i];
@@ -191,13 +190,13 @@ SEXP ccd_dense(SEXP x_, SEXP t2_, SEXP ici_, SEXP wt_,
 
         //end calculation of score and hessian
 
-        for (i = 0; i < n; i++){
+        for (int i = 0; i < n; i++){
             if (w[i] == 0) r[i] = 0;
             else r[i] = st[i] / w[i];
         }
 
         // calculate xwr and xwx & update beta_j
-        for (j = 0; j < p; j++) {
+        for (int j = 0; j < p; j++) {
             grad = -getWeightedCrossProduct(x, w, r, n, j); // jth component of gradient [l'(b)]
             hess = getWeightedSumSquares(x, w, n, j); // jth component of hessian [l''(b)]
             delta = -grad / hess;
@@ -220,13 +219,13 @@ SEXP ccd_dense(SEXP x_, SEXP t2_, SEXP ici_, SEXP wt_,
 
         // Check for convergence
         converged = checkConvergence(b, a, eps, 0, p);
-        for (j = 0; j < p; j++)
+        for (int j = 0; j < p; j++)
             a[j] = b[j];
 
         //Calculate deviance
         REAL(Dev)[1] = -2 * getLogLikelihood(t2, ici, eta, wt, n);
 
-        for (i = 0; i < n; i++){
+        for (int i = 0; i < n; i++){
             lp[i] = eta[i];
             s[i] = st[i];
             h[i] = w[i];

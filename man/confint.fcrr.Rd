@@ -18,6 +18,9 @@
 
 \item{...}{Additional arguments. Not implemented.}
 }
+\value{
+A matrix (or vector) with columns giving lower and upper confidence limits for each coefficient estimate.
+}
 \description{
 Computes confidence intervals for one or more parameters in a fitted model of class \code{fcrr}.
 }

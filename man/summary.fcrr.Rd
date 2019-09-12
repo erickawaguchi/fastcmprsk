@@ -18,6 +18,9 @@
 
 \item{...}{additional arguments to \code{print()}}
 }
+\value{
+The form of the value returned by \code{summary} depends on the class of its argument. See the documentation of the particular methods for details of what is produced by that method.
+}
 \description{
 Generate and print summaries of \code{fastCrr} output.
 }

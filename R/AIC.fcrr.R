@@ -5,6 +5,7 @@
 #' @param object \code{fcrr} object
 #' @param k Numeric, the penalty per parameter to be used; the default k = 2 is the classical AIC.
 #' @param ... Additional arguments. Not implemented.
+#' @return A numeric value with the corresponding AIC (or BIC, or ..., depending on \code{k}).
 #' @export
 #'
 AIC.fcrr <- function(object, ..., k = 2)
