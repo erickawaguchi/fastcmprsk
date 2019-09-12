@@ -1,7 +1,5 @@
 Introduction
 ============
-[![Travis build status](https://travis-ci.org/erickawaguchi/fastcmprsk.svg?branch=developer)](https://travis-ci.org/erickawaguchi/fastcmprsk)
-
 fastcmprsk is an R package for performing Fine-Gray regression via a forward-backward scan algorithm.
 
 
