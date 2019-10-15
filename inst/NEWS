@@ -1,12 +1,15 @@
 Package: fastcmprsk
 Information: A scalable and fast approach for penalized and unpenalized Fine-Gray estimation.
-Version: 1.0.3
+Version: 1.1.2
 Author: Eric S. Kawaguchi
 Contact: ekawaguc [at] usc.edu
 Reference:
 
 ---------------------------------------------------------------------------------
-RELEASE 1.1.0
+RELEASE 1.1.2 (Oct. 2019)
+1) Modified ```Crisk``` function to properly allow for non-standard censoring coding
+---------------------------------------------------------------------------------
+RELEASE 1.1.1 (Sept. 2019)
 1) Initial CRAN release.
 2) Go to www.github.com/erickawaguchi/fastcmprsk for most recent developments!
 
