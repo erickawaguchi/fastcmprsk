@@ -5,10 +5,12 @@
 #' @param B Integer: Number of bootstrap samples needed for variance estimation.
 #' @param seed Integer: Seed value for bootstrapping. Results may differ if parallelized.
 #' @param useMultipleCores Logical: Set to TRUE if parallelizing. (Default is FALSE).
+#' @param extractMatrix Logical: Extract matrix of bootstrap estimates (Default is FALSE)
 #' @return Returns a list for variance options inputted into \code{fastCrr}.
-#' \item{B}{same as what is defined in function.}
-#' \item{seed}{same as what is defined in function.}
-#' \item{useMultipleCores}{same as what is defined in function.}
+#' \item{B}{same as what is defined in argument.}
+#' \item{seed}{same as what is defined in argument.}
+#' \item{mcores}{same as what is defined in argument \code{useMultipleCores}.}
+#' \item{extract}{same as what is defined in argument \code{extractMatrix}.}
 #'
 #' @export
 #' @details Variance-covariance estimation is done via bootstrap.
@@ -27,7 +29,7 @@
 #' fit1$var # Estimated covariance matrix via bootstrap
 #'
 
-varianceControl <- function(B = 100L, seed = 1991L, useMultipleCores = FALSE)
+varianceControl <- function(B = 100L, seed = 1991L, useMultipleCores = FALSE, extractMatrix = FALSE)
 {
 
   if (B <= 0) {
@@ -40,9 +42,11 @@ varianceControl <- function(B = 100L, seed = 1991L, useMultipleCores = FALSE)
     seed <- 1991L
   }
 
+
   obj          <- list()
   obj$B        <- B
   obj$seed     <- seed
   obj$mcores   <- useMultipleCores
+  obj$extract  <- extractMatrix
   return(obj)
 }

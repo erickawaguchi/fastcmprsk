@@ -6,9 +6,10 @@ Official CRAN release (v1.1.1) is available [here](https://cran.r-project.org/we
 
 NOTE TO USERS: We plan to make monthly updates to the package!
 
-What’s New in Version 1.1.2?
+What’s New in Version 1.20.1?
 ========
-- Modified ```Crisk``` function to properly allow for non-standard censoring coding (Thanks @sbae for pointing this out).
+- New version name! (1.x.y stands for Year X, Quarter Y)
+- Allowable extraction of bootstrap matrix
 
 
 Features

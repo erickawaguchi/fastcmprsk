@@ -57,7 +57,7 @@
 
 fastCrrp <- function(formula, data,
                     eps = 1E-6,
-                    max.iter = 1000, getBreslowJumps = TRUE,
+                    max.iter = 1000,
                     standardize = TRUE,
                     penalty = c("LASSO", "RIDGE", "MCP", "SCAD", "ENET"),
                     lambda = NULL, alpha = 0,
@@ -172,20 +172,6 @@ fastCrrp <- function(formula, data,
   }
   colnames(bhat) <- round(lambda, 4)
 
-  # Calculate Breslow Baseline
-  if(getBreslowJumps) {
-    jump = matrix(NA, ncol = length(lambda) + 1, nrow = length(unique(ftime[fstatus == 1])))
-    jump[, 1] = unique(rev(ftime[fstatus == 1]))
-    for(l in 1:length(lambda)) {
-    bjump = .C("getBreslowJumps", as.double(ftime), as.integer(fstatus), as.double(X),
-               as.integer(p), as.integer(n), as.double(uuu), as.double(bhat[, l]), double(sum(fstatus == 1)),
-               PACKAGE = "fastcmprsk")
-    jump[, l + 1] = as.vector(rev(unique(bjump[[8]])) * table(ftime[fstatus == 1], fstatus[fstatus == 1]))
-    }
-    colnames(jump) = c("time", paste0("Lam:", round(lambda, 4)))
-    getBreslowJumps <- data.frame(jump)
-  } #End Breslow jump
-
   #Results to store:
   val <- structure(list(coef = bhat,
                         logLik = denseFit[[2]][-1] / -2,
@@ -193,7 +179,6 @@ fastCrrp <- function(formula, data,
                         lambda.path = lambda,
                         iter = denseFit[[3]],
                         converged = denseFit[[8]],
-                        breslowJump = getBreslowJumps,
                         uftime = unique(rev(ftime[fstatus == 1])),
                         penalty = penalty,
                         gamma = gamma,

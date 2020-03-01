@@ -119,6 +119,7 @@ fastCrr <- function(formula, data,
 
   #Calculate variance (if turned on)
   sigma <- NULL
+  bsamp_beta <- NULL
     if(variance) {
     controls = var.control
     if (!missing(controls))
@@ -126,6 +127,7 @@ fastCrr <- function(formula, data,
     B        <- controls$B
     seed     <- controls$seed
     mcores   <- controls$mcores
+    extract  <- controls$extract
     # Are we using multiple cores (parallel) or not
     if(mcores) `%mydo%` <- `%dopar%`
     else          `%mydo%` <- `%do%`
@@ -170,6 +172,7 @@ fastCrr <- function(formula, data,
                         breslowJump = getBreslowJumps,
                         uftime = unique(rev(dat$ftime[dat$fstatus == 1])),
                         isVariance = variance,
+                        bootVar = bsamp_beta,
                         df = df,
                         call = sys.call()),
                    class = "fcrr")
