@@ -5,10 +5,10 @@
 \title{Penalized Fine-Gray Model Estimation via two-way linear scan}
 \usage{
 fastCrrp(formula, data, eps = 1e-06, max.iter = 1000,
-  getBreslowJumps = TRUE, standardize = TRUE, penalty = c("LASSO",
-  "RIDGE", "MCP", "SCAD", "ENET"), lambda = NULL, alpha = 0,
-  lambda.min.ratio = 0.001, nlambda = 25, penalty.factor = rep(1,
-  ncol(X)), gamma = switch(penalty, scad = 3.7, 2.7))
+  standardize = TRUE, penalty = c("LASSO", "RIDGE", "MCP", "SCAD",
+  "ENET"), lambda = NULL, alpha = 0, lambda.min.ratio = 0.001,
+  nlambda = 25, penalty.factor = rep(1, ncol(X)),
+  gamma = switch(penalty, scad = 3.7, 2.7))
 }
 \arguments{
 \item{formula}{a formula object, with the response on the left of a ~ operator, and the terms on the right. The response must be a Crisk object as returned by the \code{Crisk} function.}
@@ -18,8 +18,6 @@ fastCrrp(formula, data, eps = 1e-06, max.iter = 1000,
 \item{eps}{Numeric: algorithm stops when the relative change in any coefficient is less than \code{eps} (default is \code{1E-6})}
 
 \item{max.iter}{Numeric: maximum iterations to achieve convergence (default is 1000)}
-
-\item{getBreslowJumps}{Logical: Output jumps in Breslow estimator for the cumulative hazard.}
 
 \item{standardize}{Logical: Standardize design matrix.}
 
