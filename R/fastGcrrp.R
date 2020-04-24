@@ -1,11 +1,12 @@
-#' Penalized Fine-Gray Model Estimation via two-way linear scan
+#' Group Penalized Fine-Gray Model Estimation via two-way linear scan
 #'
-#' @description Performs penalized regression for the proportional subdistribution hazards model.
+#' @description Performs group penalized regression for the proportional subdistribution hazards model.
 #' Penalties currently include LASSO, MCP, SCAD, and ridge regression. User-specificed weights can be assigned
 #' to the penalty for each coefficient (e.g. implementing adaptive LASSO and broken adaptive ridge regerssion).
 #'
 #' @param formula a formula object, with the response on the left of a ~ operator, and the terms on the right. The response must be a Crisk object as returned by the \code{Crisk} function.
 #' @param data a data.frame in which to interpret the variables named in the formula.
+#' @param group vector of group indicator (see details)
 #' @param eps Numeric: algorithm stops when the relative change in any coefficient is less than \code{eps} (default is \code{1E-6})
 #' @param max.iter Numeric: maximum iterations to achieve convergence (default is 1000)
 #' @param standardize Logical: Standardize design matrix.
@@ -17,9 +18,14 @@
 #' @param penalty.factor A vector of weights applied to the penalty for each coefficient. Vector must be of length equal to the number of columns in \code{X}.
 #' @param gamma Tuning parameter for the MCP/SCAD penalty. Default is 2.7 for MCP and 3.7 for SCAD and should be left unchanged.
 #'
-#' @details The \code{fastCrrp} functions performed penalized Fine-Gray regression.
+#' @details The \code{fastGcrrp} functions performe group penalized Fine-Gray regression.
 #' Parameter estimation is performed via cyclic coordinate descent and using a two-way linear scan approach to effiiciently
-#' calculate the gradient and Hessian values. Current implementation includes LASSO, SCAD, MCP, and ridge regression.
+#' calculate the gradient and Hessian values. Current implementation includes group versions of LASSO, SCAD, and MCP regularization.
+#'
+#' The \code{group} vector indicates the grouping of variables.
+#' For greatest efficiency, group should be a vector of consecutive integers, although unordered groups are also allowed.
+#'
+#'
 #' @return Returns a list of class \code{fcrrp}.
 #' \item{coef}{fitted coefficients matrix with \code{nlambda} columns and \code{nvars} columns}
 #' \item{logLik}{vector of log-pseudo likelihood at the estimated regression coefficients}
@@ -40,10 +46,11 @@
 #' library(fastcmprsk)
 #' set.seed(10)
 #' ftime <- rexp(200)
-#' fstatus <- sample(0:2, 200, replace = TRUE)
-#' cov <- matrix(runif(1000), nrow = 200)
-#' dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
-#' fit <- fastCrrp(Crisk(ftime, fstatus) ~ cov, lambda = 1, penalty = "RIDGE")
+#' fstatus <- sample(0:2,200,replace=TRUE)
+#' cov <- matrix(runif(2000),nrow=200)
+#' dimnames(cov)[[2]] <- paste("x", 1:ncol(cov))
+#' group.idx <- c(1, 1, 2, 2, 2, 3, 4, 4, 5, 5)
+#' fit <- fastCrrp(Crisk(ftime, fstatus) ~ cov, group = group.idx, penalty = "SCAD") #Performs group SCAD
 #' fit$coef
 #'
 #' @references
@@ -54,14 +61,16 @@
 #'
 #' Fine J. and Gray R. (1999) A proportional hazards model for the subdistribution of a competing risk.  \emph{JASA} 94:496-509.
 
-fastCrrp <- function(formula, data,
-                    eps = 1E-6,
-                    max.iter = 1000,
-                    standardize = TRUE,
-                    penalty = c("LASSO", "RIDGE", "MCP", "SCAD", "ENET"),
-                    lambda = NULL, alpha = 0,
-                    lambda.min.ratio = 0.001, nlambda = 25,
-                    gamma = switch(penalty, scad = 3.7, 2.7)){
+fastGcrrp <- function(formula, data,
+                     group = NULL,
+                     eps = 1E-6,
+                     max.iter = 1000,
+                     standardize = TRUE,
+                     penalty = c("LASSO", "RIDGE", "MCP", "SCAD", "ENET"),
+                     lambda = NULL, alpha = 0,
+                     lambda.min.ratio = 0.001, nlambda = 25,
+                     penalty.factor = NULL,
+                     gamma = switch(penalty, scad = 3.7, 2.7)){
 
   ## Error checking
   if(max.iter < 1) stop("max.iter must be positive integer.")
@@ -117,17 +126,50 @@ fastCrrp <- function(formula, data,
               f = 0, rule = 2)
   uuu <- u$y
 
+  # Setup group data here
+  if(is.null(group)) group <- 1:ncol(X)
+  group.idx = rep(1, max(group))
+
+   ## Reorder groups, if necessary
+  xnames      <- if (is.null(colnames(X))) paste("V", 1:ncol(X), sep = "") else colnames(X)
+  colnames(X) <- xnames
+  if (any(order(group) != 1:length(group)) | !is.numeric(group)) {
+    reorder.groups <- TRUE
+    g              <- as.numeric(group)
+    g.ord          <- order(g)
+    g.ord.inv      <- match(1:length(g), g.ord)
+    g              <- g[g.ord]
+    X              <- X[,g.ord]
+    group.idx      <- group.idx(g.ord)
+  } else {
+    reorder.groups <- FALSE
+    g              <- group
+    J              <- max(g)
+  }
+
   # Standardize design matrix here
   if(standardize) {
-  std    <- .Call("standardize", X, PACKAGE = "fastcmprsk")
-  XX     <- std[[1]]
-  center <- std[[2]]
-  scale  <- std[[3]]
-  nz <- which(scale > 1e-6)
-  if (length(nz) != ncol(XX)) XX <- XX[ , nz, drop = FALSE]
+    std    <- .Call("standardize", X, PACKAGE = "fastcmprsk")
+    XX     <- std[[1]]
+    center <- std[[2]]
+    scale  <- std[[3]]
+    nz     <- which(scale > 1e-6)
+    zg     <- setdiff(unique(g), unique(g[nz]))
+    g      <- g[nz]
+    if (length(nz) != ncol(XX)) XX <- XX[ , nz, drop = FALSE]
   } else {
-    XX <- X
+    zg    <- setdiff(unique(g), unique(g[nz]))
+    XX    <- X
     scale <- 1
+  }
+
+  XX <- orthogonalize(XX, g)
+  g  <- attr(XX, "group")
+  K  <- as.numeric(table(g))
+
+  if (length(zg)) {
+    J         <- J - length(zg)
+    group.idx <- group.idx[-zg]
   }
 
   # Create data-driven lambda path if one is not provided
@@ -152,26 +194,34 @@ fastCrrp <- function(formula, data,
 
   # Order lambda in decreasing order increasing order. [Dense -> Sparse Model]
   if(min(lambda) < 0) stop("lambda(s) must be non negative.")
-  lambda  <- sort(lambda, decreasing = TRUE)
+  lambda <- sort(lambda, decreasing = TRUE)
   nlambda <- length(lambda)
 
-  # Fit the PSH penalized model
+  # Fit the PSH group penalized model
   if(is.null(penalty.factor)) penalty.factor = rep(1, ncol(X))
 
-  if(penalty %in% c("LASSO", "RIDGE", "MCP", "SCAD")) {
-  denseFit   <- .Call("ccd_dense_pen", XX, as.numeric(ftime), as.integer(fstatus), uuu,
-                      eps, as.integer(max.iter), penalty, as.double(lambda),
-                      as.double(penalty.factor), as.double(gamma), PACKAGE = "fastcmprsk")
+  K1 <- as.integer(c(0, cumsum(K)))
 
-  bhat <- matrix(denseFit[[1]], p, length(lambda)) / scale
+  if(penalty %in% c("LASSO", "MCP", "SCAD")) {
+    denseFit <- .Call("ccd_dense_gpen", XX, as.numeric(ftime), as.integer(fstatus), K1, uuu,
+                        eps, as.integer(max.iter), penalty, as.double(lambda),
+                        as.double(penalty.factor), as.double(gamma), PACKAGE = "fastcmprsk")
+    bhat     <- matrix(denseFit[[1]], p, (nlambda))
+    #bhat <- matrix(denseFit[[1]], p, length(lambda)) / scale
   } else {
-    #Elastic Net regression
-    denseFit   <- .Call("ccd_dense_enet", XX, as.numeric(ftime), as.integer(fstatus), uuu,
-                        eps, as.integer(max.iter), as.double(alpha), as.double(lambda),
-                        as.double(penalty.factor), PACKAGE = "fastcmprsk")
-    bhat <- matrix(denseFit[[1]], p, length(lambda)) / scale
+    stop("penalty must be one of: LASSO, MCP, SCAD")
   }
-  colnames(bhat) <- round(lambda, 4)
+
+  bhat <- unorthogonalize(bhat, XX, g)
+  bhat <- bhat / scale
+  if (reorder.groups) {
+    bhat <- bhat[g.ord.inv,]
+  } else {
+    bhat <- bhat
+  }
+
+  #colnames(bhat) <- round(lambda, 4)
+
 
   #Results to store:
   val <- structure(list(coef = bhat,

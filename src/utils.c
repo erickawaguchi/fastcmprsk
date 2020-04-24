@@ -13,6 +13,14 @@
 //////////////////////////////////////////////////////////////////////////////////////
 // Utilities for Package
 
+// Get Euclidean norm
+double getNorm(double *x, int p) {
+  double x_norm = 0;
+  for (int j = 0; j < p; j++) x_norm = x_norm + pow(x[j], 2);
+  x_norm = sqrt(x_norm);
+  return(x_norm);
+}
+
 // Get x'y = val
 double getMatrixVectorMultiplcation(double *X, double*y, int n, int j) {
   int nn = n * j;
