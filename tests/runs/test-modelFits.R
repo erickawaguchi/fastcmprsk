@@ -78,3 +78,15 @@ test_that("Compare crr with fastCrr (CIF)", {
   expect_equal(p1, p2, tolerance = 1E-4)
 })
 
+test_that("Compare crr with fastCrr w/o censoring", {
+  set.seed(4291)
+  ftime <- rexp(200)
+  fstatus <- sample(1:2,200,replace=TRUE)
+  cov <- matrix(runif(600),nrow=200)
+
+  fit.crr    <- crr(ftime, fstatus, cov, variance = FALSE)
+  fit.fast   <- fastCrr(Crisk(ftime, fstatus) ~ cov, variance = FALSE, returnDataFrame = TRUE)
+
+  expect_equal(as.vector(fit.crr$coef), as.vector(fit.fast$coef), tolerance = 1E-4)
+
+})

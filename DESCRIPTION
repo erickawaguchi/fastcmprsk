@@ -1,7 +1,7 @@
 Package: fastcmprsk
 Type: Package
 Title: Fine-Gray Regression via Forward-Backward Scan
-Version: 1.20.4
+Version: 1.20.6
 Author: Eric S. Kawaguchi
 Maintainer: Eric S. Kawaguchi <ekawaguc@usc.edu>
 Description: In competing risks regression, the proportional subdistribution hazards (PSH) model is popular for its direct assessment of covariate effects on the cumulative incidence function. This package allows for both penalized and unpenalized PSH regression in linear time using a novel forward-backward scan. Penalties include Ridge, Lease Absolute Shrinkage and Selection Operator (LASSO), Smoothly Clipped Absolute Deviation (SCAD), Minimax Concave Plus (MCP), and elastic net. 

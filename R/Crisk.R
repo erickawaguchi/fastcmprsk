@@ -28,9 +28,9 @@
 Crisk <- function(ftime, fstatus, cencode = 0, failcode = 1, silent = TRUE) {
 
   # Check for errors
-  if(!cencode %in% unique(fstatus)) stop("cencode must be a valid value from fstatus")
-  if(!failcode %in% unique(fstatus)) stop("cencode must be a valid value from fstatus")
-  if(any(ftime < 0)) stop("all values of ftime must be positive valued")
+  if(!cencode %in% unique(fstatus)) warning("cencode is not a valid value from fstatus. Assuming right censoring is not present in the dataset")
+  if(!failcode %in% unique(fstatus)) stop("cencode must be a valid value from fstatus", call. = FALSE)
+  if(any(ftime < 0)) stop("all values of ftime must be positive valued", call. = FALSE)
 
   crisk.ind <- setdiff(fstatus, c(cencode, failcode))
   if(!silent) {

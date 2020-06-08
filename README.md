@@ -4,12 +4,13 @@ fastcmprsk is an R package for performing Fine-Gray regression via a forward-bac
 
 Official CRAN release (v1.1.1) is available [here](https://cran.r-project.org/web/packages/fastcmprsk/index.html).
 
-NOTE TO USERS: We plan to make monthly updates to the package!
+NOTE TO USERS: We plan to make monthly/quarterly updates to the package!
 
-What’s New in Version 1.20.1?
+What’s New in Version 1.20.6?
 ========
-- New version name! (1.x.y stands for Year X, Quarter Y)
-- Allowable extraction of bootstrap matrix
+
+1. Allows for Fine-Gray regression w.o presence of right censoring.
+
 
 
 Features
