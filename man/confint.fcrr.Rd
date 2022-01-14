@@ -4,8 +4,7 @@
 \alias{confint.fcrr}
 \title{Confidence Intervals for Model Parameters}
 \usage{
-\method{confint}{fcrr}(object, parm, level = 0.95,
-  digits = max(options()$digits - 5, 2), ...)
+\method{confint}{fcrr}(object, parm, level = 0.95, digits = max(options()$digits - 5, 2), ...)
 }
 \arguments{
 \item{object}{\code{fcrr} object (output from \code{fastCrr()})}

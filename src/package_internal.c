@@ -8,11 +8,11 @@
 */
 
   /* .C calls */
-  extern void getBreslowJumps(void *, void *, void *, void *, void *, void *, void *, void *);
+extern void getBreslowJumps(void *, void *, void *, void *, void *, void *, void *, void *);
 extern void getGradientAndHessian(void *, void *, void *, void *, void *, void *, void *, void *);
 
 /* .Call calls */
-  extern SEXP ccd_dense(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP ccd_dense(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP ccd_dense_enet(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP ccd_dense_pen(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP ccd_dense_gpen(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);

@@ -6,7 +6,7 @@ Official CRAN release (v1.1.1) is available [here](https://cran.r-project.org/we
 
 NOTE TO USERS: We plan to make monthly/quarterly updates to the package!
 
-What’s New in Version 1.21.1?
+What’s New in Version 1.22.1?
 ========
 
 1. Allows for Fine-Gray regression w.o presence of right censoring.

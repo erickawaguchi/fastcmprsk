@@ -4,8 +4,7 @@
 \alias{print.summary.fcrr}
 \title{Prints summary of a fcrr x}
 \usage{
-\method{print}{summary.fcrr}(x, digits = max(options()$digits - 4, 3),
-  ...)
+\method{print}{summary.fcrr}(x, digits = max(options()$digits - 4, 3), ...)
 }
 \arguments{
 \item{x}{output from \code{fastCrr()}.}

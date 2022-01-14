@@ -9,7 +9,11 @@ context("test-modelFits.R")
 test_that("Compare crr with fastCrr", {
   set.seed(4291)
   ftime <- rexp(200)
-  fstatus <- sample(0:2,200,replace=TRUE)
+  fstatus <- sample(0:2, 200, replace = TRUE)
+  cov <- matrix(runif(1000), nrow = 200)
+  dimnames(cov)[[2]] <- c('x1','x2','x3','x4','x5')
+  fit <- fastCrr(Crisk(ftime, fstatus) ~ cov, variance = FALSE)
+
   cov <- matrix(runif(600),nrow=200)
 
   fit.crr    <- crr(ftime, fstatus, cov, variance = FALSE)
@@ -85,7 +89,8 @@ test_that("Compare crr with fastCrr w/o censoring", {
   cov <- matrix(runif(600),nrow=200)
 
   fit.crr    <- crr(ftime, fstatus, cov, variance = FALSE)
-  fit.fast   <- fastCrr(Crisk(ftime, fstatus) ~ cov, variance = FALSE, returnDataFrame = TRUE)
+  # Expect a warning due to no censoring code
+  expect_warning(fit.fast   <- fastCrr(Crisk(ftime, fstatus) ~ cov, variance = FALSE, returnDataFrame = TRUE))
 
   expect_equal(as.vector(fit.crr$coef), as.vector(fit.fast$coef), tolerance = 1E-4)
 

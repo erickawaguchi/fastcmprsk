@@ -18,7 +18,7 @@
 #' @param gamma Tuning parameter for the MCP/SCAD penalty. Default is 2.7 for MCP and 3.7 for SCAD and should be left unchanged.
 #'
 #' @details The \code{fastCrrp} functions performed penalized Fine-Gray regression.
-#' Parameter estimation is performed via cyclic coordinate descent and using a two-way linear scan approach to effiiciently
+#' Parameter estimation is performed via cyclic coordinate descent and using a two-way linear scan approach to efficiently
 #' calculate the gradient and Hessian values. Current implementation includes LASSO, SCAD, MCP, and ridge regression.
 #' @return Returns a list of class \code{fcrrp}.
 #' \item{coef}{fitted coefficients matrix with \code{nlambda} columns and \code{nvars} columns}
@@ -53,6 +53,8 @@
 #' Breheny, P. and Huang, J. (2011) Coordinate descent algorithms for nonconvex penalized regression, with applications to biological feature selection. \emph{Ann. Appl. Statist.}, 5: 232-253.
 #'
 #' Fine J. and Gray R. (1999) A proportional hazards model for the subdistribution of a competing risk.  \emph{JASA} 94:496-509.
+#'
+#' Kawaguchi, E.S., Shen J.I., Suchard, M. A., Li, G. (2020) Scalable Algorithms for Large Competing Risks Data, Journal of Computational and Graphical Statistics
 
 fastCrrp <- function(formula, data,
                     eps = 1E-6,
@@ -61,6 +63,7 @@ fastCrrp <- function(formula, data,
                     penalty = c("LASSO", "RIDGE", "MCP", "SCAD", "ENET"),
                     lambda = NULL, alpha = 0,
                     lambda.min.ratio = 0.001, nlambda = 25,
+                    penalty.factor,
                     gamma = switch(penalty, scad = 3.7, 2.7)){
 
   ## Error checking
@@ -156,7 +159,7 @@ fastCrrp <- function(formula, data,
   nlambda <- length(lambda)
 
   # Fit the PSH penalized model
-  if(is.null(penalty.factor)) penalty.factor = rep(1, ncol(X))
+  if(missing(penalty.factor)) penalty.factor = rep(1, ncol(X))
 
   if(penalty %in% c("LASSO", "RIDGE", "MCP", "SCAD")) {
   denseFit   <- .Call("ccd_dense_pen", XX, as.numeric(ftime), as.integer(fstatus), uuu,

@@ -4,10 +4,20 @@
 \alias{fastCrrp}
 \title{Penalized Fine-Gray Model Estimation via two-way linear scan}
 \usage{
-fastCrrp(formula, data, eps = 1e-06, max.iter = 1000,
-  standardize = TRUE, penalty = c("LASSO", "RIDGE", "MCP", "SCAD",
-  "ENET"), lambda = NULL, alpha = 0, lambda.min.ratio = 0.001,
-  nlambda = 25, gamma = switch(penalty, scad = 3.7, 2.7))
+fastCrrp(
+  formula,
+  data,
+  eps = 1e-06,
+  max.iter = 1000,
+  standardize = TRUE,
+  penalty = c("LASSO", "RIDGE", "MCP", "SCAD", "ENET"),
+  lambda = NULL,
+  alpha = 0,
+  lambda.min.ratio = 0.001,
+  nlambda = 25,
+  penalty.factor,
+  gamma = switch(penalty, scad = 3.7, 2.7)
+)
 }
 \arguments{
 \item{formula}{a formula object, with the response on the left of a ~ operator, and the terms on the right. The response must be a Crisk object as returned by the \code{Crisk} function.}
@@ -30,9 +40,9 @@ fastCrrp(formula, data, eps = 1e-06, max.iter = 1000,
 
 \item{nlambda}{Number of \code{lambda} values (default is 25).}
 
-\item{gamma}{Tuning parameter for the MCP/SCAD penalty. Default is 2.7 for MCP and 3.7 for SCAD and should be left unchanged.}
-
 \item{penalty.factor}{A vector of weights applied to the penalty for each coefficient. Vector must be of length equal to the number of columns in \code{X}.}
+
+\item{gamma}{Tuning parameter for the MCP/SCAD penalty. Default is 2.7 for MCP and 3.7 for SCAD and should be left unchanged.}
 }
 \value{
 Returns a list of class \code{fcrrp}.
@@ -55,7 +65,7 @@ to the penalty for each coefficient (e.g. implementing adaptive LASSO and broken
 }
 \details{
 The \code{fastCrrp} functions performed penalized Fine-Gray regression.
-Parameter estimation is performed via cyclic coordinate descent and using a two-way linear scan approach to effiiciently
+Parameter estimation is performed via cyclic coordinate descent and using a two-way linear scan approach to efficiently
 calculate the gradient and Hessian values. Current implementation includes LASSO, SCAD, MCP, and ridge regression.
 }
 \examples{
@@ -77,4 +87,6 @@ regression. \emph{Lifetime Data Analysis} 23:353-376.
 Breheny, P. and Huang, J. (2011) Coordinate descent algorithms for nonconvex penalized regression, with applications to biological feature selection. \emph{Ann. Appl. Statist.}, 5: 232-253.
 
 Fine J. and Gray R. (1999) A proportional hazards model for the subdistribution of a competing risk.  \emph{JASA} 94:496-509.
+
+Kawaguchi, E.S., Shen J.I., Suchard, M. A., Li, G. (2020) Scalable Algorithms for Large Competing Risks Data, Journal of Computational and Graphical Statistics
 }

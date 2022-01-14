@@ -4,8 +4,12 @@
 \alias{varianceControl}
 \title{Controls for Variance Calculation}
 \usage{
-varianceControl(B = 100L, seed = 1991L, useMultipleCores = FALSE,
-  extractMatrix = FALSE)
+varianceControl(
+  B = 100L,
+  seed = 1991L,
+  useMultipleCores = FALSE,
+  extractMatrix = FALSE
+)
 }
 \arguments{
 \item{B}{Integer: Number of bootstrap samples needed for variance estimation.}

@@ -1,3 +1,5 @@
+#' @importFrom Matrix bdiag
+
 # Block orthogonalize data
 orthogonalize <- function(X, group) {
   n <- nrow(X)

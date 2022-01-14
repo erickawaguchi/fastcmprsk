@@ -34,3 +34,4 @@ test_that("Crisk correctly categorizes event types", {
   test1 <- Crisk(ftime, fstatus, cencode = 1, failcode = 2)
   expect_equivalent(test1[, 2], c(2, 0, 2, 1, 1, 0, 0, 0, 2, 2))
 })
+
