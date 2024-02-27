@@ -4,10 +4,17 @@
 \alias{fastCrr}
 \title{Fast Fine-Gray Model Estimation}
 \usage{
-fastCrr(formula, data, eps = 1e-06, max.iter = 1000,
-  getBreslowJumps = TRUE, standardize = TRUE, variance = TRUE,
+fastCrr(
+  formula,
+  data,
+  eps = 1e-06,
+  max.iter = 1000,
+  getBreslowJumps = TRUE,
+  standardize = TRUE,
+  variance = TRUE,
   var.control = varianceControl(B = 100, useMultipleCores = FALSE),
-  returnDataFrame = FALSE)
+  returnDataFrame = FALSE
+)
 }
 \arguments{
 \item{formula}{a formula object, with the response on the left of a ~ operator, and the terms on the right. The response must be a Crisk object as returned by the \code{Crisk} function.}
@@ -73,4 +80,6 @@ fit <- fastCrr(Crisk(ftime, fstatus) ~ cov, variance = FALSE)
 }
 \references{
 Fine J. and Gray R. (1999) A proportional hazards model for the subdistribution of a competing risk.  \emph{JASA} 94:496-509.
+
+#' Kawaguchi, E.S., Shen J.I., Suchard, M. A., Li, G. (2020) Scalable Algorithms for Large Competing Risks Data, Journal of Computational and Graphical Statistics
 }

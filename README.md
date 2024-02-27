@@ -2,14 +2,14 @@ Introduction
 ============
 fastcmprsk is an R package for performing Fine-Gray regression via a forward-backward scan algorithm.
 
-Official CRAN release (v1.1.1) is available [here](https://cran.r-project.org/web/packages/fastcmprsk/index.html).
+Official CRAN release is available [here](https://CRAN.r-project.org/package=fastcmprsk).
 
-NOTE TO USERS: We plan to make monthly updates to the package!
+NOTE TO USERS: We plan to make monthly/quarterly updates to the package!
 
-What’s New in Version 1.1.2?
+What’s New in Version 1.22.1?
 ========
-- Modified ```Crisk``` function to properly allow for non-standard censoring coding (Thanks @sbae for pointing this out).
 
+1. Allows for Fine-Gray regression w.o presence of right censoring.
 
 Features
 ========
@@ -33,13 +33,13 @@ devtools::install_github(“erickawaguchi/fastcmprsk”)
 
 System Requirements
 ===================
-Requires R (version 3.5.0 or higher). 
+Requires R (version 4.0.0 or higher). 
 
  
 User Documentation
 ==================
 * Package manual: Currently unavailable. 
-* Please cite [Kawaguchi et al. (2019)](https://arxiv.org/abs/1905.07438).
+* Please cite [Kawaguchi et al. (2021)](https://journal.r-project.org/archive/2021/RJ-2021-010/index.html).
 
 License
 =======

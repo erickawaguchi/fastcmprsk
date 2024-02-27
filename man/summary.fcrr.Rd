@@ -4,8 +4,13 @@
 \alias{summary.fcrr}
 \title{Summary method for fastCrr}
 \usage{
-\method{summary}{fcrr}(object, conf.int = TRUE, alpha = 0.05,
-  digits = max(options()$digits - 5, 2), ...)
+\method{summary}{fcrr}(
+  object,
+  conf.int = TRUE,
+  alpha = 0.05,
+  digits = max(options()$digits - 5, 2),
+  ...
+)
 }
 \arguments{
 \item{object}{\code{fcrr} x (output from \code{fastCrr()})}

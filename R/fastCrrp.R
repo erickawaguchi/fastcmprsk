@@ -8,7 +8,6 @@
 #' @param data a data.frame in which to interpret the variables named in the formula.
 #' @param eps Numeric: algorithm stops when the relative change in any coefficient is less than \code{eps} (default is \code{1E-6})
 #' @param max.iter Numeric: maximum iterations to achieve convergence (default is 1000)
-#' @param getBreslowJumps Logical: Output jumps in Breslow estimator for the cumulative hazard.
 #' @param standardize Logical: Standardize design matrix.
 #' @param penalty Character: Penalty to be applied to the model. Options are "lasso", "scad", "ridge", "mcp", and "enet".
 #' @param lambda A user-specified sequence of \code{lambda} values for tuning parameters.
@@ -19,7 +18,7 @@
 #' @param gamma Tuning parameter for the MCP/SCAD penalty. Default is 2.7 for MCP and 3.7 for SCAD and should be left unchanged.
 #'
 #' @details The \code{fastCrrp} functions performed penalized Fine-Gray regression.
-#' Parameter estimation is performed via cyclic coordinate descent and using a two-way linear scan approach to effiiciently
+#' Parameter estimation is performed via cyclic coordinate descent and using a two-way linear scan approach to efficiently
 #' calculate the gradient and Hessian values. Current implementation includes LASSO, SCAD, MCP, and ridge regression.
 #' @return Returns a list of class \code{fcrrp}.
 #' \item{coef}{fitted coefficients matrix with \code{nlambda} columns and \code{nvars} columns}
@@ -54,15 +53,17 @@
 #' Breheny, P. and Huang, J. (2011) Coordinate descent algorithms for nonconvex penalized regression, with applications to biological feature selection. \emph{Ann. Appl. Statist.}, 5: 232-253.
 #'
 #' Fine J. and Gray R. (1999) A proportional hazards model for the subdistribution of a competing risk.  \emph{JASA} 94:496-509.
+#'
+#' Kawaguchi, E.S., Shen J.I., Suchard, M. A., Li, G. (2020) Scalable Algorithms for Large Competing Risks Data, Journal of Computational and Graphical Statistics
 
 fastCrrp <- function(formula, data,
                     eps = 1E-6,
-                    max.iter = 1000, getBreslowJumps = TRUE,
+                    max.iter = 1000,
                     standardize = TRUE,
                     penalty = c("LASSO", "RIDGE", "MCP", "SCAD", "ENET"),
                     lambda = NULL, alpha = 0,
                     lambda.min.ratio = 0.001, nlambda = 25,
-                    penalty.factor = rep(1, ncol(X)),
+                    penalty.factor,
                     gamma = switch(penalty, scad = 3.7, 2.7)){
 
   ## Error checking
@@ -154,9 +155,12 @@ fastCrrp <- function(formula, data,
 
   # Order lambda in decreasing order increasing order. [Dense -> Sparse Model]
   if(min(lambda) < 0) stop("lambda(s) must be non negative.")
-  lambda <- sort(lambda, decreasing = TRUE)
+  lambda  <- sort(lambda, decreasing = TRUE)
+  nlambda <- length(lambda)
 
   # Fit the PSH penalized model
+  if(missing(penalty.factor)) penalty.factor = rep(1, ncol(X))
+
   if(penalty %in% c("LASSO", "RIDGE", "MCP", "SCAD")) {
   denseFit   <- .Call("ccd_dense_pen", XX, as.numeric(ftime), as.integer(fstatus), uuu,
                       eps, as.integer(max.iter), penalty, as.double(lambda),
@@ -172,20 +176,6 @@ fastCrrp <- function(formula, data,
   }
   colnames(bhat) <- round(lambda, 4)
 
-  # Calculate Breslow Baseline
-  if(getBreslowJumps) {
-    jump = matrix(NA, ncol = length(lambda) + 1, nrow = length(unique(ftime[fstatus == 1])))
-    jump[, 1] = unique(rev(ftime[fstatus == 1]))
-    for(l in 1:length(lambda)) {
-    bjump = .C("getBreslowJumps", as.double(ftime), as.integer(fstatus), as.double(X),
-               as.integer(p), as.integer(n), as.double(uuu), as.double(bhat[, l]), double(sum(fstatus == 1)),
-               PACKAGE = "fastcmprsk")
-    jump[, l + 1] = as.vector(rev(unique(bjump[[8]])) * table(ftime[fstatus == 1], fstatus[fstatus == 1]))
-    }
-    colnames(jump) = c("time", paste0("Lam:", round(lambda, 4)))
-    getBreslowJumps <- data.frame(jump)
-  } #End Breslow jump
-
   #Results to store:
   val <- structure(list(coef = bhat,
                         logLik = denseFit[[2]][-1] / -2,
@@ -193,7 +183,6 @@ fastCrrp <- function(formula, data,
                         lambda.path = lambda,
                         iter = denseFit[[3]],
                         converged = denseFit[[8]],
-                        breslowJump = getBreslowJumps,
                         uftime = unique(rev(ftime[fstatus == 1])),
                         penalty = penalty,
                         gamma = gamma,

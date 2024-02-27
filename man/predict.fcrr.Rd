@@ -4,9 +4,17 @@
 \alias{predict.fcrr}
 \title{Cumulative Incidence Function Estimation}
 \usage{
-\method{predict}{fcrr}(object, newdata, getBootstrapVariance = TRUE,
+\method{predict}{fcrr}(
+  object,
+  newdata,
+  getBootstrapVariance = TRUE,
   var.control = varianceControl(B = 100, useMultipleCores = FALSE),
-  type = "none", alpha = 0.05, tL = NULL, tU = NULL, ...)
+  type = "none",
+  alpha = 0.05,
+  tL = NULL,
+  tU = NULL,
+  ...
+)
 }
 \arguments{
 \item{object}{Output from \code{fcrr} object.}

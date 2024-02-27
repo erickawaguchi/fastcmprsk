@@ -1,13 +1,23 @@
 Package: fastcmprsk
 Information: A scalable and fast approach for penalized and unpenalized Fine-Gray estimation.
-Version: 1.1.2
+Version: 1.20.6
 Author: Eric S. Kawaguchi
 Contact: ekawaguc [at] usc.edu
 Reference:
 
 ---------------------------------------------------------------------------------
+RELEASE 1.20.6 (Jun. 2020)
+1) Allows for Fine-Gray regression w.o presence of right censoring.
+
+---------------------------------------------------------------------------------
+RELEASE 1.20.4 (Apr. 2020)
+1) New version name! (1.x.y stands for Year X, Quarter Y)
+2) Allowable extraction of bootstrap matrix
+
+---------------------------------------------------------------------------------
 RELEASE 1.1.2 (Oct. 2019)
 1) Modified ```Crisk``` function to properly allow for non-standard censoring coding
+
 ---------------------------------------------------------------------------------
 RELEASE 1.1.1 (Sept. 2019)
 1) Initial CRAN release.
@@ -28,7 +38,6 @@ RELEASE 1.0.1
 1) Allow to use multiple cores for bootstrapping (initial).
 2) Incorporated LRT to fastCrr output.
 3) Allow for one-dimensional covariates (covariate vector to matrix internally).
----------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------
 RELEASE 1.0.0 represents the first release of the package to the public.

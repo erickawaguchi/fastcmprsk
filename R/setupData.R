@@ -30,6 +30,7 @@ setupData <- function(ftime, fstatus, X, cencode, failcode, standardize) {
     scale <- 1
     center <- 0
   }
+
   return(list(
     ftime = ftime,
     fstatus = fstatus,

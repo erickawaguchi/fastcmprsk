@@ -4,7 +4,12 @@
 \alias{varianceControl}
 \title{Controls for Variance Calculation}
 \usage{
-varianceControl(B = 100L, seed = 1991L, useMultipleCores = FALSE)
+varianceControl(
+  B = 100L,
+  seed = 1991L,
+  useMultipleCores = FALSE,
+  extractMatrix = FALSE
+)
 }
 \arguments{
 \item{B}{Integer: Number of bootstrap samples needed for variance estimation.}
@@ -12,12 +17,15 @@ varianceControl(B = 100L, seed = 1991L, useMultipleCores = FALSE)
 \item{seed}{Integer: Seed value for bootstrapping. Results may differ if parallelized.}
 
 \item{useMultipleCores}{Logical: Set to TRUE if parallelizing. (Default is FALSE).}
+
+\item{extractMatrix}{Logical: Extract matrix of bootstrap estimates (Default is FALSE)}
 }
 \value{
 Returns a list for variance options inputted into \code{fastCrr}.
-\item{B}{same as what is defined in function.}
-\item{seed}{same as what is defined in function.}
-\item{useMultipleCores}{same as what is defined in function.}
+\item{B}{same as what is defined in argument.}
+\item{seed}{same as what is defined in argument.}
+\item{mcores}{same as what is defined in argument \code{useMultipleCores}.}
+\item{extract}{same as what is defined in argument \code{extractMatrix}.}
 }
 \description{
 Controls for variance calculation for the fastcmprsk package.

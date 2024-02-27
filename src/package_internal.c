@@ -8,13 +8,14 @@
 */
 
   /* .C calls */
-  extern void getBreslowJumps(void *, void *, void *, void *, void *, void *, void *, void *);
+extern void getBreslowJumps(void *, void *, void *, void *, void *, void *, void *, void *);
 extern void getGradientAndHessian(void *, void *, void *, void *, void *, void *, void *, void *);
 
 /* .Call calls */
-  extern SEXP ccd_dense(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP ccd_dense(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP ccd_dense_enet(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP ccd_dense_pen(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP ccd_dense_gpen(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP standardize(SEXP);
 
 static const R_CMethodDef CEntries[] = {
@@ -27,6 +28,7 @@ static const R_CallMethodDef CallEntries[] = {
   {"ccd_dense",      (DL_FUNC) &ccd_dense,       6},
   {"ccd_dense_enet", (DL_FUNC) &ccd_dense_enet,  9},
   {"ccd_dense_pen",  (DL_FUNC) &ccd_dense_pen,  10},
+  {"ccd_dense_gpen",  (DL_FUNC) &ccd_dense_gpen, 11},
   {"standardize",    (DL_FUNC) &standardize,     1},
   {NULL, NULL, 0}
 };

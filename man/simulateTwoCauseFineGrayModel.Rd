@@ -4,8 +4,16 @@
 \alias{simulateTwoCauseFineGrayModel}
 \title{Simulate data from the Fine-Gray Model}
 \usage{
-simulateTwoCauseFineGrayModel(nobs, beta1, beta2, X = NULL, u.min = 0,
-  u.max, p = 0.5, returnX = FALSE)
+simulateTwoCauseFineGrayModel(
+  nobs,
+  beta1,
+  beta2,
+  X = NULL,
+  u.min = 0,
+  u.max,
+  p = 0.5,
+  returnX = FALSE
+)
 }
 \arguments{
 \item{nobs}{Integer: Number of observations in simulated dataset.}
