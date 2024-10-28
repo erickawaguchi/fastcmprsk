@@ -35,3 +35,19 @@ test_that("Crisk correctly categorizes event types", {
   expect_equivalent(test1[, 2], c(2, 0, 2, 1, 1, 0, 0, 0, 2, 2))
 })
 
+
+
+test_that("Crisk correctly categorizes event types for more than one competing event", {
+  ftime <- 1:15
+  fstatus <- c(0, 1, 0, 2, 2, 1, 1, 1, 0, 0, 3, 3, 3, 3, 3)
+
+  test1 <- Crisk(ftime, fstatus, cencode = 2, failcode = 0)
+  expect_equivalent(test1[, 2], c(1, 2, 1, 0, 0, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2))
+
+  test1 <- Crisk(ftime, fstatus, cencode = 1, failcode = 2)
+  expect_equivalent(test1[, 2], c(2, 0, 2, 1, 1, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2))
+
+  test1 <- Crisk(ftime, fstatus, cencode = 0, failcode = 3)
+  expect_equivalent(test1[, 2], c(0, 2, 0, 2, 2, 2, 2, 2, 0, 0, 1, 1, 1, 1, 1))
+})
+

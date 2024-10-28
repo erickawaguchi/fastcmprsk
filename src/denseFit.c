@@ -42,21 +42,21 @@ SEXP ccd_dense(SEXP x_, SEXP t2_, SEXP ici_, SEXP wt_,
     for (int i = 0; i <  n; i++) lp[i] = 0;
 
     //Intermediate quantities for internal use (must be freed afterwards!)
-    double *a = Calloc(p, double); // Beta from previous iteration
+    double *a = calloc(p, sizeof(double)); // Beta from previous iteration
     for (int j = 0; j < p; j++) a[j] = 0;
-    double *st = Calloc(n, double);
+    double *st = calloc(n, sizeof(double));
     for (int i = 0; i < n; i++) st[i] = 0;
-    double *w = Calloc(n, double);
+    double *w = calloc(n, sizeof(double));
     for ( int i = 0; i < n; i++) w[i] = 0;
-    double *eta = Calloc(n, double);
+    double *eta = calloc(n, sizeof(double));
     for (int i = 0; i < n; i++) eta[i] = 0;
-    double *diffBeta = Calloc(p, double);
+    double *diffBeta = calloc(p, sizeof(double));
     for (int j = 0; j < p; j++) diffBeta[j] = 1;
-    double *accNum1 = Calloc(n, double); //accumulate the backwards numerator
+    double *accNum1 = calloc(n, sizeof(double)); //accumulate the backwards numerator
     for (int i = 0; i < n; i++) accNum1[i] = 0;
-    double *accNum2 = Calloc(n, double); //acumulate the foreward numerator (weighted)
+    double *accNum2 = calloc(n, sizeof(double)); //acumulate the foreward numerator (weighted)
     for (int i = 0; i < n; i++) accNum2[i] = 0;
-    double *accSum = Calloc(n, double); //accumulate sum over both accNum1 and accNum2
+    double *accSum = calloc(n, sizeof(double)); //accumulate sum over both accNum1 and accNum2
     for (int i = 0; i < n; i++) accSum[i] = 0;
 
 
@@ -233,15 +233,15 @@ SEXP ccd_dense(SEXP x_, SEXP t2_, SEXP ici_, SEXP wt_,
         if (converged)  break;
     } //for while loop
 
-    // Free Calloc variables:
-    Free(a);
-    Free(eta);
-    Free(st);
-    Free(w);
-    Free(diffBeta);
-    Free(accNum1);
-    Free(accNum2);
-    Free(accSum);
+    // free calloc variables:
+    free(a);
+    free(eta);
+    free(st);
+    free(w);
+    free(diffBeta);
+    free(accNum1);
+    free(accNum2);
+    free(accSum);
 
     res = getResultsCrr(beta, Dev, iter, residuals, score, hessian, linpred);
     return(res);

@@ -8,6 +8,7 @@
 #' @param data a data.frame in which to interpret the variables named in the formula.
 #' @param eps Numeric: algorithm stops when the relative change in any coefficient is less than \code{eps} (default is \code{1E-6})
 #' @param max.iter Numeric: maximum iterations to achieve convergence (default is 1000)
+#' @param getBreslowJumps Logical: Output jumps in Breslow estimator for the cumulative hazard (one for each value of lambda).
 #' @param standardize Logical: Standardize design matrix.
 #' @param penalty Character: Penalty to be applied to the model. Options are "lasso", "scad", "ridge", "mcp", and "enet".
 #' @param lambda A user-specified sequence of \code{lambda} values for tuning parameters.
@@ -59,6 +60,7 @@
 fastCrrp <- function(formula, data,
                     eps = 1E-6,
                     max.iter = 1000,
+                    getBreslowJumps = TRUE,
                     standardize = TRUE,
                     penalty = c("LASSO", "RIDGE", "MCP", "SCAD", "ENET"),
                     lambda = NULL, alpha = 0,
@@ -104,34 +106,7 @@ fastCrrp <- function(formula, data,
   n <- length(ftime)
   p <- ncol(X)
   cencode = 0; failcode = 1 #Preset
-  d <- data.frame(ftime = ftime, fstatus = fstatus)
-  if (!missing(X)) d$X <- as.matrix(X)
-  d        <- d[order(d$ftime, -d$fstatus, decreasing = TRUE), ]
-  ftime    <- d$ftime
-  cenind   <- ifelse(d$fstatus == cencode, 1, 0)
-  fstatus  <- ifelse(d$fstatus == failcode, 1, 2 * (1 - cenind))
-  X <- d$X
-  u <- do.call('survfit', list(formula = Surv(ftime, cenind) ~ 1,
-                               data = data.frame(ftime, cenind)))
-
-  # uuu is weight function (IPCW)
-  u <- approx(c(0, u$time, max(u$time) * (1 + 10 * .Machine$double.eps)), c(1, u$surv, 0),
-              xout = ftime * (1 - 100 * .Machine$double.eps), method = 'constant',
-              f = 0, rule = 2)
-  uuu <- u$y
-
-  # Standardize design matrix here
-  if(standardize) {
-  std    <- .Call("standardize", X, PACKAGE = "fastcmprsk")
-  XX     <- std[[1]]
-  center <- std[[2]]
-  scale  <- std[[3]]
-  nz <- which(scale > 1e-6)
-  if (length(nz) != ncol(XX)) XX <- XX[ , nz, drop = FALSE]
-  } else {
-    XX <- X
-    scale <- 1
-  }
+  dat <- setupData(ftime, fstatus, X, cencode, failcode, standardize)
 
   # Create data-driven lambda path if one is not provided
   if(is.null(lambda)) {
@@ -139,15 +114,15 @@ fastCrrp <- function(formula, data,
     if(nlambda < 1) stop("nlambda must be larger than one")
 
     eta0 <- rep(0, n) #Linear predictor when beta = 0
-    sw <- .C("getGradientAndHessian", as.double(ftime), as.integer(fstatus),
-             as.integer(n), as.double(uuu),
+    sw <- .C("getGradientAndHessian", as.double(dat$ftime), as.integer(dat$fstatus),
+             as.integer(n), as.double(dat$wt),
              as.double(eta0), double(n), double(n), double(1),
              PACKAGE = "fastcmprsk") #Linearized version of crrp function
     score0 <- sw[[6]]
     w0 <- sw[[8]]
     r0 <- ifelse(w0 == 0, 0, score0 / w0)
     z <- eta0 + r0
-    lambda.max <- max(t(w0 * z) %*% XX) / n # TO DO: Import this into C
+    lambda.max <- max(t(w0 * z) %*% dat$X) / n # TO DO: Import this into C
     lambda = 10^(seq(log10(lambda.max), log10(lambda.min.ratio * lambda.max), len = nlambda))
   }
 
@@ -159,22 +134,36 @@ fastCrrp <- function(formula, data,
   nlambda <- length(lambda)
 
   # Fit the PSH penalized model
-  if(missing(penalty.factor)) penalty.factor = rep(1, ncol(X))
+  if(missing(penalty.factor)) penalty.factor = rep(1, p)
 
   if(penalty %in% c("LASSO", "RIDGE", "MCP", "SCAD")) {
-  denseFit   <- .Call("ccd_dense_pen", XX, as.numeric(ftime), as.integer(fstatus), uuu,
+  denseFit   <- .Call("ccd_dense_pen", dat$X, as.numeric(dat$ftime), as.integer(dat$fstatus), dat$wt,
                       eps, as.integer(max.iter), penalty, as.double(lambda),
                       as.double(penalty.factor), as.double(gamma), PACKAGE = "fastcmprsk")
 
-  bhat <- matrix(denseFit[[1]], p, length(lambda)) / scale
+  bhat <- matrix(denseFit[[1]], p, length(lambda)) / dat$scale
   } else {
     #Elastic Net regression
-    denseFit   <- .Call("ccd_dense_enet", XX, as.numeric(ftime), as.integer(fstatus), uuu,
+    denseFit   <- .Call("ccd_dense_enet", dat$X, as.numeric(dat$ftime), as.integer(dat$fstatus), dat$wt,
                         eps, as.integer(max.iter), as.double(alpha), as.double(lambda),
                         as.double(penalty.factor), PACKAGE = "fastcmprsk")
-    bhat <- matrix(denseFit[[1]], p, length(lambda)) / scale
+    bhat <- matrix(denseFit[[1]], p, length(lambda)) / dat$scale
   }
   colnames(bhat) <- round(lambda, 4)
+
+  # Calculate Breslow Baseline
+  if(getBreslowJumps) {
+    jump = matrix(NA, ncol = length(lambda) + 1, nrow = length(unique(ftime[fstatus == 1])))
+    jump[, 1] = unique(rev(dat$ftime[dat$fstatus == 1]))
+    for(l in 1:length(lambda)) {
+      bjump = .C("getBreslowJumps", as.double(dat$ftime), as.integer(dat$fstatus), as.double(sweep(sweep(dat$X, 2, dat$scale, "*"), 2, dat$center, `+`)),
+                 as.integer(p), as.integer(n), as.double(dat$wt), as.double(bhat[, l]), double(sum(fstatus == 1)),
+                 PACKAGE = "fastcmprsk")
+      jump[, l + 1] = as.vector(rev(unique(bjump[[8]])) * table(dat$ftime[dat$fstatus == 1], dat$fstatus[dat$fstatus == 1]))
+    }
+    colnames(jump) = c("time", paste0("Lam = ", round(lambda, 4)))
+    getBreslowJumps <- data.frame(jump)
+  } #End Breslow jump
 
   #Results to store:
   val <- structure(list(coef = bhat,
@@ -183,7 +172,8 @@ fastCrrp <- function(formula, data,
                         lambda.path = lambda,
                         iter = denseFit[[3]],
                         converged = denseFit[[8]],
-                        uftime = unique(rev(ftime[fstatus == 1])),
+                        breslowJump = getBreslowJumps,
+                        uftime = unique(rev(dat$ftime[dat$fstatus == 1])),
                         penalty = penalty,
                         gamma = gamma,
                         alpha = alpha,

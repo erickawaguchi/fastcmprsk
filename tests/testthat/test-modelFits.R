@@ -1,7 +1,7 @@
 library("testthat")
 library("fastcmprsk")
 library("cmprsk")
-library("crrp")
+#library("crrp")
 
 context("test-modelFits.R")
 
@@ -82,6 +82,26 @@ test_that("Compare crr with fastCrr (CIF)", {
   expect_equal(p1, p2, tolerance = 1E-4)
 })
 
+
+test_that("Compare CIF prediction to coxph (with no competing risk)", {
+  set.seed(4291)
+  ftime <- rexp(200)
+  fstatus <- sample(0:1,200,replace=TRUE)
+  cov <- matrix(runif(600),nrow=200)
+
+  fit.cox  <- coxph(Surv(ftime, fstatus) ~ cov)
+  fit.fast <- fastCrr(Crisk(ftime, fstatus) ~ cov, variance = FALSE, returnDataFrame = TRUE)
+
+
+  z0 <- rnorm(3) # Covariate profile to predict
+  p.cox <- unique(1 - exp(-basehaz(fit.cox, centered = FALSE)[, 1])^exp(c(fit.cox$coef %*% z0)))[-1]
+  p.crr <- predict(fit.fast, newdata = z0, getBootstrapVariance = FALSE)$CIF
+
+  expect_equal(p.cox, p.crr , tolerance = 1E-4)
+})
+
+
+
 test_that("Compare crr with fastCrr w/o censoring", {
   set.seed(4291)
   ftime <- rexp(200)
@@ -94,4 +114,32 @@ test_that("Compare crr with fastCrr w/o censoring", {
 
   expect_equal(as.vector(fit.crr$coef), as.vector(fit.fast$coef), tolerance = 1E-4)
 
+})
+
+
+test_that("Compare fastCrrp with lambda = 0 to fastCrr (beta coefficients)", {
+  set.seed(4291)
+  ftime <- rexp(200)
+  fstatus <- sample(0:2,200,replace=TRUE)
+  cov <- matrix(runif(600),nrow=200)
+
+  # Expect a warning due to no censoring code
+  fit.lasso <- fastCrrp(Crisk(ftime, fstatus) ~ cov, penalty = "LASSO", lambda = 0)
+  fit.cr <- fastCrr(Crisk(ftime, fstatus) ~ cov)
+
+  expect_equal(as.vector(fit.lasso$coef), as.vector(fit.cr$coef), tolerance = 1E-4)
+})
+
+
+test_that("Compare fastCrrp with lambda = 0 to fastCrr (cumulative hazard)", {
+  set.seed(4291)
+  ftime <- rexp(200)
+  fstatus <- sample(0:2,200,replace=TRUE)
+  cov <- matrix(runif(600),nrow=200)
+
+  # Expect a warning due to no censoring code
+  fit.lasso <- fastCrrp(Crisk(ftime, fstatus) ~ cov, penalty = "LASSO", lambda = 0)
+  fit.cr <- fastCrr(Crisk(ftime, fstatus) ~ cov)
+
+  expect_equal(as.vector(fit.lasso$breslowJump[, 2]), as.vector(fit.cr$breslowJump[, 2]), tolerance = 1E-4)
 })

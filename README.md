@@ -6,10 +6,10 @@ Official CRAN release is available [here](https://CRAN.r-project.org/package=fas
 
 NOTE TO USERS: We plan to make monthly/quarterly updates to the package!
 
-What’s New in Version 1.22.1?
+What’s New in Version 1.24.10?
 ========
 
-1. Allows for Fine-Gray regression w.o presence of right censoring.
+1. Made modification to allow for more than one competing risk.
 
 Features
 ========
@@ -33,7 +33,7 @@ devtools::install_github(“erickawaguchi/fastcmprsk”)
 
 System Requirements
 ===================
-Requires R (version 4.0.0 or higher). 
+Requires R (version 4.4.0 or higher). 
 
  
 User Documentation
