@@ -73,7 +73,7 @@ double getLogLikelihood(double *t2, int *ici, double *eta, double *wt, int nin)
   double loglik = 0; //store loglik
 
   //Pointers to be freed later
-  double *accSum = Calloc(n, double); //accumulate sum over both accNum1 and accNum2
+  double *accSum = calloc(n, sizeof(double)); //accumulate sum over both accNum1 and accNum2
   for (int i = 0; i < n; i++) accSum[i] = 0;
 
   //Note: t2, ici, and x should be ordered in DECREASING order. (First time is largest)
@@ -114,7 +114,7 @@ double getLogLikelihood(double *t2, int *ici, double *eta, double *wt, int nin)
     if (ici[i] != 1) continue;
     loglik  -= log(accSum[i]);
   }
-  Free(accSum);
+  free(accSum);
   return loglik;
 }
 
@@ -128,9 +128,9 @@ void getBreslowJumps(double *t2, int *ici, double *x, int *ncov, int *nin, doubl
   double tmp2 = 0; //track forward sum for competing risks risk set
 
   //Pointers to be freed later
-  double *eta = Calloc(n, double); //accumulate sum over both accNum1 and accNum2
+  double *eta = calloc(n, sizeof(double)); //accumulate sum over both accNum1 and accNum2
   for (int i = 0; i < n; i++) eta[i] = 0;
-  double *accSum = Calloc(n, double); //accumulate sum over both accNum1 and accNum2
+  double *accSum = calloc(n, sizeof(double)); //accumulate sum over both accNum1 and accNum2
   for (int i = 0; i < n; i++) accSum[i] = 0;
 
   for (int i = 0; i < n; i++) {
@@ -181,8 +181,8 @@ void getBreslowJumps(double *t2, int *ici, double *x, int *ncov, int *nin, doubl
     count += 1;
   }
 
-  Free(eta);
-  Free(accSum);
+  free(eta);
+  free(accSum);
 }
 
 
@@ -193,11 +193,11 @@ void getGradientAndHessian(double *t2, int *ici, int *nin, double *wt,
   const int  n = nin[0];
 
   // pointers (to be freed later)
-  double *accNum1 = Calloc(n, double); //accumulate the backwards numerator
+  double *accNum1 = calloc(n, sizeof(double)); //accumulate the backwards numerator
   for (int i = 0; i < n; i++) accNum1[i] = 0;
-  double *accNum2 = Calloc(n, double); //acumulate the foreward numerator (weighted)
+  double *accNum2 = calloc(n, sizeof(double)); //acumulate the foreward numerator (weighted)
   for (int i = 0; i < n; i++) accNum2[i] = 0;
-  double *accSum = Calloc(n, double); //accumulate sum over both accNum1 and accNum2
+  double *accSum = calloc(n, sizeof(double)); //accumulate sum over both accNum1 and accNum2
   for (int i = 0; i < n; i++) accSum[i] = 0;
 
   double tmp1 = 0; //track backward sum for uncensored events risk set
@@ -306,9 +306,9 @@ void getGradientAndHessian(double *t2, int *ici, int *nin, double *wt,
   }
 
   *lik = loglik;
-  Free(accNum1);
-  Free(accNum2);
-  Free(accSum);
+  free(accNum1);
+  free(accNum2);
+  free(accSum);
 }
 
 //Calculate null gradient
@@ -317,11 +317,11 @@ void getNullGradient(double *t2, int *ici, int *nin, double *wt, double *st)
   const int  n = nin[0];
 
   // pointers (to be freed later)
-  double *accNum1 = Calloc(n, double); //accumulate the backwards numerator
+  double *accNum1 = calloc(n, sizeof(double)); //accumulate the backwards numerator
   for (int i = 0; i < n; i++) accNum1[i] = 0;
-  double *accNum2 = Calloc(n, double); //acumulate the foreward numerator (weighted)
+  double *accNum2 = calloc(n, sizeof(double)); //acumulate the foreward numerator (weighted)
   for (int i = 0; i < n; i++) accNum2[i] = 0;
-  double *accSum = Calloc(n, double); //accumulate sum over both accNum1 and accNum2
+  double *accSum = calloc(n, sizeof(double)); //accumulate sum over both accNum1 and accNum2
   for (int i = 0; i < n; i++) accSum[i] = 0;
 
   double tmp1 = 0; //track backward sum for uncensored events risk set
@@ -418,7 +418,7 @@ void getNullGradient(double *t2, int *ici, int *nin, double *wt, double *st)
     }
   }
 
-  Free(accNum1);
-  Free(accNum2);
-  Free(accSum);
+  free(accNum1);
+  free(accNum2);
+  free(accSum);
 }

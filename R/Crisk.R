@@ -47,7 +47,7 @@ Crisk <- function(ftime, fstatus, cencode = 0, failcode = 1, silent = TRUE) {
   #Modify fstatus so that censoring will be set to 0, event of interest to 1 and (any) competing risks to 2
   fstatus.censor <- which(fstatus == cencode)
   fstatus.event  <- which(fstatus == failcode)
-  fstatus.crisk  <- which(fstatus == crisk.ind)
+  fstatus.crisk  <- which(fstatus %in% crisk.ind)
 
   obj <- suppressWarnings(Surv(ftime, fstatus)) # Suppress warning given by Surv function
   obj[fstatus.censor, 2] = 0

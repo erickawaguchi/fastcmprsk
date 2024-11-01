@@ -24,6 +24,7 @@
 
 #' @import survival dynpred
 #' @import foreach
+#' @importFrom methods is
 #' @export
 #' @examples
 #'
@@ -45,7 +46,7 @@ predict.fcrr <- function(object, newdata, getBootstrapVariance = TRUE,
                          type = "none", alpha = 0.05, tL = NULL, tU = NULL, ...){
 
   ## Error checking
-  if(class(object) != "fcrr") {
+  if(!is(object, "fcrr")) {
     stop("Object 'fit' must be of class fcrr")
   }
 

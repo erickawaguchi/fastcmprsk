@@ -9,6 +9,7 @@ fastCrrp(
   data,
   eps = 1e-06,
   max.iter = 1000,
+  getBreslowJumps = TRUE,
   standardize = TRUE,
   penalty = c("LASSO", "RIDGE", "MCP", "SCAD", "ENET"),
   lambda = NULL,
@@ -27,6 +28,8 @@ fastCrrp(
 \item{eps}{Numeric: algorithm stops when the relative change in any coefficient is less than \code{eps} (default is \code{1E-6})}
 
 \item{max.iter}{Numeric: maximum iterations to achieve convergence (default is 1000)}
+
+\item{getBreslowJumps}{Logical: Output jumps in Breslow estimator for the cumulative hazard (one for each value of lambda).}
 
 \item{standardize}{Logical: Standardize design matrix.}
 
